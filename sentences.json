@@ -1,0 +1,3236 @@
+[
+  {
+    "id": "d01",
+    "en": "Could you say that again more slowly, please?",
+    "zh": "你能再说慢一点吗？",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "连读",
+      "礼貌请求"
+    ],
+    "note": "Could you 连读为 /kʊdʒu/；slowly 的 /l/ 要清晰，别吞掉。"
+  },
+  {
+    "id": "d02",
+    "en": "I'm just looking around, thank you.",
+    "zh": "我只是随便看看，谢谢。",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "弱读"
+    ],
+    "note": "just 中 t 弱读；looking around 可连读。"
+  },
+  {
+    "id": "d03",
+    "en": "What do you usually do on weekends?",
+    "zh": "你周末通常做什么？",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "重音"
+    ],
+    "note": "usually 重音在第一个音节 /ˈjuːʒəli/；weekends 重音在 week。"
+  },
+  {
+    "id": "d04",
+    "en": "I'd like to book a table for two, please.",
+    "zh": "我想订一张两人桌。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "连读",
+      "缩读"
+    ],
+    "note": "I'd like to 中 like to 常弱读为 /laɪktə/；book 长元音 /ʊ/。"
+  },
+  {
+    "id": "d05",
+    "en": "How long does it take to get to the airport?",
+    "zh": "到机场要多久？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "弱读",
+      "语速"
+    ],
+    "note": "does it take 连读；airport 双音节，重音在前。"
+  },
+  {
+    "id": "d06",
+    "en": "Sorry, I didn't catch your name.",
+    "zh": "抱歉，我没听清你的名字。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "口语习语"
+    ],
+    "note": "catch 此处意为“听清”；didn't 的 /t/ 可失爆。"
+  },
+  {
+    "id": "d07",
+    "en": "Could you recommend something to eat?",
+    "zh": "你能推荐点吃的吗？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "重音",
+      "词首辅音"
+    ],
+    "note": "recommend 重音在第二音节 /ˌrekəˈmend/；something 的 /θ/ 咬舌。"
+  },
+  {
+    "id": "d08",
+    "en": "I'm having a hard time following the lecture.",
+    "zh": "我有点跟不上这个讲座。",
+    "cat": "daily",
+    "level": "B2",
+    "tags": [
+      "习语",
+      "连读"
+    ],
+    "note": "have a hard time doing 是固定搭配；following 注意 /l/。"
+  },
+  {
+    "id": "d09",
+    "en": "Let's grab a coffee after work.",
+    "zh": "下班一起喝杯咖啡吧。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "连读",
+      "口语缩略"
+    ],
+    "note": "grab a 连读；after work 中 t 可轻触。"
+  },
+  {
+    "id": "d10",
+    "en": "It's up to you, I don't mind.",
+    "zh": "听你的，我都行。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "习语"
+    ],
+    "note": "up to you 连读；mind 的 /d/ 尾音轻收。"
+  },
+  {
+    "id": "d11",
+    "en": "I've been learning English for about two years.",
+    "zh": "我学英语大概两年了。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "完成进行时"
+    ],
+    "note": "I've been 连读；learning 的 /r/ 卷舌；about 的 /aʊ/。"
+  },
+  {
+    "id": "d12",
+    "en": "Could you explain that in a simpler way?",
+    "zh": "你能用更简单的方式解释一下吗？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "重音"
+    ],
+    "note": "explain 重音在第二音节；simpler 比较级别漏掉 /r/。"
+  },
+  {
+    "id": "d13",
+    "en": "I'm not really into spicy food.",
+    "zh": "我不太爱吃辣。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "习语"
+    ],
+    "note": "be into 表示“喜欢”；spicy 的 /aɪ/ 双元音饱满。"
+  },
+  {
+    "id": "d14",
+    "en": "How's everything going with your new job?",
+    "zh": "你的新工作进展怎么样？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "连读"
+    ],
+    "note": "How's everything 连读；going with 可衔接。"
+  },
+  {
+    "id": "d15",
+    "en": "Could I have the bill, please?",
+    "zh": "请把账单给我好吗？",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "礼貌请求"
+    ],
+    "note": "bill 双元音 /ɪl/；have 弱读为 /həv/。"
+  },
+  {
+    "id": "s01",
+    "en": "Look who finally decided to show up.",
+    "zh": "看看是谁终于肯露面了。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "连读",
+      "语气"
+    ],
+    "note": "show up 是固定短语“露面”；decided to 中 t 弱读。"
+  },
+  {
+    "id": "s02",
+    "en": "You have no idea what I've been through.",
+    "zh": "你根本不知道我经历了什么。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "习语",
+      "完成时"
+    ],
+    "note": "have no idea 连读；been through 表示“经历（磨难）”。"
+  },
+  {
+    "id": "s03",
+    "en": "That's easier said than done, you know.",
+    "zh": "说起来容易做起来难，你懂的。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "习语",
+      "比较级"
+    ],
+    "note": "easier said than done 是常用谚语；than 弱读。"
+  },
+  {
+    "id": "s04",
+    "en": "I didn't see this coming at all.",
+    "zh": "我完全没料到会这样。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "口语习语"
+    ],
+    "note": "see sth coming 表示“预见到”；at all 尾音轻读。"
+  },
+  {
+    "id": "s05",
+    "en": "Give me one good reason why I should believe you.",
+    "zh": "给我一个该相信你的像样理由。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "重音",
+      "长句停顿"
+    ],
+    "note": "reason why 中 /n/ 衔接；长句在 reason 后停顿。"
+  },
+  {
+    "id": "s06",
+    "en": "We need to talk, and it can't wait.",
+    "zh": "我们得谈谈，这事不能再拖。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "停顿",
+      "弱读"
+    ],
+    "note": "can't 在美音中 /kænt/；talk 后短暂停顿表郑重。"
+  },
+  {
+    "id": "s07",
+    "en": "You're making a big deal out of nothing.",
+    "zh": "你这是小题大做。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "习语"
+    ],
+    "note": "make a big deal out of 是固定搭配；nothing 的 /θ/ 咬舌。"
+  },
+  {
+    "id": "s08",
+    "en": "Trust me, this is going to work out.",
+    "zh": "相信我，这事会顺利的。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "习语"
+    ],
+    "note": "work out 表示“成功、解决”；going to 口语常缩为 gonna。"
+  },
+  {
+    "id": "s09",
+    "en": "I owe you one for what you did today.",
+    "zh": "你今天帮了我，我欠你个人情。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "习语"
+    ],
+    "note": "owe /oʊ/ 双元音；owe you one 连读。"
+  },
+  {
+    "id": "s10",
+    "en": "Don't worry, I've got your back.",
+    "zh": "别担心，有我支持你。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "习语"
+    ],
+    "note": "have someone's back 意为“支持某人”；got 短元音。"
+  },
+  {
+    "id": "s11",
+    "en": "It's never too late to start over.",
+    "zh": "重新开始永远都不晚。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "不定式"
+    ],
+    "note": "start over 表示“重来”；never 的 /v/ 上齿触下唇。"
+  },
+  {
+    "id": "s12",
+    "en": "What's the worst that could happen?",
+    "zh": "最坏又能怎样呢？",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "连读",
+      "虚拟语气"
+    ],
+    "note": "worst that 连读；could happen 中 /d/ 可失爆。"
+  },
+  {
+    "id": "a01",
+    "en": "The little rabbit hopped across the green meadow.",
+    "zh": "小兔子跳过了绿色的草地。",
+    "cat": "animation",
+    "level": "A2",
+    "tags": [
+      "辅音连缀"
+    ],
+    "note": "rabbit 双写 b；hopped 的 /pt/ 尾音轻收；meadow 重音在前。"
+  },
+  {
+    "id": "a02",
+    "en": "Once upon a time, there was a friendly dragon.",
+    "zh": "从前，有一只友善的小龙。",
+    "cat": "animation",
+    "level": "A2",
+    "tags": [
+      "故事开场"
+    ],
+    "note": "Once upon a time 是童话开场白；friendly 的 /fr/ 辅音连缀。"
+  },
+  {
+    "id": "a03",
+    "en": "We can build a castle out of blocks today.",
+    "zh": "我们今天可以用积木搭一座城堡。",
+    "cat": "animation",
+    "level": "A2",
+    "tags": [
+      "连读"
+    ],
+    "note": "build a 连读；castle 的 /t/ 不发音；blocks 尾音 /ks/。"
+  },
+  {
+    "id": "a04",
+    "en": "The stars twinkled like tiny lights in the sky.",
+    "zh": "星星像天空中的小光点一样闪烁。",
+    "cat": "animation",
+    "level": "B1",
+    "tags": [
+      "辅音连缀"
+    ],
+    "note": "twinkled 中 /tw/；stars 的 /ts/；sky 双元音 /aɪ/。"
+  },
+  {
+    "id": "a05",
+    "en": "Don't be afraid, I'll stay right beside you.",
+    "zh": "别害怕，我会一直陪在你身边。",
+    "cat": "animation",
+    "level": "A2",
+    "tags": [
+      "安慰用语"
+    ],
+    "note": "afraid 重音在第二音节；beside 的 /s/ 清辅音。"
+  },
+  {
+    "id": "a06",
+    "en": "The puppy wagged its tail and ran to the door.",
+    "zh": "小狗摇着尾巴跑向门口。",
+    "cat": "animation",
+    "level": "A2",
+    "tags": [
+      "过去式"
+    ],
+    "note": "wagged /wæɡd/；its 不要读成 it's；tail 双元音 /eɪ/。"
+  },
+  {
+    "id": "a07",
+    "en": "If you try again, you will get better.",
+    "zh": "再试一次，你就会进步的。",
+    "cat": "animation",
+    "level": "A2",
+    "tags": [
+      "条件句"
+    ],
+    "note": "better 双 /t/ 美音卷舌；again 重音在后。"
+  },
+  {
+    "id": "a08",
+    "en": "The wind carried the leaves across the garden.",
+    "zh": "风把树叶吹过了花园。",
+    "cat": "animation",
+    "level": "B1",
+    "tags": [
+      "过去式",
+      "v/w"
+    ],
+    "note": "wind 此处名词 /wɪnd/；leaves 的 /v/ 上齿触下唇，勿读成 w。"
+  },
+  {
+    "id": "a09",
+    "en": "We shared our snacks and laughed all afternoon.",
+    "zh": "我们分享零食，笑了一整个下午。",
+    "cat": "animation",
+    "level": "B1",
+    "tags": [
+      "连读"
+    ],
+    "note": "shared our 连读；laughed 的 /f/ 清辅音；afternoon 重音在后半。"
+  },
+  {
+    "id": "a10",
+    "en": "A rainbow appeared after the rain stopped.",
+    "zh": "雨停后出现了一道彩虹。",
+    "cat": "animation",
+    "level": "B1",
+    "tags": [
+      "重音"
+    ],
+    "note": "rainbow 复合词重音在前；appeared 重音在第二音节。"
+  },
+  {
+    "id": "l01",
+    "en": "To be, or not to be, that is the question.",
+    "zh": "生存还是毁灭，这是一个值得思考的问题。",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "莎剧",
+      "停顿"
+    ],
+    "note": "莎剧名句；question 重音在前；朗读时在逗号处停顿。",
+    "source": "Shakespeare, Hamlet"
+  },
+  {
+    "id": "l02",
+    "en": "It was the best of times, it was the worst of times.",
+    "zh": "那是最好的时代，也是最坏的时代。",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "对仗",
+      "对比"
+    ],
+    "note": "首尾对仗，best 与 worst 对比重读；of 弱读 /əv/。",
+    "source": "Dickens, A Tale of Two Cities"
+  },
+  {
+    "id": "l03",
+    "en": "It is a truth universally acknowledged that a single man in possession of a good fortune must be in want of a wife.",
+    "zh": "凡是有钱的单身汉，必定想娶位太太，这是一条举世公认的真理。",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "长句",
+      "正式语体"
+    ],
+    "note": "长句按意群停顿；universally 重音在第三音节；acknowledged 注意 /n/。",
+    "source": "Austen, Pride and Prejudice"
+  },
+  {
+    "id": "l04",
+    "en": "I am no bird; and no net ensnares me.",
+    "zh": "我不是鸟儿，没有罗网能困住我。",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "文学语体"
+    ],
+    "note": "ensnare /ɪnˈsneər/ 意为“诱捕”；me 尾音轻扬。",
+    "source": "C. Brontë, Jane Eyre"
+  },
+  {
+    "id": "l05",
+    "en": "When you have eliminated the impossible, whatever remains, however improbable, must be the truth.",
+    "zh": "排除一切不可能之后，剩下的无论多么不可思议，必定就是真相。",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "长句",
+      "定语从句"
+    ],
+    "note": "impossible 与 improbable 对比；长句在逗号处换气。",
+    "source": "Conan Doyle, Sherlock Holmes"
+  },
+  {
+    "id": "l06",
+    "en": "What is essential is invisible to the eye.",
+    "zh": "真正重要的东西，用眼睛是看不见的。",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "文学名句"
+    ],
+    "note": "essential 重音在第二音节；invisible 前缀 in- 轻读。",
+    "source": "Saint-Exupéry, The Little Prince"
+  },
+  {
+    "id": "l07",
+    "en": "The mass of men lead lives of quiet desperation.",
+    "zh": "大多数人都在平静的绝望中生活。",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "文学语体"
+    ],
+    "note": "desperation 重音在第三音节；mass 的 /s/ 清辅音。",
+    "source": "Thoreau, Walden"
+  },
+  {
+    "id": "l08",
+    "en": "A penny saved is a penny earned.",
+    "zh": "省一分就是赚一分。",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "谚语"
+    ],
+    "note": "saved 与 earned 对仗；penny 的 /n/ 清晰。",
+    "source": "Franklin"
+  },
+  {
+    "id": "l09",
+    "en": "Early to bed and early to rise makes a man healthy, wealthy, and wise.",
+    "zh": "早睡早起使人健康、富足又明智。",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "排比"
+    ],
+    "note": "healthy / wealthy / wise 三词排比递进；rise 的 /z/ 浊辅音。",
+    "source": "Franklin"
+  },
+  {
+    "id": "l10",
+    "en": "All that glitters is not gold.",
+    "zh": "闪光的未必都是金子。",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "谚语",
+      "双关"
+    ],
+    "note": "glitter 双 /l/；gold 的 /oʊ/ 饱满。",
+    "source": "Shakespeare, The Merchant of Venice"
+  },
+  {
+    "id": "l11",
+    "en": "The fool doth think he is wise, but the wise man knows himself to be a fool.",
+    "zh": "愚人自以为聪明，智者却有自知之明。",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "古语 doth"
+    ],
+    "note": "doth 古英语 does，读 /dʌθ/；fool 长元音 /uː/。",
+    "source": "Shakespeare, As You Like It"
+  },
+  {
+    "id": "l12",
+    "en": "That which does not kill us makes us stronger.",
+    "zh": "凡不能毁灭我的，必使我更强大。",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "定语从句"
+    ],
+    "note": "stronger 比较级 /ŋ/ 后接 /g/；which 咬舌 /wɪtʃ/。",
+    "source": "Nietzsche"
+  },
+  {
+    "id": "l13",
+    "en": "He who has a why to live can bear almost any how.",
+    "zh": "知道为何而活的人，几乎能承受任何一种生活。",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "格言"
+    ],
+    "note": "bear 此处意为“承受”，同音 bare；almost 重音在前。",
+    "source": "Nietzsche"
+  },
+  {
+    "id": "b01",
+    "en": "I'd like to follow up on the proposal we discussed.",
+    "zh": "我想跟进一下我们讨论过的方案。",
+    "cat": "business",
+    "level": "B2",
+    "tags": [
+      "商务短语"
+    ],
+    "note": "follow up on 是固定搭配；proposal 重音在第二音节。"
+  },
+  {
+    "id": "b02",
+    "en": "Could we schedule a meeting to review the timeline?",
+    "zh": "我们能否安排会议评审一下时间进度？",
+    "cat": "business",
+    "level": "B2",
+    "tags": [
+      "商务用语"
+    ],
+    "note": "schedule 美音 /ˈskedʒuːl/；timeline 复合词重音在前。"
+  },
+  {
+    "id": "b03",
+    "en": "Please find the attached report for your reference.",
+    "zh": "随附报告，供您参考。",
+    "cat": "business",
+    "level": "B1",
+    "tags": [
+      "邮件套话"
+    ],
+    "note": "attached 重音在第二音节；reference 重音在前。"
+  },
+  {
+    "id": "b04",
+    "en": "We need to align on the priorities before Friday.",
+    "zh": "我们需要在周五前对齐工作优先级。",
+    "cat": "business",
+    "level": "B2",
+    "tags": [
+      "商务短语"
+    ],
+    "note": "align on 意为“就……达成一致”；priorities 重音在第二音节。"
+  },
+  {
+    "id": "b05",
+    "en": "The quarterly results are better than expected.",
+    "zh": "季度业绩好于预期。",
+    "cat": "business",
+    "level": "B2",
+    "tags": [
+      "商务数字"
+    ],
+    "note": "quarterly 重音在前；expected 注意 /k/ 轻读。"
+  },
+  {
+    "id": "b06",
+    "en": "Could you send me the updated version by tomorrow?",
+    "zh": "你能在明早前把更新版发给我吗？",
+    "cat": "business",
+    "level": "B1",
+    "tags": [
+      "截止时间"
+    ],
+    "note": "updated 重音在第二音节；version 的 /ʒ/ 浊辅音。"
+  },
+  {
+    "id": "b07",
+    "en": "Let's circle back to this point in the next call.",
+    "zh": "我们下次通话再回到这一点上。",
+    "cat": "business",
+    "level": "B2",
+    "tags": [
+      "商务习语"
+    ],
+    "note": "circle back 是商务高频表达；point 双元音 /ɔɪ/。"
+  },
+  {
+    "id": "b08",
+    "en": "I appreciate your feedback on the draft.",
+    "zh": "感谢你对初稿提出的意见。",
+    "cat": "business",
+    "level": "B1",
+    "tags": [
+      "礼貌表达"
+    ],
+    "note": "appreciate 重音在第二音节；feedback 重音在前。"
+  },
+  {
+    "id": "b09",
+    "en": "The client asked us to adjust the delivery plan.",
+    "zh": "客户要求我们调整交付计划。",
+    "cat": "business",
+    "level": "B2",
+    "tags": [
+      "商务用语"
+    ],
+    "note": "adjust 重音在第二音节；delivery 重音在前。"
+  },
+  {
+    "id": "b10",
+    "en": "We should keep stakeholders informed of the progress.",
+    "zh": "我们应让相关方随时了解进展。",
+    "cat": "business",
+    "level": "B2",
+    "tags": [
+      "商务句式"
+    ],
+    "note": "keep sb informed of 是固定结构；stakeholders 音节较多，注意断句。"
+  },
+  {
+    "id": "u01",
+    "en": "You won't believe what happened at work today.",
+    "zh": "你绝对想不到今天单位发生了什么。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "口语习语"
+    ],
+    "note": "won't 缩读；believe what 连读；happen 重音在前。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u02",
+    "en": "I was just about to call you.",
+    "zh": "我正准备给你打电话呢。",
+    "cat": "usshow",
+    "level": "A2",
+    "tags": [
+      "固定搭配"
+    ],
+    "note": "be about to do 表示“正要做”；call you 连读。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u03",
+    "en": "Can we talk about this later? I'm kind of busy right now.",
+    "zh": "这事能晚点说吗？我现在有点忙。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "委婉请求"
+    ],
+    "note": "kind of 口语弱读；later 的 /t/ 轻触。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u04",
+    "en": "That sounds like a really good plan to me.",
+    "zh": "我觉得这计划听起来挺不错。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "连读"
+    ],
+    "note": "sounds like 连读；plan to 中 t 弱读。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u05",
+    "en": "I didn't see you at the party last night.",
+    "zh": "昨晚派对上我没看到你。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "否定句"
+    ],
+    "note": "didn't 的 /t/ 可失爆；party 重音在前。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u06",
+    "en": "You owe me big time for this one.",
+    "zh": "这次你可欠我大人情了。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "口语习语"
+    ],
+    "note": "owe 双元音 /oʊ/；big time 作短语表“大大地”。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u07",
+    "en": "Let's not overthink it and just go with it.",
+    "zh": "别想太多，就顺其自然吧。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "习语"
+    ],
+    "note": "overthink 重音在前；go with it 表示“随它去”。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u08",
+    "en": "I could really use a cup of coffee right now.",
+    "zh": "我现在真想喝杯咖啡。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "固定搭配"
+    ],
+    "note": "could use 表示“很需要”；really 弱读。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u09",
+    "en": "Nobody told me the meeting had been moved.",
+    "zh": "没人告诉我会议改时间了。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "过去完成时"
+    ],
+    "note": "had been moved 被动完成；meeting 双音节。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u10",
+    "en": "We've known each other for way too long.",
+    "zh": "我们认识实在太久了。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "完成时"
+    ],
+    "note": "each other 连读；way too 强调“太过”。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u11",
+    "en": "It's not a big deal, don't get so upset.",
+    "zh": "没什么大不了的，别这么不高兴。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "习语",
+      "安慰"
+    ],
+    "note": "big deal 意为“大事”；upset 重音在第二音节。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u12",
+    "en": "I'm pretty sure I left my keys on the kitchen counter.",
+    "zh": "我很确定我把钥匙放厨房台面上了。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "从句"
+    ],
+    "note": "pretty sure 口语常用；counter 美音卷舌。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "k01",
+    "en": "I suppose we should have seen this coming.",
+    "zh": "我想我们早该料到会这样。",
+    "cat": "ukshow",
+    "level": "B2",
+    "tags": [
+      "情态完成"
+    ],
+    "note": "should have done 表“本应”；see coming 意为“预见”。",
+    "source": "英剧冷峻对话风格"
+  },
+  {
+    "id": "k02",
+    "en": "There's something you're not telling me, isn't there?",
+    "zh": "你有事瞒着我，对吧？",
+    "cat": "ukshow",
+    "level": "B2",
+    "tags": [
+      "反义疑问句"
+    ],
+    "note": "反义疑问 isn't there 尾调上扬；telling me 连读。",
+    "source": "英剧冷峻对话风格"
+  },
+  {
+    "id": "k03",
+    "en": "Keep your voice down, someone might hear us.",
+    "zh": "小声点，有人会听见。",
+    "cat": "ukshow",
+    "level": "B1",
+    "tags": [
+      "祈使句"
+    ],
+    "note": "keep down 压低声量；might 弱读。",
+    "source": "英剧冷峻对话风格"
+  },
+  {
+    "id": "k04",
+    "en": "I'd rather not talk about it right now, if that's alright.",
+    "zh": "如果可以，我现在不想谈这事。",
+    "cat": "ukshow",
+    "level": "B2",
+    "tags": [
+      "委婉表达"
+    ],
+    "note": "would rather not 宁愿不；alright 英式口语拼法。",
+    "source": "英剧冷峻对话风格"
+  },
+  {
+    "id": "k05",
+    "en": "You're not nearly as clever as you think you are.",
+    "zh": "你远没有自己以为的那么聪明。",
+    "cat": "ukshow",
+    "level": "B2",
+    "tags": [
+      "比较级"
+    ],
+    "note": "nearly as...as 比较结构；clever 双 /l/。",
+    "source": "英剧冷峻对话风格"
+  },
+  {
+    "id": "k06",
+    "en": "We have to be careful about who we trust.",
+    "zh": "我们必须谨慎选择信任的人。",
+    "cat": "ukshow",
+    "level": "B2",
+    "tags": [
+      "定语从句"
+    ],
+    "note": "be careful about 后接从句；trust 尾音 /st/。",
+    "source": "英剧冷峻对话风格"
+  },
+  {
+    "id": "k07",
+    "en": "It was a long shot, but it was worth trying.",
+    "zh": "希望虽渺茫，但值得一试。",
+    "cat": "ukshow",
+    "level": "B2",
+    "tags": [
+      "习语"
+    ],
+    "note": "long shot 意为“胜算不大的尝试”；worth doing 结构。",
+    "source": "英剧冷峻对话风格"
+  },
+  {
+    "id": "k08",
+    "en": "Nothing here is quite what it seems.",
+    "zh": "这里的一切都不像表面那样。",
+    "cat": "ukshow",
+    "level": "B2",
+    "tags": [
+      "表语从句"
+    ],
+    "note": "what it seems 表语从句；seems 双元音 /iː/。",
+    "source": "英剧冷峻对话风格"
+  },
+  {
+    "id": "m01",
+    "en": "This is so boring, can we do something else?",
+    "zh": "这也太无聊了，我们干点别的吧？",
+    "cat": "animation",
+    "level": "A2",
+    "tags": [
+      "感叹",
+      "选择"
+    ],
+    "note": "so boring 强调；something else 连读。",
+    "source": "动漫日常风格"
+  },
+  {
+    "id": "m02",
+    "en": "I don't really care what other people think.",
+    "zh": "我不太在乎别人怎么想。",
+    "cat": "animation",
+    "level": "B1",
+    "tags": [
+      "宾语从句"
+    ],
+    "note": "care what 衔接；other people 中 /ð/ 咬舌。",
+    "source": "动漫日常风格"
+  },
+  {
+    "id": "m03",
+    "en": "You should stop worrying about what they say.",
+    "zh": "你别再管他们说什么了。",
+    "cat": "animation",
+    "level": "B1",
+    "tags": [
+      "动名词"
+    ],
+    "note": "stop doing 停止做；worry about 固定搭配。",
+    "source": "动漫日常风格"
+  },
+  {
+    "id": "m04",
+    "en": "The new kid in class seems pretty cool.",
+    "zh": "班上新来的同学看起来挺酷。",
+    "cat": "animation",
+    "level": "A2",
+    "tags": [
+      "描述人物"
+    ],
+    "note": "kid 口语指“孩子/同学”；seems 后接形容词。",
+    "source": "动漫日常风格"
+  },
+  {
+    "id": "m05",
+    "en": "Let's hang out after school and grab a snack.",
+    "zh": "放学后一起出来吃点东西吧。",
+    "cat": "animation",
+    "level": "A2",
+    "tags": [
+      "邀约"
+    ],
+    "note": "hang out 闲逛；grab a snack 随便吃点。",
+    "source": "动漫日常风格"
+  },
+  {
+    "id": "m06",
+    "en": "Sometimes things just don't go the way you planned.",
+    "zh": "有时候事情就是不按计划走。",
+    "cat": "animation",
+    "level": "B1",
+    "tags": [
+      "方式状语"
+    ],
+    "note": "the way 引导方式状语；planned 尾音 /d/。",
+    "source": "动漫日常风格"
+  },
+  {
+    "id": "d16",
+    "en": "Could you pass me the salt, please?",
+    "zh": "请把盐递给我好吗？",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "礼貌请求"
+    ],
+    "note": "pass me 连读；salt 长元音 /ɔːl/。"
+  },
+  {
+    "id": "d17",
+    "en": "I usually take the bus to work in the morning.",
+    "zh": "我早上通常坐公交上班。",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "频率副词"
+    ],
+    "note": "usually 重音在前；take the bus 固定搭配。"
+  },
+  {
+    "id": "d18",
+    "en": "It's raining outside, so take an umbrella with you.",
+    "zh": "外面在下雨，带把伞吧。",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "现在进行时"
+    ],
+    "note": "raining 双音节；umbrella 重音在第二音节。"
+  },
+  {
+    "id": "d19",
+    "en": "How much longer do we have to wait?",
+    "zh": "我们还得等多久？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "疑问"
+    ],
+    "note": "how much longer 还需多久；have to 弱读。"
+  },
+  {
+    "id": "d20",
+    "en": "I'm looking forward to the weekend.",
+    "zh": "我很期待周末。",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "固定搭配"
+    ],
+    "note": "look forward to 中 to 为介词，后接名词。"
+  },
+  {
+    "id": "d21",
+    "en": "Could you say that once more, slowly?",
+    "zh": "你能再慢慢说一遍吗？",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "请求重复"
+    ],
+    "note": "once more 再一次；slowly 的 /l/ 清晰。"
+  },
+  {
+    "id": "d22",
+    "en": "I think I left my phone somewhere in the living room.",
+    "zh": "我好像把手机落客厅了。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "地点从句"
+    ],
+    "note": "somewhere 副词；living room 复合词重音在前。"
+  },
+  {
+    "id": "d23",
+    "en": "What time does the last train leave tonight?",
+    "zh": "今晚最后一班火车几点开？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "疑问"
+    ],
+    "note": "last train 连读；tonight 重音在后。"
+  },
+  {
+    "id": "d24",
+    "en": "This shirt doesn't fit me anymore, it's too tight.",
+    "zh": "这件衬衫我穿不下了，太紧。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "描述衣物"
+    ],
+    "note": "fit 合身；anymore 否定句中“再”；tight 双元音 /aɪ/。"
+  },
+  {
+    "id": "d25",
+    "en": "I'd rather walk than take the crowded subway.",
+    "zh": "我宁愿走路也不挤地铁。",
+    "cat": "daily",
+    "level": "B2",
+    "tags": [
+      "比较结构"
+    ],
+    "note": "would rather...than... 宁愿……而不……；crowded 双 /d/。"
+  },
+  {
+    "id": "l14",
+    "en": "The old house stood quiet at the end of the road.",
+    "zh": "老房子静静立在路的尽头。",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "场景描写"
+    ],
+    "note": "stood quiet 系表结构；at the end of 固定搭配。"
+  },
+  {
+    "id": "l15",
+    "en": "Memory has a way of keeping what we choose to forget.",
+    "zh": "记忆总会留下我们想忘掉的东西。",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "定语从句"
+    ],
+    "note": "have a way of 有……的方式；choose to do 选择做。"
+  },
+  {
+    "id": "d26",
+    "en": "I usually spend my weekends reading at home and meeting friends for dinner.",
+    "zh": "我周末通常在家看书，再约朋友吃饭。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "日常叙事"
+    ],
+    "note": "spend time doing 结构；meeting 与 reading 并列。"
+  },
+  {
+    "id": "d27",
+    "en": "The bookstore on the corner sells novels, magazines, and cards from local artists.",
+    "zh": "街角那家书店卖小说、杂志和本地艺术家的卡片。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "场景描述"
+    ],
+    "note": "on the corner 街角；local artists 本地艺术家。"
+  },
+  {
+    "id": "d28",
+    "en": "She practices English for thirty minutes every morning before going to work.",
+    "zh": "她每天上班前练三十分钟英语。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "习惯",
+      "时间"
+    ],
+    "note": "practice 后接动名词；before going 介词后动名词。"
+  },
+  {
+    "id": "d29",
+    "en": "We planned a short trip to the mountains, but the bad weather changed our plans.",
+    "zh": "我们计划去山里短途旅行，但坏天气打乱了安排。",
+    "cat": "daily",
+    "level": "B2",
+    "tags": [
+      "转折"
+    ],
+    "note": "planned 过去式；change one's plans 改变计划。"
+  },
+  {
+    "id": "d30",
+    "en": "A good night's sleep helps you remember new words and speak more clearly.",
+    "zh": "充足睡眠能帮你记住新词、说得更清楚。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "健康",
+      "不定式"
+    ],
+    "note": "help sb (to) do；clearly 副词修饰 speak。"
+  },
+  {
+    "id": "d31",
+    "en": "I usually set my alarm for seven and hit snooze once or twice.",
+    "zh": "我通常把闹钟定在七点，再赖床一两次。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "作息",
+      "口语习语"
+    ],
+    "note": "hit snooze 按贪睡键；once or twice 一两次。"
+  },
+  {
+    "id": "d32",
+    "en": "Did you sleep well last night? You look a little tired today.",
+    "zh": "你昨晚睡得好吗？你今天看起来有点累。",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "寒暄",
+      "外貌"
+    ],
+    "note": "sleep well 睡得好；tired 双音节。"
+  },
+  {
+    "id": "d33",
+    "en": "I'm not a morning person, so I need a few minutes to wake up.",
+    "zh": "我不是早起型的人，得缓几分钟才能清醒。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "习惯",
+      "习语"
+    ],
+    "note": "morning person 习惯早起的人；wake up 醒来。"
+  },
+  {
+    "id": "d34",
+    "en": "I brushed my teeth, washed my face, and got dressed in a hurry.",
+    "zh": "我匆匆刷了牙、洗了脸、穿好衣服。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "过去式",
+      "并列"
+    ],
+    "note": "get dressed 穿衣服；in a hurry 匆忙。"
+  },
+  {
+    "id": "d35",
+    "en": "Does this shirt go with these pants?",
+    "zh": "这件衬衫配这条裤子吗？",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "搭配",
+      "疑问"
+    ],
+    "note": "go with 搭配；pants 美语长裤。"
+  },
+  {
+    "id": "d36",
+    "en": "My shoes are a little tight; they hurt my feet after walking all day.",
+    "zh": "我的鞋有点紧，走一天后脚很疼。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "感受"
+    ],
+    "note": "tight 紧的；hurt 使疼痛，过去式同形。"
+  },
+  {
+    "id": "d37",
+    "en": "I take the subway to work, and it takes about forty minutes each way.",
+    "zh": "我坐地铁上班，单程大概四十分钟。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "交通",
+      "频率"
+    ],
+    "note": "each way 单程；it takes + 时间。"
+  },
+  {
+    "id": "d38",
+    "en": "The traffic was heavy this morning, so I got here ten minutes late.",
+    "zh": "今天早上堵车，所以我晚到了十分钟。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "过去式",
+      "原因"
+    ],
+    "note": "heavy traffic 拥堵；late 副词修饰 arrive。"
+  },
+  {
+    "id": "d39",
+    "en": "Could you tell me how to get to the nearest train station?",
+    "zh": "你能告诉我最近的火车站怎么走吗？",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "问路",
+      "礼貌请求"
+    ],
+    "note": "how to get to 疑问词+不定式；nearest 最高级。"
+  },
+  {
+    "id": "d40",
+    "en": "We should leave early if we don't want to miss the last bus.",
+    "zh": "要是不想错过末班车，我们得早点出发。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "条件句"
+    ],
+    "note": "miss 错过；last bus 末班车。"
+  },
+  {
+    "id": "d41",
+    "en": "I'd like a glass of water, no ice, please.",
+    "zh": "请给我一杯水，不要冰。",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "点餐",
+      "礼貌"
+    ],
+    "note": "I'd like 礼貌点单；no ice 不加冰。"
+  },
+  {
+    "id": "d42",
+    "en": "What's the daily special today, and does it come with a drink?",
+    "zh": "今日特色菜是什么，配饮料吗？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "点餐",
+      "搭配"
+    ],
+    "note": "daily special 当日特色；come with 附带。"
+  },
+  {
+    "id": "d43",
+    "en": "This soup is a bit salty, but the pasta tastes pretty good.",
+    "zh": "这汤有点咸，不过意面挺好吃。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "口味",
+      "转折"
+    ],
+    "note": "salty 咸的；taste 系动词接形容词。"
+  },
+  {
+    "id": "d44",
+    "en": "Could we get some extra napkins and a refill of coffee?",
+    "zh": "能再给我们一些餐巾纸、续杯咖啡吗？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "点餐",
+      "请求"
+    ],
+    "note": "extra 额外的；refill 续杯。"
+  },
+  {
+    "id": "d45",
+    "en": "How much does this jacket cost, and do you have it in a medium?",
+    "zh": "这件夹克多少钱，有中号吗？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "购物",
+      "尺码"
+    ],
+    "note": "cost 花费；medium 中号。"
+  },
+  {
+    "id": "d46",
+    "en": "Is there any discount for students, or do you offer a coupon?",
+    "zh": "学生有折扣吗，或者有优惠券吗？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "购物",
+      "优惠"
+    ],
+    "note": "discount 折扣；coupon 优惠券。"
+  },
+  {
+    "id": "d47",
+    "en": "I'm just comparing prices before I decide which one to buy.",
+    "zh": "我先比比价，再决定买哪件。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "购物",
+      "不定式"
+    ],
+    "note": "compare prices 比价；which one to buy 疑问词+不定式。"
+  },
+  {
+    "id": "d48",
+    "en": "I have a meeting at ten, so please keep it short if possible.",
+    "zh": "我十点有个会，方便的话请长话短说。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "办公",
+      "礼貌"
+    ],
+    "note": "keep it short 简短；if possible 如有可能。"
+  },
+  {
+    "id": "d49",
+    "en": "Could you send me that report by the end of this week?",
+    "zh": "你能在本周末前把那份报告发给我吗？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "办公",
+      "期限"
+    ],
+    "note": "by 后接期限“之前”；report 双音节。"
+  },
+  {
+    "id": "d50",
+    "en": "I'm working from home today because the office is closed.",
+    "zh": "我今天居家办公，因为办公室关门了。",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "办公",
+      "原因"
+    ],
+    "note": "work from home 居家办公；closed 关闭的。"
+  },
+  {
+    "id": "d51",
+    "en": "Are you free this Saturday? We could catch up over dinner.",
+    "zh": "这周六有空吗？我们可以约顿饭叙叙旧。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "邀约",
+      "习语"
+    ],
+    "note": "catch up 叙旧；over dinner 边吃晚饭边。"
+  },
+  {
+    "id": "d52",
+    "en": "Thanks for inviting me, but I already have plans that evening.",
+    "zh": "谢谢你邀请我，不过那晚我已有安排。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "婉拒",
+      "转折"
+    ],
+    "note": "have plans 已有安排；invite 后接宾格。"
+  },
+  {
+    "id": "d53",
+    "en": "It was great seeing you again after such a long time.",
+    "zh": "隔了这么久又见到你，真高兴。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "寒暄",
+      "完成时"
+    ],
+    "note": "It was great doing；such a long time 这么久。"
+  },
+  {
+    "id": "d54",
+    "en": "I'm a little stressed out before the exam, but I think I'll be okay.",
+    "zh": "考前我有点紧张，不过应该能应付。",
+    "cat": "daily",
+    "level": "B2",
+    "tags": [
+      "情绪",
+      "习语"
+    ],
+    "note": "stressed out 压力大；be okay 没事。"
+  },
+  {
+    "id": "d55",
+    "en": "Don't take it personally; it was just a harmless joke.",
+    "zh": "别往心里去，那只是个没恶意的玩笑。",
+    "cat": "daily",
+    "level": "B2",
+    "tags": [
+      "安慰",
+      "习语"
+    ],
+    "note": "take it personally 往心里去；harmless 无害的。"
+  },
+  {
+    "id": "d56",
+    "en": "I feel much better now that I've had some rest.",
+    "zh": "休息过之后我感觉好多了。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "情绪",
+      "原因"
+    ],
+    "note": "now that 既然；rest 名词休息。"
+  },
+  {
+    "id": "d57",
+    "en": "Sorry, I missed your call. Could you text me the details?",
+    "zh": "抱歉没接到你电话，能把细节发我短信吗？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "电话",
+      "请求"
+    ],
+    "note": "miss one's call 漏接电话；text 作动词发短信。"
+  },
+  {
+    "id": "d58",
+    "en": "The line is bad; can you hear me clearly on your end?",
+    "zh": "信号不好，你那边能听清我说话吗？",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "电话"
+    ],
+    "note": "line 电话线路；on your end 你那边。"
+  },
+  {
+    "id": "d59",
+    "en": "I'll call you back as soon as I get to my desk.",
+    "zh": "我一到工位就给你回电话。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "电话",
+      "时间从句"
+    ],
+    "note": "call back 回电话；as soon as 一……就。"
+  },
+  {
+    "id": "d60",
+    "en": "It looks like it's going to rain later, so bring an umbrella just in case.",
+    "zh": "看样子稍后要下雨，带把伞以防万一。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "天气",
+      "推测"
+    ],
+    "note": "look like 看起来；just in case 以防万一。"
+  },
+  {
+    "id": "d61",
+    "en": "The weather's been nice lately, warm during the day and cool at night.",
+    "zh": "最近天气不错，白天暖和，晚上凉爽。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "天气",
+      "并列"
+    ],
+    "note": "lately 近来；during the day 白天。"
+  },
+  {
+    "id": "d62",
+    "en": "Could you take out the trash on your way out?",
+    "zh": "你出门时顺便把垃圾带出去好吗？",
+    "cat": "daily",
+    "level": "A2",
+    "tags": [
+      "家务",
+      "请求"
+    ],
+    "note": "take out the trash 倒垃圾；on one's way out 出门时。"
+  },
+  {
+    "id": "d63",
+    "en": "I need to tidy up the living room before the guests arrive.",
+    "zh": "客人来之前我得把客厅收拾一下。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "家务",
+      "时间从句"
+    ],
+    "note": "tidy up 收拾；living room 客厅。"
+  },
+  {
+    "id": "d64",
+    "en": "I've had a slight headache since this morning, and my throat feels sore.",
+    "zh": "从早上起我有点头疼，嗓子也疼。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "健康",
+      "症状"
+    ],
+    "note": "slight 轻微的；sore throat 嗓子疼。"
+  },
+  {
+    "id": "d65",
+    "en": "I'd like to make an appointment to see a doctor this week.",
+    "zh": "我想预约本周看医生。",
+    "cat": "daily",
+    "level": "B1",
+    "tags": [
+      "健康",
+      "预约"
+    ],
+    "note": "make an appointment 预约；see a doctor 看医生。"
+  },
+  {
+    "id": "u13",
+    "en": "After that awkward dinner, nobody quite knew what to say next.",
+    "zh": "那顿尴尬的晚饭之后，没人知道接下来该说什么。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "叙事"
+    ],
+    "note": "awkward /ˈɔːkwərd/；what to say 疑问词+不定式。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u14",
+    "en": "He kept glancing at his phone while she was trying to explain the problem.",
+    "zh": "她努力解释问题时，他却一直瞟手机。",
+    "cat": "usshow",
+    "level": "B2",
+    "tags": [
+      "过去进行时"
+    ],
+    "note": "keep doing 持续做；glance at 瞥一眼。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "u15",
+    "en": "They moved to a quieter neighborhood after their first child was born.",
+    "zh": "第一个孩子出生后，他们搬到了更安静的街区。",
+    "cat": "usshow",
+    "level": "B1",
+    "tags": [
+      "被动",
+      "比较级"
+    ],
+    "note": "was born 被动；quieter 比较级。",
+    "source": "美剧日常对话风格"
+  },
+  {
+    "id": "k09",
+    "en": "I have a strange feeling that someone has been following us all afternoon.",
+    "zh": "我有种奇怪的感觉，整个下午都有人在跟着我们。",
+    "cat": "ukshow",
+    "level": "B2",
+    "tags": [
+      "同位语从句"
+    ],
+    "note": "that 引导同位语从句；has been following 完成进行时。",
+    "source": "英剧冷峻对话风格"
+  },
+  {
+    "id": "k10",
+    "en": "Before we make any decision, we should gather the facts and listen to both sides.",
+    "zh": "做任何决定前，我们都该先收集事实、听取双方意见。",
+    "cat": "ukshow",
+    "level": "B2",
+    "tags": [
+      "观点",
+      "并列"
+    ],
+    "note": "gather facts 收集事实；both sides 双方。",
+    "source": "英剧冷峻对话风格"
+  },
+  {
+    "id": "l16",
+    "en": "A quiet evening at home often teaches you more than a busy day outside.",
+    "zh": "家里安静的一晚，往往比在外忙碌的一天教给你更多。",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "比较级"
+    ],
+    "note": "teach sb sth 双宾语；quiet evening 与 busy day 对比。"
+  },
+  {
+    "id": "m07",
+    "en": "The new series shows how ordinary people deal with friendship, fear, and growing up.",
+    "zh": "这部新剧展现普通人如何面对友谊、恐惧和成长。",
+    "cat": "animation",
+    "level": "B1",
+    "tags": [
+      "宾语从句"
+    ],
+    "note": "deal with 应对；growing up 动名词短语。",
+    "source": "动漫日常风格"
+  },
+  {
+    "id": "p01",
+    "kind": "passage",
+    "en": "Four score and seven years ago our fathers brought forth on this continent a new nation, conceived in liberty, and dedicated to the proposition that all men are created equal. Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure.",
+    "zh": "八十七年前，我们的先辈在这片大陆上创立了一个新国家，它孕育于自由之中，奉行人人平等的原则。如今我们正投身于一场伟大的内战，考验这个国家能否长久存在。",
+    "cat": "passage",
+    "level": "B2",
+    "tags": [
+      "演讲",
+      "公版"
+    ],
+    "note": "长句按逗号意群停顿；conceived /kənˈsiːvd/、dedicated 重音在第一音节；civil 中 /v/ 咬唇。",
+    "source": "Abraham Lincoln, Gettysburg Address"
+  },
+  {
+    "id": "p02",
+    "kind": "passage",
+    "en": "We hold these truths to be self-evident, that all men are created equal, that they are endowed by their Creator with certain unalienable Rights, that among these are Life, Liberty and the pursuit of Happiness.",
+    "zh": "我们认为这些真理不言而喻：人人生而平等，造物主赋予他们若干不可剥夺的权利，其中包括生命权、自由权和追求幸福的权利。",
+    "cat": "passage",
+    "level": "B2",
+    "tags": [
+      "文献",
+      "公版"
+    ],
+    "note": "三个 that 排比层层推进；unalienable 音节较多，注意断句；pursuit 重音在第二音节。",
+    "source": "The Declaration of Independence"
+  },
+  {
+    "id": "p03",
+    "kind": "passage",
+    "en": "Is life so dear, or peace so sweet, as to be purchased at the price of chains and slavery? I know not what course others may take; but as for me, give me liberty, or give me death!",
+    "zh": "生命果真如此宝贵，和平果真如此甜美，竟值得以枷锁和奴役为代价吗？我不知道别人会如何选择；至于我，不自由，毋宁死。",
+    "cat": "passage",
+    "level": "B2",
+    "tags": [
+      "演讲",
+      "公版"
+    ],
+    "note": "问句语调上扬；chains and slavery 连读；结尾 give me liberty, or give me death 逐词加重。",
+    "source": "Patrick Henry"
+  },
+  {
+    "id": "p04",
+    "kind": "passage",
+    "en": "I went to the woods because I wished to live deliberately, to front only the essential facts of life, and see if I could not learn what it had to teach, and not, when I came to die, discover that I had not lived.",
+    "zh": "我步入丛林，是因为我希望活得清醒，只面对生活中最本质的事实，看看能否学到生活要教给我的东西；免得临终时才发现自己从未真正活过。",
+    "cat": "passage",
+    "level": "B2",
+    "tags": [
+      "散文",
+      "公版"
+    ],
+    "note": "deliberately 重音在第二音节；essential /ɪˈsenʃl/；长句在 and not 处停顿。",
+    "source": "Henry David Thoreau, Walden"
+  },
+  {
+    "id": "p05",
+    "kind": "passage",
+    "en": "Public libraries are quiet places where anyone can read, study, or borrow books. They connect people with knowledge, and they remain an important part of community life even in the age of the internet. A regular reading habit can broaden our view of the world and improve our ability to think clearly.",
+    "zh": "公共图书馆是安静的场所，任何人都可以在那里阅读、学习或借阅书籍。即使在互联网时代，它们仍是社区生活的重要部分。长期阅读能拓宽视野，提升清晰思考的能力。",
+    "cat": "passage",
+    "level": "B1",
+    "tags": [
+      "时文",
+      "原创示例"
+    ],
+    "note": "定语从句 where anyone... 注意衔接；community 重音在第二音节；broaden /ˈbrɔːdn/。"
+  },
+  {
+    "id": "p06",
+    "kind": "passage",
+    "en": "Working from home offers more flexibility, but it can also blur the line between work and personal life. Taking short walks, keeping regular hours, and setting aside a quiet workspace help people stay focused and protect their well-being. Small daily habits often matter more than occasional grand efforts.",
+    "zh": "居家办公带来更多灵活度，但也可能模糊工作与生活的界限。短暂散步、规律作息、留出安静的工作空间，有助于保持专注、维护身心健康。日常小习惯往往比偶尔的大努力更重要。",
+    "cat": "passage",
+    "level": "B1",
+    "tags": [
+      "时文",
+      "原创示例"
+    ],
+    "note": "三个动名词主语并列（Taking..., keeping..., setting...）；flexibility 重音在第四音节；well-being 连字符。"
+  },
+  {
+    "id": "g01",
+    "kind": "long",
+    "en": "On weekends I usually wake up around eight, make myself a cup of coffee, and sit by the window to plan the day. I like to read for a while, then go for a long walk in the park where I can watch people and dogs passing by.",
+    "zh": "周末我通常八点左右醒，给自己泡杯咖啡，坐在窗边规划一天。我会先读会儿书，再去公园散步，看行人和小狗经过。",
+    "cat": "long",
+    "level": "B1",
+    "tags": [
+      "叙事",
+      "长句"
+    ],
+    "note": "按意群在逗号处停顿；where 引导定语从句；passing by 现在分词作伴随。"
+  },
+  {
+    "id": "g02",
+    "kind": "long",
+    "en": "Learning a new language takes patience, because you will make plenty of mistakes before you feel comfortable speaking. The most useful habit is to practice a little every day, even when you are tired, rather than studying for hours once a week.",
+    "zh": "学一门新语言需要耐心，因为在能自如开口之前你会犯很多错。最有用的习惯是每天练一点，哪怕很累，也胜过一周突击学几小时。",
+    "cat": "long",
+    "level": "B2",
+    "tags": [
+      "观点",
+      "长句"
+    ],
+    "note": "plenty of 大量；rather than 而不是；comfortable 重音在第一音节。"
+  },
+  {
+    "id": "g03",
+    "kind": "long",
+    "en": "Good friends do not have to talk every day, but they are always there when you need someone to listen. You can be honest with them, share your worries, and know that they will not judge you for things that go wrong.",
+    "zh": "好朋友不必天天联系，但在你需要有人倾听时他们总在。你可以对他们坦诚、倾诉烦恼，也知道出了状况他们不会评判你。",
+    "cat": "long",
+    "level": "B2",
+    "tags": [
+      "情感",
+      "长句"
+    ],
+    "note": "when 与 that 引导从句；judge /dʒʌdʒ/；go wrong 出问题。"
+  },
+  {
+    "id": "g04",
+    "kind": "long",
+    "en": "The city is noisy and crowded in the morning, with buses and bikes filling every street. Still, I enjoy walking through the old neighborhoods, where small shops and cafes give the place a warm and friendly feeling.",
+    "zh": "早晨的城市嘈杂拥挤，公交车和自行车挤满每条街。不过我喜欢穿行在老街区，小店和咖啡馆让这里有种温暖亲切的氛围。",
+    "cat": "long",
+    "level": "B1",
+    "tags": [
+      "场景",
+      "长句"
+    ],
+    "note": "with 复合结构表伴随；where 定语从句；neighborhood 美音卷舌。"
+  },
+  {
+    "id": "g05",
+    "kind": "long",
+    "en": "Last summer we traveled to a small town near the coast, where the air smelled of salt and the streets were lined with old stone houses. We spent our mornings walking along the beach and our evenings talking with local people over dinner.",
+    "zh": "去年夏天我们去了海边一个小镇，空气里带着咸味，街道两旁是老旧的石屋。上午我们在海滩散步，晚上和当地人边吃晚饭边聊天。",
+    "cat": "long",
+    "level": "B2",
+    "tags": [
+      "回忆",
+      "长句"
+    ],
+    "note": "be lined with 两旁排列；spend time doing 结构；coast 双元音 /oʊ/。"
+  },
+  {
+    "id": "g06",
+    "kind": "long",
+    "en": "Taking care of your body does not require difficult plans. A regular sleep schedule, enough water, and short breaks to stretch your shoulders can make a real difference in how you feel by the end of the day.",
+    "zh": "照顾身体并不需要复杂的计划。规律作息、足量饮水，再加上起身活动肩膀的短暂休息，都会明显改变你一天结束时的状态。",
+    "cat": "long",
+    "level": "B1",
+    "tags": [
+      "健康",
+      "长句"
+    ],
+    "note": "动名词主语 Taking care of；make a difference 有影响；stretch /stretʃ/。"
+  },
+  {
+    "id": "g07",
+    "kind": "long",
+    "en": "Phones make it easy to stay in touch, but they can also take our attention away from the people sitting right in front of us. Setting aside some screen-free time each evening helps us rest and talk more openly with one another.",
+    "zh": "手机让保持联系变得容易，但也会把我们的注意力从眼前的人身上移开。每晚留出一段不看屏幕的时间，能帮我们休息，也让彼此聊得更坦诚。",
+    "cat": "long",
+    "level": "B2",
+    "tags": [
+      "观点",
+      "长句"
+    ],
+    "note": "take attention away from 分散注意；screen-free 复合形容词；openly 副词。"
+  },
+  {
+    "id": "g08",
+    "kind": "long",
+    "en": "When I was a child, summer felt endless, and every afternoon seemed to last forever. We would run outside after lunch, play games with neighbors, and only come home when the streetlights turned on and our parents called us in.",
+    "zh": "小时候夏天仿佛没有尽头，每个下午都长得过不完。午饭后我们就跑出去和邻居玩游戏，直到路灯亮起、父母喊我们回家才肯进门。",
+    "cat": "long",
+    "level": "B2",
+    "tags": [
+      "回忆",
+      "长句"
+    ],
+    "note": "would 表过去习惯；endless 后缀 -less；neighbors 美音卷舌。"
+  },
+  {
+    "id": "g09",
+    "kind": "long",
+    "en": "A good book can carry you into another world, showing how people in different times and places think and feel. Even a short chapter each day slowly builds your vocabulary and gives you new ideas to bring into your own conversations.",
+    "zh": "一本好书能带你进入另一个世界，看到不同时代、不同地方的人如何思考和感受。每天哪怕只读一小节，也能慢慢积累词汇，给你的日常谈话带来新想法。",
+    "cat": "long",
+    "level": "B2",
+    "tags": [
+      "阅读",
+      "长句"
+    ],
+    "note": "现在分词 showing 作伴随；build vocabulary 积累词汇；chapter 双音节。"
+  },
+  {
+    "id": "g10",
+    "kind": "long",
+    "en": "Changing a habit is rarely easy, and most people fail several times before a new routine sticks. The key is to start with one small step, forgive yourself when you slip, and keep going rather than giving up after a single mistake.",
+    "zh": "改变习惯很少容易，大多数人在新习惯固定下来之前会失败好几次。关键是从小步开始，失手时原谅自己，继续坚持，而不是一次出错就放弃。",
+    "cat": "long",
+    "level": "B2",
+    "tags": [
+      "励志",
+      "长句"
+    ],
+    "note": "routine 重音在第二音节；sticks 此处指“固定下来”；slip 小过失。"
+  },
+  {
+    "id": "q162",
+    "en": "When you believe in a thing, believe in it all the way, implicitly and unquestionable.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Walt Disney",
+    "source": "ZenQuotes · Walt Disney",
+    "note": ""
+  },
+  {
+    "id": "q163",
+    "en": "When you want something in life, you just gotta reach out and grab it.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Christopher McCandless",
+    "source": "ZenQuotes · Christopher McCandless",
+    "note": ""
+  },
+  {
+    "id": "q164",
+    "en": "Success is a poor teacher.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Robert Kiyosaki",
+    "source": "ZenQuotes · Robert Kiyosaki",
+    "note": ""
+  },
+  {
+    "id": "q165",
+    "en": "Don't just sit there. Do something. The answers will follow.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Mark Manson",
+    "source": "ZenQuotes · Mark Manson",
+    "note": ""
+  },
+  {
+    "id": "q166",
+    "en": "The only problem we really have is we think we're not supposed to have problems! Problems call us to higher level- - face & solve them now!",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Tony Robbins",
+    "source": "ZenQuotes · Tony Robbins",
+    "note": ""
+  },
+  {
+    "id": "q167",
+    "en": "All happiness depends on courage and work.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Honore de Balzac",
+    "source": "ZenQuotes · Honore de Balzac",
+    "note": ""
+  },
+  {
+    "id": "q168",
+    "en": "You can easily judge the character of a man by how he treats those who can do nothing for him.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Simon Sinek",
+    "source": "ZenQuotes · Simon Sinek",
+    "note": ""
+  },
+  {
+    "id": "q169",
+    "en": "You live by what you thrill to, and there's the end of it.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "D. H. Lawrence",
+    "source": "ZenQuotes · D. H. Lawrence",
+    "note": ""
+  },
+  {
+    "id": "q170",
+    "en": "What have you done today to make someone else happy?",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Deepam Chaterjee",
+    "source": "ZenQuotes · Deepam Chaterjee",
+    "note": ""
+  },
+  {
+    "id": "q171",
+    "en": "Do not look upon this world with fear and loathing. Bravely face whatever the gods offer.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Morihei Ueshiba",
+    "source": "ZenQuotes · Morihei Ueshiba",
+    "note": ""
+  },
+  {
+    "id": "q172",
+    "en": "The best and most beautiful things in the world cannot be seen or even touched - they must be felt with the heart.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Helen Keller",
+    "source": "ZenQuotes · Helen Keller",
+    "note": ""
+  },
+  {
+    "id": "q173",
+    "en": "Confidence is what you have before you understand the problem.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Woody Allen",
+    "source": "ZenQuotes · Woody Allen",
+    "note": ""
+  },
+  {
+    "id": "q174",
+    "en": "A gentleman accepts the responsibility of his actions and bears the burden of their consequences.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "William Faulkner",
+    "source": "ZenQuotes · William Faulkner",
+    "note": ""
+  },
+  {
+    "id": "q175",
+    "en": "Not all readers are leaders, but all leaders are readers.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Harry S. Truman",
+    "source": "ZenQuotes · Harry S. Truman",
+    "note": ""
+  },
+  {
+    "id": "q176",
+    "en": "Your problem isn't the problem. Your reaction is the problem.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Unknown",
+    "source": "ZenQuotes · Unknown",
+    "note": ""
+  },
+  {
+    "id": "q177",
+    "en": "If they wrote it to make money, don't read it.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Naval Ravikant",
+    "source": "ZenQuotes · Naval Ravikant",
+    "note": ""
+  },
+  {
+    "id": "q178",
+    "en": "Putting off an easy thing makes it hard, and putting off a hard one makes it impossible.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "George Lorimer",
+    "source": "ZenQuotes · George Lorimer",
+    "note": ""
+  },
+  {
+    "id": "q179",
+    "en": "We must accept finite disappointment, but never lose infinite hope.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Martin Luther King, Jr.",
+    "source": "ZenQuotes · Martin Luther King, Jr.",
+    "note": ""
+  },
+  {
+    "id": "q180",
+    "en": "You cannot find peace by avoiding life.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Virginia Woolf",
+    "source": "ZenQuotes · Virginia Woolf",
+    "note": ""
+  },
+  {
+    "id": "q181",
+    "en": "Attitude drives actions. Actions drive results. Results drive lifestyles.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Jim Rohn",
+    "source": "ZenQuotes · Jim Rohn",
+    "note": ""
+  },
+  {
+    "id": "q182",
+    "en": "Too many of us are not living our dreams because we are living our fears.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Les Brown",
+    "source": "ZenQuotes · Les Brown",
+    "note": ""
+  },
+  {
+    "id": "q183",
+    "en": "The outer conditions of a person's life will always be found to reflect their inner beliefs.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "James Allen",
+    "source": "ZenQuotes · James Allen",
+    "note": ""
+  },
+  {
+    "id": "q184",
+    "en": "You can never get enough of what you don't need to make you happy.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Eric Hoffer",
+    "source": "ZenQuotes · Eric Hoffer",
+    "note": ""
+  },
+  {
+    "id": "q185",
+    "en": "With the new day comes new strength and new thoughts.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Eleanor Roosevelt",
+    "source": "ZenQuotes · Eleanor Roosevelt",
+    "note": ""
+  },
+  {
+    "id": "q186",
+    "en": "Only those who do nothing at all make no mistakes.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Unknown",
+    "source": "ZenQuotes · Unknown",
+    "note": ""
+  },
+  {
+    "id": "q187",
+    "en": "A mountain never yields to the wind no matter how strong it is.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Zen Proverb",
+    "source": "ZenQuotes · Zen Proverb",
+    "note": ""
+  },
+  {
+    "id": "q188",
+    "en": "Where ever you are, you are one with the clouds and one with the sun and the stars you see. You are one with everything.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Shunryu Suzuki",
+    "source": "ZenQuotes · Shunryu Suzuki",
+    "note": ""
+  },
+  {
+    "id": "q189",
+    "en": "Do something. If it works, do more of it. If it doesn't, do something else.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Franklin D. Roosevelt",
+    "source": "ZenQuotes · Franklin D. Roosevelt",
+    "note": ""
+  },
+  {
+    "id": "q190",
+    "en": "The way to get started is to quit talking and begin doing.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Walt Disney",
+    "source": "ZenQuotes · Walt Disney",
+    "note": ""
+  },
+  {
+    "id": "q191",
+    "en": "If you cannot control your emotions, you cannot control your money.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Warren Buffett",
+    "source": "ZenQuotes · Warren Buffett",
+    "note": ""
+  },
+  {
+    "id": "q192",
+    "en": "Life is a gift. Never forget to enjoy and bask in every moment you are in.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Celestine Chua",
+    "source": "ZenQuotes · Celestine Chua",
+    "note": ""
+  },
+  {
+    "id": "q193",
+    "en": "People don't care how much you know until they know how much you care.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Theodore Roosevelt",
+    "source": "ZenQuotes · Theodore Roosevelt",
+    "note": ""
+  },
+  {
+    "id": "q194",
+    "en": "Fear not the path of truth for the lack of people walking on it.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Robert F. Kennedy",
+    "source": "ZenQuotes · Robert F. Kennedy",
+    "note": ""
+  },
+  {
+    "id": "q195",
+    "en": "The worst part of success is trying to find someone who is happy for you.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Bette Midler",
+    "source": "ZenQuotes · Bette Midler",
+    "note": ""
+  },
+  {
+    "id": "q196",
+    "en": "Most of the important things in the world have been accompanied by people who have kept on trying when there seemed to be no hope at all.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Dale Carnegie",
+    "source": "ZenQuotes · Dale Carnegie",
+    "note": ""
+  },
+  {
+    "id": "q197",
+    "en": "We are all here for some special reason.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Robin Sharma",
+    "source": "ZenQuotes · Robin Sharma",
+    "note": ""
+  },
+  {
+    "id": "q198",
+    "en": "Quality is more important than quantity. One home run is much better than two doubles.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Steve Jobs",
+    "source": "ZenQuotes · Steve Jobs",
+    "note": ""
+  },
+  {
+    "id": "q199",
+    "en": "What people say, what people do, and what they say they do are entirely different things.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Margaret Mead",
+    "source": "ZenQuotes · Margaret Mead",
+    "note": ""
+  },
+  {
+    "id": "q200",
+    "en": "Don't waste your time in anger, regrets, worries, and grudges. Life is too short to be unhappy.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Roy T. Bennett",
+    "source": "ZenQuotes · Roy T. Bennett",
+    "note": ""
+  },
+  {
+    "id": "q201",
+    "en": "Don't stop when you're tired. Stop when you're done.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Marilyn Monroe",
+    "source": "ZenQuotes · Marilyn Monroe",
+    "note": ""
+  },
+  {
+    "id": "q203",
+    "en": "A heart is not judged by how much you love, but by how much you are loved by others.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Judy Garland",
+    "source": "ZenQuotes · Judy Garland",
+    "note": ""
+  },
+  {
+    "id": "q204",
+    "en": "Everybody's life is either rewarding or an example.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Tony Robbins",
+    "source": "ZenQuotes · Tony Robbins",
+    "note": ""
+  },
+  {
+    "id": "q205",
+    "en": "If you can't feed a hundred people, then feed just one.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Mother Teresa",
+    "source": "ZenQuotes · Mother Teresa",
+    "note": ""
+  },
+  {
+    "id": "q206",
+    "en": "Pleasure in the job puts perfection in the work.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Aristotle",
+    "source": "ZenQuotes · Aristotle",
+    "note": ""
+  },
+  {
+    "id": "q207",
+    "en": "It is the power of the mind to be unconquerable.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Seneca",
+    "source": "ZenQuotes · Seneca",
+    "note": ""
+  },
+  {
+    "id": "q208",
+    "en": "In order to carry a positive action, we must develop here a positive vision.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Dalai Lama",
+    "source": "ZenQuotes · Dalai Lama",
+    "note": ""
+  },
+  {
+    "id": "q209",
+    "en": "Get busy living, or get busy dying.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Stephen King",
+    "source": "ZenQuotes · Stephen King",
+    "note": ""
+  },
+  {
+    "id": "q210",
+    "en": "Nothing has any power over me other than that which I give it through my conscious thoughts.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Tony Robbins",
+    "source": "ZenQuotes · Tony Robbins",
+    "note": ""
+  },
+  {
+    "id": "q211",
+    "en": "Your heart is the size of an ocean. Go find yourself in its hidden depths.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q213",
+    "en": "Thinking is the capital, enterprise is the way, hard work is the solution.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Abdul Kalam",
+    "source": "DummyJSON · Abdul Kalam",
+    "note": ""
+  },
+  {
+    "id": "q214",
+    "en": "If you can't make it good, at least make it look good.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Bill Gates",
+    "source": "DummyJSON · Bill Gates",
+    "note": ""
+  },
+  {
+    "id": "q215",
+    "en": "Heart be brave. If you cannot be brave, just go. Love's glory is not a small thing.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q217",
+    "en": "If you are out to describe the truth, leave elegance to the tailor.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Albert Einstein",
+    "source": "DummyJSON · Albert Einstein",
+    "note": ""
+  },
+  {
+    "id": "q219",
+    "en": "While children are struggling to be unique, the world around them is trying all means to make them look like everybody else.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Abdul Kalam",
+    "source": "DummyJSON · Abdul Kalam",
+    "note": ""
+  },
+  {
+    "id": "q220",
+    "en": "I don't believe in failure. It is not failure if you enjoyed the process.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Oprah Winfrey",
+    "source": "DummyJSON · Oprah Winfrey",
+    "note": ""
+  },
+  {
+    "id": "q221",
+    "en": "Do not get elated at any victory, for all such victory is subject to the will of god.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Abu Bakr (R.A)",
+    "source": "DummyJSON · Abu Bakr (R.A)",
+    "note": ""
+  },
+  {
+    "id": "q222",
+    "en": "Wear gratitude like a cloak and it will feed every corner of your life.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q224",
+    "en": "I will praise any man that will praise me.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "William Shakespeare",
+    "source": "DummyJSON · William Shakespeare",
+    "note": ""
+  },
+  {
+    "id": "q225",
+    "en": "One of the greatest diseases is to be nobody to anybody.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Mother Teresa",
+    "source": "DummyJSON · Mother Teresa",
+    "note": ""
+  },
+  {
+    "id": "q226",
+    "en": "I'm so fast that last night I turned off the light switch in my hotel room and was in bed before the room was dark.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Muhammad Ali",
+    "source": "DummyJSON · Muhammad Ali",
+    "note": ""
+  },
+  {
+    "id": "q227",
+    "en": "People must learn to hate and if they can learn to hate, they can be taught to love.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Nelson Mandela",
+    "source": "DummyJSON · Nelson Mandela",
+    "note": ""
+  },
+  {
+    "id": "q228",
+    "en": "Everyone has been made for some particular work, and the desire for that work has been put in every heart.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q229",
+    "en": "The less of the world, the freer you live.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Umar ibn Al-Khattāb (R.A)",
+    "source": "DummyJSON · Umar ibn Al-Khattāb (R.A)",
+    "note": ""
+  },
+  {
+    "id": "q230",
+    "en": "Respond to every call that excites your spirit.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q231",
+    "en": "God doesn't require us to succeed, he only requires that you try.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Mother Teresa",
+    "source": "DummyJSON · Mother Teresa",
+    "note": ""
+  },
+  {
+    "id": "q232",
+    "en": "Speak any language, turkish, greek, persian, arabic, but always speak with love.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q233",
+    "en": "Happiness comes towards those which believe in him.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Ali ibn Abi Talib (R.A)",
+    "source": "DummyJSON · Ali ibn Abi Talib (R.A)",
+    "note": ""
+  },
+  {
+    "id": "q234",
+    "en": "Knowledge is of two kinds: that which is absorbed and that which is heard. And that which is heard does not profit if it is not absorbed.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Ali ibn Abi Talib (R.A)",
+    "source": "DummyJSON · Ali ibn Abi Talib (R.A)",
+    "note": ""
+  },
+  {
+    "id": "q235",
+    "en": "When I am silent, I have thunder hidden inside.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q236",
+    "en": "No one would choose a friendless existence on condition of having all the other things in the world.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Aristotle",
+    "source": "DummyJSON · Aristotle",
+    "note": ""
+  },
+  {
+    "id": "q237",
+    "en": "The end of life is to be like god, and the soul following god will be like him.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Socrates",
+    "source": "DummyJSON · Socrates",
+    "note": ""
+  },
+  {
+    "id": "q238",
+    "en": "Let us sacrifice our today so that our children can have a better tomorrow.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Abdul Kalam",
+    "source": "DummyJSON · Abdul Kalam",
+    "note": ""
+  },
+  {
+    "id": "q239",
+    "en": "Your task is not to seek for love, but merely to seek and find all the barriers within yourself that you have built against it.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q240",
+    "en": "In every religion there is love, yet love has no religion.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q241",
+    "en": "Everything in the universe is within you. Ask all from yourself.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q242",
+    "en": "I'm not a handsome guy, but I can give my hand to someone who needs help. Beauty is in the heart, not in the face.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Abdul Kalam",
+    "source": "DummyJSON · Abdul Kalam",
+    "note": ""
+  },
+  {
+    "id": "q244",
+    "en": "A good head and a good heart are always a formidable combination.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Nelson Mandela",
+    "source": "DummyJSON · Nelson Mandela",
+    "note": ""
+  },
+  {
+    "id": "q245",
+    "en": "The soul never thinks without a picture.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Aristotle",
+    "source": "DummyJSON · Aristotle",
+    "note": ""
+  },
+  {
+    "id": "q246",
+    "en": "In your light I learn how to love. In your beauty, how to make poems. You dance inside my chest where no-one sees you, but sometimes I do, and that sight becomes this art.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q247",
+    "en": "Let the beauty we love be what we do. There are hundreds of ways to kneel and kiss the ground.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q248",
+    "en": "If you like your brother and he's prospering, you'll be pleased for him.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Hamad Bin Isa Al Khalifa",
+    "source": "DummyJSON · Hamad Bin Isa Al Khalifa",
+    "note": ""
+  },
+  {
+    "id": "q249",
+    "en": "Success is dependent upon the glands - sweat glands.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Zig Ziglar",
+    "source": "DummyJSON · Zig Ziglar",
+    "note": ""
+  },
+  {
+    "id": "q250",
+    "en": "Champions are not generated from the championship. Champion is generated from something they have in them, desires, dreams, and visions.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Muhammad Ali",
+    "source": "DummyJSON · Muhammad Ali",
+    "note": ""
+  },
+  {
+    "id": "q251",
+    "en": "No matter what is the environment around you, it is always possible to maintain your brand of integrity.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Abdul Kalam",
+    "source": "DummyJSON · Abdul Kalam",
+    "note": ""
+  },
+  {
+    "id": "q252",
+    "en": "Applause waits on success.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Benjamin Franklin",
+    "source": "DummyJSON · Benjamin Franklin",
+    "note": ""
+  },
+  {
+    "id": "q253",
+    "en": "Just as courage imperils life, fear protects it.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Leonardo Da Vinci",
+    "source": "DummyJSON · Leonardo Da Vinci",
+    "note": ""
+  },
+  {
+    "id": "q254",
+    "en": "It's better to be a lion for a day than a sheep all your life.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Elizabeth Kenny",
+    "source": "DummyJSON · Elizabeth Kenny",
+    "note": ""
+  },
+  {
+    "id": "q255",
+    "en": "Sometimes the people with the worst past, create the best future.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Umar ibn Al-Khattāb (R.A)",
+    "source": "DummyJSON · Umar ibn Al-Khattāb (R.A)",
+    "note": ""
+  },
+  {
+    "id": "q256",
+    "en": "Every day, nay every moment, try to do some good deed.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Abu Bakr (R.A)",
+    "source": "DummyJSON · Abu Bakr (R.A)",
+    "note": ""
+  },
+  {
+    "id": "q257",
+    "en": "No matter what people tell you, words and ideas can change the world.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Robin Williams",
+    "source": "DummyJSON · Robin Williams",
+    "note": ""
+  },
+  {
+    "id": "q258",
+    "en": "Champions have to have the skill and the will. But the will must be stronger than the skill.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Muhammad Ali",
+    "source": "DummyJSON · Muhammad Ali",
+    "note": ""
+  },
+  {
+    "id": "q259",
+    "en": "Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing had happened.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Winston Churchill",
+    "source": "DummyJSON · Winston Churchill",
+    "note": ""
+  },
+  {
+    "id": "q260",
+    "en": "Goodbyes are only for those who love with their eyes. Because for those who love with heart and soul there is no such thing as separation.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Rumi",
+    "source": "DummyJSON · Rumi",
+    "note": ""
+  },
+  {
+    "id": "q261",
+    "en": "The best revenge is to improve yourself.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Ali ibn Abi Talib (R.A)",
+    "source": "DummyJSON · Ali ibn Abi Talib (R.A)",
+    "note": ""
+  },
+  {
+    "id": "q264",
+    "en": "When you have really exhausted an experience you always reverence and love it.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Albert Camus",
+    "source": "DummyJSON · Albert Camus",
+    "note": ""
+  },
+  {
+    "id": "q265",
+    "en": "Now you see me, now you don't. George thinks he will, but I know he won't!",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Muhammad Ali",
+    "source": "DummyJSON · Muhammad Ali",
+    "note": ""
+  },
+  {
+    "id": "q266",
+    "en": "Elegance does not consist in putting on a new dress.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Coco Chanel",
+    "source": "DummyJSON · Coco Chanel",
+    "note": ""
+  },
+  {
+    "id": "q267",
+    "en": "Eating words has never given me indigestion.",
+    "zh": "",
+    "cat": "literature",
+    "level": "A2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Winston Churchill",
+    "source": "DummyJSON · Winston Churchill",
+    "note": ""
+  },
+  {
+    "id": "q268",
+    "en": "India has to be transformed into a developed nation, a prosperous nation and a healthy nation, with a value system.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Abdul Kalam",
+    "source": "DummyJSON · Abdul Kalam",
+    "note": ""
+  },
+  {
+    "id": "q269",
+    "en": "It's not bragging if you can back it up.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B1",
+    "tags": [
+      "quote"
+    ],
+    "author": "Muhammad Ali",
+    "source": "DummyJSON · Muhammad Ali",
+    "note": ""
+  },
+  {
+    "id": "q270",
+    "en": "I wish people would love everybody else the way they love me. It would be a better world.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Muhammad Ali",
+    "source": "DummyJSON · Muhammad Ali",
+    "note": ""
+  },
+  {
+    "id": "q263",
+    "en": "Success is a personal standard, reaching for the highest that is in us, becoming all that we can be.",
+    "zh": "",
+    "cat": "literature",
+    "level": "B2",
+    "tags": [
+      "quote"
+    ],
+    "author": "Zig Ziglar",
+    "source": "DummyJSON · Zig Ziglar",
+    "note": ""
+  }
+]
