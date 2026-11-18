@@ -6,6 +6,7 @@
 <title>口语练习站 · Speaking Coach</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%232F6B5E' d='M12 3C6.5 3 2 6.7 2 11.3c0 2.6 1.5 4.9 3.9 6.4-.2 1.2-.8 2.4-1.6 3.3 1.7-.2 3.3-.9 4.5-1.8 1 .3 2.1.5 3.2.5 5.5 0 10-3.7 10-8.2S17.5 3 12 3z'/%3E%3Cpath fill='%23F5F2EA' d='M7 10h1.5v3H7zM11 9h1.5v5H11zM15 10h1.5v3H15z'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ============ 设计变量 ============ */
 :root{
@@ -359,6 +360,11 @@ const LEVEL_META = {A2:"A2 入门",B1:"B1 进阶",B2:"B2 提高"};
 </script>
 
 <script>
+/* ==================== Supabase 连接 ==================== */
+const SUPABASE_URL = "https://fprhbhzlpnvxjkesjjxb.supabase.co";
+const SUPABASE_ANON_KEY = "$env:SUPABASE_ANON_KEY="sb_publishable_yFwTBwBwU-OAkb-kVbVYhQ_OicwHxEw"";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 /* ==================== 本地存储 ==================== */
 const STORE_KEY = "speakcoach.v1";
 const DEFAULT_STORE = {fav:[], wrong:[], history:{}, minutes:{}, imported:[], settings:{accent:"US", rate:0.9}};
@@ -371,13 +377,8 @@ function loadStore(){
   }catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT_STORE));
 }
-let stateTimer=null;
 function saveStore(){
   try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch(e){}
-  clearTimeout(stateTimer);
-  stateTimer=setTimeout(()=>{
-    fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(store)}).catch(()=>{});
-  },300);
 }
 
 /* ==================== 工具函数 ==================== */
@@ -1317,34 +1318,22 @@ function renderMore(){
 /* ==================== 初始化 ==================== */
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>navigate(t.dataset.route)));
 
+// 从 Supabase records 表拉取全量句子，把 data 字段展开成扁平条目
+async function fetchCorpus(){
+  const { data, error } = await supabase.from('records').select('*').order('id');
+  if (error) throw error;
+  return (data || []).map((row) => {
+    const d = (row && row.data) || {};
+    return { ...d, id: d.id || String(row.id) };
+  }).filter((s) => s.en);
+}
+
 async function boot(){
-  // 1. 读取后端持久化的学习状态（收藏/错题/历史/导入句/设置）
-  let remote=null;
+  // 学习状态仅存浏览器本地（本次不做云端进度同步）
+  store = loadStore();
+  // 从 Supabase 拉取全量词库
   try{
-    const sr=await fetch("/api/state");
-    if(sr.ok){ const s=await sr.json(); if(s&&typeof s==="object") remote=s; }
-  }catch(e){ console.error("读取本地记录失败：", e); }
-
-  const local=loadStore();
-  const hasData=s=> (s.fav&&s.fav.length)||(s.wrong&&s.wrong.length)||
-    (s.history&&Object.keys(s.history).length)||(s.minutes&&Object.keys(s.minutes).length)||
-    (s.imported&&s.imported.length);
-
-  if(remote && hasData(remote)){
-    // 后端有记录，以后端为准
-    store=Object.assign({},DEFAULT_STORE,remote,{settings:Object.assign({},DEFAULT_STORE.settings,remote.settings||{})});
-  }else if(hasData(local)){
-    // 后端为空但浏览器本地有旧记录：迁移到后端
-    store=local; saveStore();
-  }else if(remote){
-    store=Object.assign({},DEFAULT_STORE,remote,{settings:Object.assign({},DEFAULT_STORE.settings,remote.settings||{})});
-  }
-  // 2. 拉取全量词库
-  try{
-    const res=await fetch("/api/all");
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const data=await res.json();
-    if(Array.isArray(data)) RAW_DATA=data;
+    RAW_DATA = await fetchCorpus();
   }catch(e){
     console.error("加载语料失败：", e);
   }
