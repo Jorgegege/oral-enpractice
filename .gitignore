@@ -1,0 +1,17 @@
+# 依赖
+node_modules/
+
+# 大型数据缓存（ecdict.csv 约 66MB，build-words.mjs 会自动下载/复用，不入库）
+scripts/ecdict.csv
+scripts/.ecdict-cache.csv
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+
+# 日志
+*.log
+npm-debug.log*
