@@ -1,14 +1,10 @@
 @echo off
 chcp 65001 >nul
-cd /d %~dp0
-
-echo Installing/updating dependencies...
-call npm install
-
-echo Starting server... open http://localhost:3000 in your browser.
-start "" http://localhost:3000
-node app.js
-
+title 英语口语教练 · 本地预览
 echo.
-echo Server stopped. Close this window or press any key to exit.
+echo  正在启动本地服务器...
+echo  启动后请在浏览器打开 http://localhost:4321
+echo  按 Ctrl+C 可停止
+echo.
+node app.js
 pause
