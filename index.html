@@ -358,26 +358,53 @@ function findSentence(id){
 
 // ---------- TTS ----------
 let ttsVoices=[];
-if('speechSynthesis' in window){ ttsVoices=speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged=()=>{ ttsVoices=speechSynthesis.getVoices(); }; }
+function refreshVoices(){ if('speechSynthesis' in window){ try{ ttsVoices=speechSynthesis.getVoices(); }catch(e){} } }
+if('speechSynthesis' in window){ refreshVoices(); speechSynthesis.onvoiceschanged=refreshVoices; }
 let speechUnlocked=false;
-function unlockSpeech(){ if(speechUnlocked||!('speechSynthesis' in window))return; try{ speechSynthesis.speak(new SpeechSynthesisUtterance('')); }catch(e){} speechUnlocked=true; }
+function pickVoice(lang){
+  const base=(lang||'en-US').split('-')[0].toLowerCase();
+  return ttsVoices.find(v=>v.lang===lang)
+    || ttsVoices.find(v=>v.lang && v.lang.toLowerCase()===lang.toLowerCase())
+    || ttsVoices.find(v=>v.lang && v.lang.toLowerCase().startsWith(base))
+    || ttsVoices.find(v=>v.lang && base==='en' && /en/i.test(v.lang))
+    || null;
+}
+function unlockSpeech(){
+  if(speechUnlocked||!('speechSynthesis' in window))return;
+  speechUnlocked=true;
+  try{
+    const d=new SpeechSynthesisUtterance(' ');
+    d.volume=0; d.rate=10;
+    speechSynthesis.speak(d);
+  }catch(e){}
+}
 function speak(text, {rate, accent, onend}={}){
   if(!('speechSynthesis' in window)){ toast('当前浏览器不支持语音示范'); return; }
-  unlockSpeech();
-  speechSynthesis.cancel();
+  if(!ttsVoices.length) refreshVoices();
+  const lang=(accent||store.settings.accent)==='UK'?'en-GB':'en-US';
+  const v=pickVoice(lang);
+  if(!v){
+    toast('没找到英文语音：请到 iPhone 设置 › 辅助功能 › 朗读内容 › 语音，添加「美国英语」',3500);
+  }
   const u=new SpeechSynthesisUtterance(text);
   u.rate = rate!=null?rate:store.settings.rate;
-  const lang = (accent||store.settings.accent)==='UK'?'en-GB':'en-US';
   u.lang=lang;
-  const v=ttsVoices.find(v=>v.lang===lang)||ttsVoices.find(v=>v.lang&&v.lang.startsWith(lang));
   if(v) u.voice=v;
   if(onend) u.onend=onend;
-  speechSynthesis.speak(u);
+  u.onerror=(e)=>{ if(e.error && e.error!=='canceled' && e.error!=='interrupted') console.warn('TTS error:', e.error); };
+  unlockSpeech();
+  try{
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  }catch(e){ toast('朗读失败：'+(e.message||e)); }
 }
 function speakWithBtn(btn, text){
   if(!btn) return speak(text);
   const old=btn.innerHTML; btn.innerHTML='⏸ 朗读中…'; btn.disabled=true;
-  speak(text, {onend:()=>{ btn.innerHTML=old; btn.disabled=false; }});
+  let done=false;
+  const restore=()=>{ if(done)return; done=true; btn.innerHTML=old; btn.disabled=false; };
+  setTimeout(restore, 20000);
+  speak(text, {onend:restore});
 }
 
 // ---------- 语音识别 + 词级对齐 + 音素反馈 ----------
