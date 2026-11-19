@@ -50,7 +50,7 @@ header{
 }
 header .row{display:flex;align-items:center;justify-content:space-between;}
 header .brand{font-size:19px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:8px;}
-header .brand .dot{width:9px;height:9px;border-radius:50%;background:#BFE3D2;box-shadow:0 0 0 3px rgba(191,227,210,.35);}
+header .brand .brand-logo{width:30px;height:30px;border-radius:9px;object-fit:cover;flex:0 0 auto;box-shadow:0 1px 4px rgba(0,0,0,.18);}
 header .sub{font-size:12.5px;opacity:.85;margin-top:2px;}
 header .date-pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:5px 11px;border-radius:20px;font-size:12.5px;font-weight:600;white-space:nowrap;}
 
@@ -221,7 +221,7 @@ input[type=range]{width:110px;accent-color:var(--primary);}
   <header>
     <div class="row">
       <div>
-        <div class="brand"><span class="dot"></span>英语口语教练</div>
+        <div class="brand"><img class="brand-logo" src="assets/logo.jpg" alt="英语口语教练">英语口语教练</div>
         <div class="sub" id="headerSub">跟读 · 逐词纠音 · 每日更新</div>
       </div>
       <div class="date-pill" id="headerDate">—</div>
