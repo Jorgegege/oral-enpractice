@@ -1,19 +1,20 @@
 {
-  "name": "oral-practice-server",
-  "version": "1.0.0",
-  "main": "app.js",
-  "engines": {
-    "node": ">=18"
-  },
+  "name": "english-speaking-coach",
+  "version": "2.0.0",
+  "private": true,
+  "description": "个人英语口语跟读纠音网站（纯静态 + GitHub Actions 每日更新，无后端依赖）",
   "scripts": {
     "start": "node app.js",
-    "fetch": "node fetch-quotes.js",
-    "fetch:dry": "node fetch-quotes.js --dry-run",
-    "import-local": "node fetch-quotes.js --import-local"
+    "build:words": "node scripts/build-words.mjs",
+    "build:daily": "node scripts/build-daily.mjs",
+    "build:daily:local": "node scripts/build-daily.mjs --local",
+    "icons": "node scripts/gen-icons.mjs",
+    "test": "node scripts/smoke-test.cjs"
   },
-  "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "@supabase/supabase-js": "^2.45.0"
+  "devDependencies": {
+    "jsdom": "^31.0.1"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
