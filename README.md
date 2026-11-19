@@ -1,105 +1,111 @@
-# 英语口语每日练习
+# 英语口语教练 · 跟读纠音
 
-> 想让手机在外网（流量）也能用？看 [DEPLOY.md](./DEPLOY.md) 云端部署指南。
+个人自用的英语口语跟读练习网站。**纯静态 + GitHub Actions 每日自动更新，无后端、无 Supabase、零运行依赖**，部署在 GitHub Pages 即可在手机上（iOS Safari / 走流量）顺畅使用并录音。
+
+> 设计目标：每天 15~30 分钟，20 个短句（总词量 ≥200）+ 2~3 个 30+ 词长句 + 10 个 COCA 高频新词；跟读后逐词纠音、定位到具体发音不准的音素。
+
+---
+
+## 功能
+
+- **每日计划**：20 短句 + 2~3 长句 + 10 新词，云端每天北京时间 06:00 自动更新，近 30 天不重复。
+- **跟读纠音**：浏览器语音识别（webkitSpeechRecognition）→ 词级对齐 → **IPA 音素级反馈**：
+  - 对读错的词，用 LCS 对齐目标音标与实际听到的音标，高亮出**具体是哪个音素读偏了**（如 *think* 读成 *sink*，会标出 `/θ/`）。
+  - 针对中式发音的高危音素给出中文提示（th、ʃ/ʒ、ɜː、词尾 l/r、v/b、词尾辅音、双元音等）。
+- **内容来源**（全部免费、无需 key）：
+  - BBC World News（时政要闻）
+  - Wikipedia「On This Day」（每日不同）
+  - Project Gutenberg 公版名著（按日期轮换书目）
+  - ZenQuotes（名言兜底）
+  - 美剧/影视字幕：自己导入 `.srt / .ass / .vtt`，自动解析成中英配对句。
+- **词库**：COCA 高频词 4380 个（含音标 + 中文释义），每日轮转 10 个新词。
+- **其他**：美/英口音示范朗读、语速调节、进度与达标统计、待复习列表、PWA（可添加到主屏）。
+
+---
 
 ## 目录结构
+
 ```
-oral-practice-server/
-├─ app.js            # Express 后端：语料接口（Supabase 优先，本地 json 兜底）、今日计划、状态持久化
-├─ package.json      # 依赖声明（含 @supabase/supabase-js）
-├─ fetch-quotes.js   # 抓取脚本：公开语录源 → 清洗去重 → 写入 Supabase records 表
-├─ sentences.json    # 本地兜底语料 / 首次导入 Supabase 的数据源
-├─ .github/workflows/ # GitHub Actions 每日定时抓取配置
-├─ data/             # 运行后自动生成，store.json 保存学习记录（无需手动建）
-└─ public/
-    └─ index.html    # 前端页面（绿色主题、朗读变色、语音识别、收藏/错题/统计）
+index.html                  单文件前端应用（含全部 UI 与逻辑）
+manifest.json               PWA 清单
+icons/                      图标（纯 Node 生成）
+app.js                      本地静态服务器（零依赖，仅本地预览用）
+启动.bat                    一键本地预览
+package.json                脚本入口（无运行时依赖）
+data/
+  corpus.json               全量句库（Actions 每日增量合并）
+  words.json                COCA 高频词库（音标 + 中文）
+  served.json               近 30 天已用句台账（去重）
+  today-YYYY-MM-DD.json     每日计划（前端按日期加载，带回退）
+scripts/
+  build-daily.mjs           每日内容生成（Actions 调用）
+  build-words.mjs           生成 words.json（COCA + ECDICT，按需重建）
+  gen-icons.mjs             生成图标 PNG
+  smoke-test.cjs            前端冒烟测试（jsdom 无头渲染，开发/CI 用）
+  COCA_Top5000.csv          COCA 词频表（随仓库提交）
+  ecdict.csv                词典缓存（.gitignore，约 66MB，自动下载）
+.github/workflows/
+  daily-content.yml         每日定时抓取 + 提交
+  ci.yml                    每次 push/PR 运行冒烟测试
 ```
 
-## 本地运行（Windows / Mac 通用）
-**Windows 最简单方式**：双击文件夹里的 `启动.bat`，会自动安装依赖（仅首次）、启动服务并打开浏览器。
+---
 
-手动命令方式：
-1. 装好 Node.js（已装可跳过，`node -v` 能看到版本号即可）。
-2. 在项目文件夹打开终端（PowerShell / CMD / Terminal）。
-3. 安装依赖（只需第一次）：
-   ```
-   npm install
-   ```
-4. （对接 Supabase 时）先设置凭证环境变量，再启动；不设置则自动回退读取本地 `sentences.json`：
-   ```powershell
-   # Windows PowerShell
-   $env:SUPABASE_URL="https://xxx.supabase.co"
-   $env:SUPABASE_ANON_KEY="xxx"
-   npm start
-   ```
-   ```bash
-   # Mac / Linux
-   SUPABASE_URL="https://xxx.supabase.co" SUPABASE_ANON_KEY="xxx" npm start
-   ```
-5. 浏览器打开：http://localhost:3000
+## 本地运行
 
-> 关闭终端窗口（或黑窗口）服务就会停止；停止服务按 `Ctrl + C`。
-> 注意：本地版本必须先启动后端才能使用，后端不开网页拿不到句子、也存不了记录。
-
-## 扩充句子
-编辑 `sentences.json`，按现有格式追加条目，保存后重启服务（`Ctrl + C` 后再 `npm start`）生效。
-
-字段说明：
-- `en`：英文句子（必填）
-- `zh`：中文翻译
-- `cat`：分类，可选 `daily / usshow / ukshow / literature / animation / business / passage / long`
-- `level`：难度，可选 `A2 / B1 / B2`
-- `kind`：留空为短句；`long` 为中长句；`passage` 为长段落
-- `tags / note / source`：标签、发音提示、来源标注（可选）
-
-## 自动聚合英文语录（Supabase 存储）
-
-`fetch-quotes.js` 是零依赖的 Node 脚本，从公开、免费、无需登录的语录源抓取句子，清洗去重后写入 **Supabase `records` 表**（整条句子存在 `data` jsonb 字段）。去重基于云端现有句子，重复运行只补新句。
-
-### 1. 配置凭证（环境变量）
-- `SUPABASE_URL`：项目地址，如 `https://xxx.supabase.co`
-- `SUPABASE_ANON_KEY`：anon / publishable key（`sb_publishable_` 开头）
-
-本地临时设置：
 ```bash
-# Mac / Linux
-SUPABASE_URL="https://xxx.supabase.co" SUPABASE_ANON_KEY="xxx" node fetch-quotes.js --dry-run
-
-# Windows PowerShell
-$env:SUPABASE_URL="https://xxx.supabase.co"; $env:SUPABASE_ANON_KEY="xxx"; node fetch-quotes.js --dry-run
+# 无需 npm install（零依赖），直接：
+node app.js
+# 打开 http://localhost:4321
 ```
 
-### 2. 常用命令
+或双击 `启动.bat`。
+
+> 本地预览跟读录音：浏览器需允许麦克风，且 iOS 需在 设置 › 通用 › 键盘 › 听写 开启「英语(美国)」。
+
+---
+
+## 测试（开发/CI 用）
+
 ```bash
-node fetch-quotes.js --dry-run        # 预览将入库的句子，不写入（先跑这个）
-node fetch-quotes.js                  # 抓取公开源新句，去重后写入 Supabase
-node fetch-quotes.js --import-local   # 首次迁移：把本地 sentences.json 导入 Supabase（自动去重）
-node fetch-quotes.js --limit 30       # 每个来源最多取 30 条候选
+npm install        # 仅安装 jsdom（开发依赖，不影响零依赖运行）
+npm test           # 运行 scripts/smoke-test.cjs：jsdom 无头渲染 5 个 Tab + 跟读纠音流程
 ```
 
-### 3. 定时自动抓取（GitHub Actions）
-`.github/workflows/daily-fetch.yml` 每天定时跑一次抓取脚本：
-1. 把项目推到 GitHub 仓库。
-2. 仓库 **Settings → Secrets and variables → Actions**，新增 `SUPABASE_URL`、`SUPABASE_ANON_KEY` 两个 Secret。
-3. Actions 页面对应 workflow 会按计划自动运行；也可手动点 **Run workflow** 立即触发。
+冒烟测试会校验：页面初始化无运行时错误、5 个 Tab 全部渲染、跟读弹层可开可关、录音→音素反馈不抛错、字幕 SRT 双语解析正确。每次 push/PR 由 `ci.yml` 自动运行；未装 jsdom 时本地会优雅跳过。
 
-### 规则与说明
-- **已接入来源**：ZenQuotes、DummyJSON，均为公版名人语录；不抓取教材、新闻正文等受版权保护内容。
-- **清洗规则**：去 HTML 标签/实体；按词数过滤；硬禁词过滤；Title Case 规整；云端 + 本次批次双重去重；按词数粗分 A2/B1/B2。
-- **新增条目字段**：`cat=literature`、`tags=["quote"]`、`author`、`source`；`zh` 暂留空。
-- **频率**：每天最多一次；脚本单批请求、自带超时与重试。
-- **注意**：当前后端 `app.js` 仍读本地 `sentences.json`；改为从 Supabase 读取是下一步工作，本次仅完成抓取入库与定时配置。
+---
 
-## 接口
-- `GET /api/all`：全量词库
-- `GET /api/today`：后端按日期种子算好的今日 20 句（15 短 + 5 长）与去重词数
-- `GET /api/state`：读取持久化的学习状态（收藏 / 错题 / 历史 / 分钟数 / 导入句 / 设置）
-- `PUT /api/state`：整份保存学习状态
+## 部署到 GitHub Pages（推荐，手机端可用）
 
-## 数据持久化
-收藏、错题、练习历史、分钟数、导入句子和设置会自动保存到后端 `data/store.json`，**重启服务、关掉终端都不会丢失**。前端同时也写一份浏览器本地缓存。若要清空记录，在页面「更多 → 恢复出厂」操作即可。
+1. 把本目录推到你的 GitHub 仓库（例如 `jorgegege/oral-enpractice`）。
+2. 仓库 Settings → Pages → Source 选 **GitHub Actions**（或 main 分支根目录）。
+3. 工作流 `daily-content.yml` 已配置 `permissions: contents: write`，每天 UTC 22:00（北京 06:00）自动运行 `build-daily.mjs` 并提交回仓库，网站内容随之更新。
 
-## 已知限制
-- 持久化用本地 JSON 文件（单用户本地使用）；如果以后要多用户、多设备同步，再换 SQLite / 数据库。
-- 自动抓取仅接入公开免费的公版语录 API；不抓取新闻、教材、影视剧本等受版权保护的正文。语录中文翻译留空，后续可另行补充。
-- 手机 iOS 网页语音识别受浏览器/系统限制，个别句子可能识别不稳，稳定打分建议用电脑 Chrome / Safari。
+> 首次推送后，可在 Actions 页面手动点一次 **Run workflow** 立即生成当天内容并验证提交链路。
+
+---
+
+## 数据文件约定
+
+- `today-<日期>.json`：`{ date, short:[20], long:[2~3], words:[10], meta }`，每句 `{id,en,zh,cat,level,note}`。
+- 前端加载顺序：`today-<今天>` → 昨天 → 前天 → **本地用 corpus 兜底生成**（保证 Actions 未跑/断网也能用）。
+- 句子 `id` = `'s' + 归一化文本 hash`，跨更新稳定，用于去重与进度记录。
+- 进度 / 设置 / 字幕导入都存浏览器 `localStorage`，不上传。
+
+---
+
+## 重建词库（一般不需要）
+
+`words.json` 已随仓库提交，日常无需重建。若需更新：
+
+```bash
+node scripts/build-words.mjs
+# 会自动下载 ECDICT（约 66MB，缓存到 scripts/ecdict.csv）并重新生成 data/words.json
+```
+
+---
+
+## 关于版权
+
+本工具仅供个人学习自用。内容来源均为公开/公版资源（BBC 新闻标题与摘要、维基百科、公版名著、名言），字幕为用户自行导入的本人使用素材。请尊重各来源的版权与使用条款。
