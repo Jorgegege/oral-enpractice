@@ -12,6 +12,9 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <link rel="icon" href="icons/icon-192.png" />
 <title>英语口语教练 · 跟读练发音</title>
+<script>/* 夜间模式防闪烁：在样式生效前应用主题 */
+try{var _s=JSON.parse(localStorage.getItem('esc-store-v2')||'{}');if(_s.settings&&_s.settings.darkMode)document.documentElement.classList.add('dark');}catch(e){}
+</script>
 <style>
 :root{
   /* 莫兰迪绿护眼配色：低饱和、灰调、无纯白纯黑 */
@@ -29,6 +32,25 @@
   --font-en:Georgia,"Times New Roman",var(--font-sans);
   --safe-b:env(safe-area-inset-bottom,0px);
 }
+/* ===== 夜间模式：深色变量覆盖 ===== */
+html.dark{
+  --bg:#1B211E; --bg-soft:#262E29; --card:#232B26; --ink:#E4EAE5;
+  --ink-2:#AEBDB2; --ink-3:#7B8B80;
+  --line:#39443D;
+  --primary:#6E9380; --primary-deep:#A9C7B4; --primary-soft:#2C3A31;
+  --ok:#7FB08F; --ok-soft:#26382C;
+  --warn:#C9AC79; --warn-soft:#373122;
+  --bad:#C08C81; --bad-soft:#3A2A27;
+  --accent:#7D9AAE; --accent-soft:#26333D;
+  --shadow:0 1px 2px rgba(0,0,0,.25),0 6px 18px rgba(0,0,0,.28);
+}
+html.dark header{background:linear-gradient(135deg,#2C3A31,#38483E);box-shadow:0 2px 12px rgba(0,0,0,.3);}
+html.dark nav.tabbar{background:rgba(35,43,38,.96);}
+html.dark .tab .ico .ico-line{filter:brightness(1.9) saturate(.5);opacity:.8;}
+html.dark .badge.level{background:var(--bg-soft);color:var(--ink-3);}
+html.dark .seg button.on{background:var(--primary);color:#fff;box-shadow:none;}
+html.dark .seg{background:var(--bg-soft);}
+html.dark .import-area,html.dark input,html.dark textarea{background:var(--bg-soft);color:var(--ink);border-color:var(--line);}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
 body{
@@ -164,6 +186,8 @@ nav.tabbar{
 .ctl.rec{background:var(--bad);}
 .ctl.stop{background:var(--ink-3);}
 .ctl.ghost{background:var(--card);color:var(--primary-deep);border:1.5px solid var(--line);}
+.replay-row .ctl{gap:6px;}
+.replay-tip{font-size:12px;color:var(--ink-3);text-align:center;margin:-6px 0 2px;line-height:1.5;}
 .mic-pulse{width:12px;height:12px;border-radius:50%;background:#fff;display:inline-block;animation:pulse 1s infinite;}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.6)}100%{box-shadow:0 0 0 10px rgba(255,255,255,0)}}
 
@@ -209,6 +233,13 @@ nav.tabbar{
 .stat-card{background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);padding:12px 8px;text-align:center;border:1px solid var(--line);}
 .stat-card .num{font-size:23px;font-weight:800;color:var(--primary-deep);font-family:var(--font-en);}
 .stat-card .lab{font-size:11px;color:var(--ink-3);margin-top:2px;}
+/* 连续打卡横幅 */
+.streak-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(120deg,var(--warn-soft),var(--card));border:1px solid var(--line);border-radius:var(--radius);padding:12px 15px;margin-bottom:10px;box-shadow:var(--shadow);}
+.streak-banner .sb-flame{font-size:32px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 2px 3px rgba(194,163,117,.35));}
+.streak-banner .sb-txt{flex:1;min-width:0;}
+.streak-banner .sb-num{font-size:17px;font-weight:800;color:var(--warn);font-family:var(--font-en);}
+.streak-banner .sb-msg{font-size:12px;color:var(--ink-2);margin-top:1px;}
+.streak-banner .sb-badge{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--warn);border:1px solid var(--warn);border-radius:6px;padding:2px 5px;flex:0 0 auto;}
 
 /* ===== 今日页三块：开始学习 / 练习日历 / 已学内容 ===== */
 .home-block{margin-bottom:20px;}
@@ -396,7 +427,7 @@ function toast(msg, ms=1900){
 const LS_KEY='esc-store-v2';
 const store = {
   settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
-    remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'' },
+    remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
   progress:{},      // id -> {score, ts}
@@ -411,6 +442,12 @@ function loadStore(){
   }catch(e){ console.warn('store 读取失败', e); }
 }
 function saveStore(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch(e){} }
+function applyTheme(){
+  const dark=!!store.settings.darkMode;
+  document.documentElement.classList.toggle('dark', dark);
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', dark?'#1B211E':'#6E8F7E');
+}
 function markProgress(id, score){
   store.progress[id]={ score, ts:Date.now() };
   if(score<70 && !store.mistakes.includes(id)){ store.mistakes.push(id); if(store.mistakes.length>60) store.mistakes.shift(); }
@@ -782,6 +819,64 @@ function startRecognition(targetText, onFinal, onInterim){
 }
 function stopRecognition(){ if(recogTimer){ clearTimeout(recogTimer); recogTimer=null; } if(recog){ try{ recog.stop(); }catch(e){} } }
 
+// ---------- 我的录音回放（对比原声） ----------
+let myRecorder=null, myChunks=[], myStream=null, myRecActive=false, myAudioUrl=null;
+function pickMime(){
+  if(typeof MediaRecorder==='undefined') return '';
+  const cands=['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'];
+  for(const m of cands){ try{ if(MediaRecorder.isTypeSupported(m)) return m; }catch(e){} }
+  return '';
+}
+function canRecord(){ return typeof MediaRecorder!=='undefined' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia); }
+async function startMyRecording(){
+  if(!canRecord()) return false;
+  try{
+    if(myStream){ myStream.getTracks().forEach(t=>t.stop()); }
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    myStream=stream; myChunks=[];
+    const mime=pickMime();
+    try{ myRecorder = mime ? new MediaRecorder(stream,{mimeType:mime}) : new MediaRecorder(stream); }
+    catch(e){ myRecorder=new MediaRecorder(stream); }
+    myRecorder.ondataavailable=(e)=>{ if(e.data && e.data.size>0) myChunks.push(e.data); };
+    myRecorder.start();
+    myRecActive=true;
+    return true;
+  }catch(e){ console.warn('录音启动失败', e); myRecActive=false; return false; }
+}
+function stopMyRecording(onDone){
+  if(!myRecorder || !myRecActive){ onDone && onDone(null); return; }
+  myRecorder.onstop=()=>{
+    myRecActive=false;
+    if(myStream){ try{ myStream.getTracks().forEach(t=>t.stop()); }catch(e){} myStream=null; }
+    let url=null;
+    if(myChunks.length){
+      try{
+        const mime=myRecorder.mimeType||'audio/webm';
+        url=URL.createObjectURL(new Blob(myChunks,{type:mime}));
+      }catch(e){}
+    }
+    myRecorder=null; myChunks=[];
+    onDone && onDone(url);
+  };
+  try{ myRecorder.stop(); }catch(e){ myRecActive=false; myRecorder=null; onDone && onDone(null); }
+}
+function clearMyRecording(){
+  if(myRecorder){ try{ if(myRecActive) myRecorder.stop(); }catch(e){} myRecorder=null; }
+  myRecActive=false; myChunks=[];
+  if(myStream){ try{ myStream.getTracks().forEach(t=>t.stop()); }catch(e){} myStream=null; }
+  if(myAudioUrl){ try{ URL.revokeObjectURL(myAudioUrl); }catch(e){} myAudioUrl=null; }
+}
+function playMyAudio(btn){
+  if(!myAudioUrl){ toast('当前设备未录到声音，无法回放'); return; }
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const a=new Audio(myAudioUrl);
+  const old=btn.textContent;
+  btn.textContent='⏸ 播放中…'; btn.disabled=true;
+  const restore=()=>{ btn.textContent=old; btn.disabled=false; };
+  a.onended=restore; a.onerror=restore;
+  a.play().catch(()=>{ restore(); toast('播放失败，请点重试'); });
+}
+
 // ---------- 跟读练习 UI ----------
 let pracCtx=null; // { ids:[...], index, id, s }
 function practiceProgressHtml(){
@@ -860,7 +955,7 @@ function renderPracticeSheet(){
 }
 function gotoPractice(step){
   if(pracCtx && pracCtx.cancelPendingListen) pracCtx.cancelPendingListen();
-  stopRecognition(); try{ speechSynthesis.cancel(); }catch(e){}
+  stopRecognition(); stopMyRecording(); clearMyRecording(); try{ speechSynthesis.cancel(); }catch(e){}
   const {ids,index}=pracCtx;
   const ni=index+step;
   if(ni<0||ni>=ids.length){ toast(ni<0?'已经是第一句了':'已经是最后一句了'); return; }
@@ -893,7 +988,7 @@ function updateHomeProgressBar(){
 }
 function closePractice(){
   if(pracCtx && pracCtx.cancelPendingListen) pracCtx.cancelPendingListen();
-  stopRecognition(); try{ speechSynthesis.cancel(); }catch(e){}
+  stopRecognition(); stopMyRecording(); clearMyRecording(); try{ speechSynthesis.cancel(); }catch(e){}
   $('#practiceRoot').classList.remove('show');
   $('#practiceRoot').innerHTML='';
   document.body.style.overflow='';
@@ -914,18 +1009,24 @@ function beginRecord(){
   recBtn.style.display='none'; stopBtn.style.display='';
   interimEl.classList.add('show');
   let lastInterim='';
+  if(myAudioUrl){ try{ URL.revokeObjectURL(myAudioUrl); }catch(e){} myAudioUrl=null; } // 清掉上一句回放
   const handleFinal=(finalText)=>{
     const text=finalText||lastInterim;
     stopBtn.style.display='none'; recBtn.style.display='';
     recBtn.textContent=store.settings.practiceMode==='listen'?'🎧 听后跟读':'🎤 重新跟读';
     interimEl.classList.remove('show');
-    if(!text || !normalizeWords(text).length){ toast('没听清，请靠近麦克风再试一次'); return; }
-    evaluate(s, text);
+    // 停止录音，拿到 blob 后再渲染结果（保证回放按钮可用）
+    stopMyRecording((url)=>{
+      myAudioUrl=url;
+      if(!text || !normalizeWords(text).length){ toast('没听清，请靠近麦克风再试一次'); return; }
+      evaluate(s, text);
+    });
   };
   const doStart=()=>{
     interimEl.textContent='请朗读这句话…';
+    startMyRecording(); // 与识别并行录制，供回放对比（失败不影响识别）
     const r=startRecognition(s.en, handleFinal, (t)=>{ lastInterim=t; interimEl.textContent='识别中：'+t; });
-    if(!r){ recBtn.style.display=''; stopBtn.style.display='none'; interimEl.classList.remove('show'); }
+    if(!r){ stopMyRecording(); recBtn.style.display=''; stopBtn.style.display='none'; interimEl.classList.remove('show'); }
   };
   if(store.settings.practiceMode==='listen' && 'speechSynthesis' in window){
     // 先听后读：播放示范，结束或超时后自动开始识别（iOS 的 onend 有时不触发，故加超时兜底）
@@ -988,12 +1089,17 @@ function evaluate(s, finalText){
               ${it.tips.length?`<div class="tip">${it.tips.join('<br>')}</div>`:''}
             </div>`).join('')}
         </div>`}
-    <div class="ctl-row" style="margin-top:14px">
+    <div class="ctl-row replay-row" style="margin-top:14px">
       <button class="ctl ghost" id="btnReListen">🔊 再听示范</button>
+      <button class="ctl ghost" id="btnPlayMine">▶️ 回放我的</button>
+    </div>
+    <div class="replay-tip">先听示范再点「回放我的」，对比找出发音差距</div>
+    <div class="ctl-row" style="margin-top:10px">
       ${hasNext?`<button class="ctl" id="btnNext">下一句 →</button>`:''}
       <button class="ctl ghost" id="btnFinish">完成${isDone(s.id)?' ✓':''}</button>
     </div>`;
   $('#btnReListen').onclick=(e)=>speakWithBtn(e.target, s.en);
+  $('#btnPlayMine').onclick=(e)=>playMyAudio(e.currentTarget);
   if(hasNext) $('#btnNext').onclick=()=>gotoPractice(1);
   $('#btnFinish').onclick=closePractice;
   updateHomeProgressBar();
@@ -1078,6 +1184,7 @@ function renderHome(view){
     <!-- ② 练习天数 -->
     <div class="home-block">
       <div class="block-head"><span class="bh-ico">📅</span>练习天数</div>
+      ${streakBannerHtml()}
       ${buildStatStrip()}
       ${calendarHtml()}
     </div>
@@ -1107,6 +1214,31 @@ function renderHome(view){
   };
   $('#btnLearned').onclick=openLearned;
   bindCalendar(view);
+}
+// 连续打卡：从今天（未学则从昨天）往前数有学习记录的天数
+function learnedDateSet(){
+  const s=new Set();
+  Object.values(store.progress).forEach(p=>{ if(p && p.ts) s.add(localDateStr(new Date(p.ts))); });
+  Object.keys(store.wordsDone||{}).forEach(d=>s.add(d));
+  return s;
+}
+function calcStreak(){
+  const set=learnedDateSet();
+  if(!set.size) return 0;
+  let d=new Date();
+  if(!set.has(localDateStr(d))) d=new Date(d.getFullYear(), d.getMonth(), d.getDate()-1); // 今天还没学，从昨天起算
+  let n=0;
+  while(set.has(localDateStr(d))){ n++; d=new Date(d.getFullYear(), d.getMonth(), d.getDate()-1); }
+  return n;
+}
+function streakBannerHtml(){
+  const n=calcStreak();
+  const msg=n===0?'今天开始，点燃你的连续打卡 🔥':(n===1?'已连续 1 天，继续保持！':`连续 ${n} 天，太棒了，别中断！`);
+  return `<div class="streak-banner" id="streakBanner">
+    <div class="sb-flame">🔥</div>
+    <div class="sb-txt"><div class="sb-num">连续 ${n} 天</div><div class="sb-msg">${msg}</div></div>
+    <div class="sb-badge">STREAK</div>
+  </div>`;
 }
 // 统计小条（融入今日页，去掉平均/最高分）
 function buildStatStrip(){
@@ -1335,6 +1467,12 @@ function renderMore(view){
         <div class="goal-ctl"><input type="number" class="goal-input" id="wordGoal" min="0" max="100" step="1" inputmode="numeric" value="${store.settings.wordGoal}"><span class="goal-unit">词</span></div></div>
     </div>
 
+    <div class="section-title">🌙 外观模式</div>
+    <div class="set-group">
+      <div class="set-row"><div>夜间模式<div class="desc">深色护眼主题，晚上练习更舒适</div></div>
+        <div class="seg" id="segTheme"><button data-v="0" class="${!store.settings.darkMode?'on':''}">☀️ 日间</button><button data-v="1" class="${store.settings.darkMode?'on':''}">🌙 夜间</button></div></div>
+    </div>
+
     <div class="section-title">⏰ 学习提醒</div>
     <div class="set-group">
       <div class="set-row"><div>每日学习提醒<div class="desc">到点还没学习时提醒你（需保持页面在浏览器中打开）</div></div>
@@ -1394,6 +1532,13 @@ function renderMore(view){
   };
   bindGoal('#sentenceGoal','sentenceGoal');
   bindGoal('#wordGoal','wordGoal');
+  // 夜间模式
+  $$('#segTheme button').forEach(b=>b.onclick=()=>{
+    store.settings.darkMode=b.dataset.v==='1';
+    saveStore(); applyTheme();
+    $$('#segTheme button').forEach(x=>x.classList.toggle('on',x.dataset.v===b.dataset.v));
+    toast(store.settings.darkMode?'已切换到夜间模式 🌙':'已切换到日间模式 ☀️');
+  });
   // 学习提醒
   $$('#segRemind button').forEach(b=>b.onclick=()=>{
     store.settings.remindEnabled=b.dataset.v==='1';
@@ -1574,6 +1719,7 @@ function startReminderLoop(){
 // ---------- 启动 ----------
 (async function init(){
   loadStore();
+  applyTheme();
   setupAvatar();
   try{
     await loadAll();
