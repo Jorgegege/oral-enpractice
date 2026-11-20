@@ -236,18 +236,20 @@ nav.tabbar{
 .search-box{width:100%;border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:10px 13px;font-size:15px;background:var(--card);font-family:var(--font-sans);margin-bottom:12px;outline:none;}
 .search-box:focus{border-color:var(--primary);}
 
-/* ===== 统计 ===== */
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;}
-.stat-card{background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);padding:12px 8px;text-align:center;border:1px solid var(--line);}
-.stat-card .num{font-size:23px;font-weight:800;color:var(--primary-deep);font-family:var(--font-en);}
+/* ===== 统计：合并为单卡三栏 ===== */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden;}
+.stat-card{background:transparent;border:none;border-radius:0;box-shadow:none;padding:11px 6px;text-align:center;position:relative;}
+.stat-card + .stat-card::before{content:'';position:absolute;left:0;top:18px;bottom:18px;width:1px;background:var(--line);}
+.stat-card .num{font-size:21px;font-weight:800;color:var(--primary-deep);font-family:var(--font-en);line-height:1.2;}
 .stat-card .lab{font-size:11px;color:var(--ink-3);margin-top:2px;}
-/* 连续打卡横幅 */
-.streak-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(120deg,var(--warn-soft),var(--card));border:1px solid var(--line);border-radius:var(--radius);padding:12px 15px;margin-bottom:10px;box-shadow:var(--shadow);}
-.streak-banner .sb-flame{font-size:32px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 2px 3px rgba(194,163,117,.35));}
+/* 连续打卡横幅：主色渐变，与主题统一 */
+.streak-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(115deg,var(--primary),var(--primary-deep));border:none;border-radius:var(--radius);padding:13px 15px;margin-bottom:10px;box-shadow:0 4px 12px rgba(80,110,95,.18);color:#fff;}
+.streak-banner .sb-flame{font-size:30px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.15));}
 .streak-banner .sb-txt{flex:1;min-width:0;}
-.streak-banner .sb-num{font-size:17px;font-weight:800;color:var(--warn);font-family:var(--font-en);}
-.streak-banner .sb-msg{font-size:12px;color:var(--ink-2);margin-top:1px;}
-.streak-banner .sb-badge{font-size:9px;font-weight:800;letter-spacing:1px;color:var(--warn);border:1px solid var(--warn);border-radius:6px;padding:2px 5px;flex:0 0 auto;}
+.streak-banner .sb-num{font-size:17px;font-weight:800;color:#fff;font-family:var(--font-en);}
+.streak-banner .sb-msg{font-size:11.5px;color:rgba(255,255,255,.88);margin-top:1px;}
+.streak-banner .sb-badge{font-size:9px;font-weight:800;letter-spacing:1px;color:#fff;border:1px solid rgba(255,255,255,.7);border-radius:6px;padding:2px 5px;flex:0 0 auto;}
+html.dark .streak-banner{background:linear-gradient(115deg,#3B4E42,#2C3A31);}
 
 /* ===== 今日页三块：开始学习 / 练习日历 / 已学内容 ===== */
 .home-block{margin-bottom:20px;}
@@ -275,13 +277,14 @@ nav.tabbar{
 .cal-nav button{border:1px solid var(--line);background:var(--bg-soft);color:var(--primary-deep);width:24px;height:24px;border-radius:50%;font-size:13px;line-height:1;padding:0;cursor:pointer;font-family:var(--font-sans);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
 .cal-dow{font-family:var(--font-en);font-size:9px;color:var(--ink-3);text-align:center;padding-bottom:1px;}
-.cal-day{aspect-ratio:1;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:10.5px;color:var(--ink-2);position:relative;line-height:1;}
+.cal-day{aspect-ratio:1;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px;color:var(--ink-2);position:relative;line-height:1;transition:background .15s ease;}
 .cal-day.empty{visibility:hidden;}
 .cal-day .cd-n{font-family:var(--font-en);}
-.cal-day .cd-logo{width:13px;height:13px;object-fit:contain;display:block;margin-top:1px;}
+.cal-day .cd-logo{width:14px;height:14px;object-fit:contain;display:block;margin-top:1px;}
 .cal-day.has{background:var(--primary-soft);color:var(--primary-deep);}
-.cal-day.today{box-shadow:0 0 0 1.5px var(--primary) inset;}
-.cal-legend{display:flex;gap:10px;font-size:10px;color:var(--ink-3);margin-top:7px;justify-content:center;align-items:center;}
+.cal-day.today{background:var(--primary);color:#fff;font-weight:700;box-shadow:0 2px 6px rgba(80,110,95,.25);}
+.cal-day.today .cd-logo{filter:brightness(0) invert(1);}
+.cal-legend{display:flex;gap:10px;font-size:10.5px;color:var(--ink-3);margin-top:7px;justify-content:center;align-items:center;}
 .cal-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;vertical-align:-1px;margin-right:3px;}
 .cal-legend img{width:11px;height:11px;object-fit:contain;vertical-align:-1px;margin-right:3px;}
 
@@ -1317,7 +1320,7 @@ function calendarHtml(){
       </div>
     </div>
     <div class="cal-grid">${cells}</div>
-    <div class="cal-legend"><span><img src="assets/tab-home.png" alt="">当天有练习</span><span><i style="background:transparent;box-shadow:0 0 0 1px var(--primary) inset"></i>今天</span></div>
+    <div class="cal-legend"><span><img src="assets/tab-home.png" alt="">当天有练习</span><span><i style="background:var(--primary)"></i>今天</span></div>
   </div>`;
 }
 function bindCalendar(view){
