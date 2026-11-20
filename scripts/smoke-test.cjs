@@ -1,7 +1,8 @@
 // 英语口语教练 · 前端冒烟测试（开发/CI 用，非运行时依赖）
 // 用法：npm install 后 `node scripts/smoke-test.cjs`（或 `npm test`）
 // 作用：用 jsdom 无头加载 index.html，验证页面初始化无运行时错误、
-//       5 个 Tab 全部渲染、跟读弹层可开可关、录音→音素反馈流程不抛错、字幕双语解析正确。
+//       4 个 Tab（统计已并入今日页）、跟读弹层可开可关、录音→音素反馈流程不抛错、
+//       日历/已学内容/数字目标/英文日期等新结构正确。
 // 若本机未安装 jsdom 则优雅跳过（退出码 0），不影响普通使用。
 'use strict';
 const fs = require('fs');
@@ -92,10 +93,17 @@ function waitFor(fn, timeout = 6000, interval = 50) {
 
   results['headerDate'] = document.querySelector('#headerDate').textContent.trim();
   results['标题 Oral practice'] = (document.querySelector('.brand-title') || { textContent: '' }).textContent.trim() === 'Oral practice';
-  results['头像按钮存在'] = document.querySelector('#avatarBtn') !== null;
-  results['首页进度条按目标'] = /今日目标/.test((document.querySelector('#view .progress-wrap') || { textContent: '' }).textContent);
-  results['底部图标已更新'] = (document.querySelector('#tabbar .tab .ico') || { textContent: '' }).textContent.trim() === '🌱';
+  results['英文日期时间'] = /\w{3}, \w{3} \d{1,2}, \d{4} · \d{1,2}:\d{2} (AM|PM)/.test(results['headerDate']);
+  results['右上角头像按钮'] = document.querySelector('.head-user #avatarBtn') !== null;
+  results['右上角用户ID可编辑'] = document.querySelector('#headUser #uidName') !== null;
+  results['开始学习卡片'] = document.querySelector('#view .start-hero #btnStartLearn') !== null
+    && /Today's Practice/.test(document.querySelector('#view .start-hero').textContent);
+  results['开始学习进度按目标'] = /目标|已达标/.test((document.querySelector('#view .sh-meta') || { textContent: '' }).textContent);
+  results['底部图标为人物形象'] = document.querySelectorAll('#tabbar .tab .ico img[src="assets/tab-avatar.png"]').length === 4;
   const homeText = document.querySelector('#view').textContent;
+  results['home 有「开始学习」'] = homeText.includes('开始学习');
+  results['home 有「练习天数」'] = homeText.includes('练习天数') && document.querySelectorAll('#view .cal-grid .cal-day').length > 0;
+  results['home 有「已学内容」'] = homeText.includes('已学内容') && document.querySelector('#view #btnLearned') !== null;
   results['home 有「今日短句」'] = homeText.includes('今日短句');
   results['home 有「挑战长句」'] = homeText.includes('挑战长句');
   results['home 有「今日新词」'] = homeText.includes('今日新词');
@@ -111,19 +119,24 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   go('#/review'); await sleep(80);
   results['review 渲染'] = document.querySelector('#view').textContent.length > 0;
 
-  go('#/stats'); await sleep(80);
-  results['stats 渲染'] = document.querySelector('#view').textContent.length > 10;
+  results['统计 tab 已移除'] = ![...document.querySelectorAll('#tabbar .tab')].some(b => b.dataset.r === 'stats');
+  const homeHashGo = (h) => { window.location.hash = h; window.dispatchEvent(new window.Event('hashchange')); };
+  homeHashGo('#/stats'); await sleep(50);
+  results['stats 路由回退到今日'] = document.querySelector('#view .start-hero') !== null;
 
   go('#/more'); await sleep(80);
   results['more 有字幕导入区'] = document.querySelector('#subText') !== null && document.querySelector('#btnImportSub') !== null;
   results['设备使用说明双 tab'] = document.querySelectorAll('#helpSeg button').length === 2;
   const sGoal = document.querySelector('#sentenceGoal'), wGoal = document.querySelector('#wordGoal');
-  results['句子/单词目标滑块'] = !!sGoal && !!wGoal && sGoal.max === '100' && wGoal.max === '100';
+  results['句子/单词目标为数字输入框'] = !!sGoal && !!wGoal && sGoal.type === 'number' && wGoal.type === 'number'
+    && sGoal.min === '0' && sGoal.max === '100' && wGoal.min === '0' && wGoal.max === '100';
   try {
-    sGoal.value = 33; sGoal.dispatchEvent(new window.Event('input'));
-    results['目标滑块可修改'] = document.querySelector('#sentenceGoalVal').textContent === '33';
-    sGoal.value = 20; sGoal.dispatchEvent(new window.Event('input'));
-  } catch (e) { results['目标滑块可修改'] = false; errors.push('goal slider: ' + e.message); }
+    sGoal.value = '33'; sGoal.dispatchEvent(new window.Event('change'));
+    results['数字目标可修改'] = Number(sGoal.value) === 33;
+    sGoal.value = '999'; sGoal.dispatchEvent(new window.Event('change'));
+    results['数字目标上限校验'] = Number(sGoal.value) === 100;
+    sGoal.value = '20'; sGoal.dispatchEvent(new window.Event('change'));
+  } catch (e) { results['数字目标可修改'] = false; errors.push('goal input: ' + e.message); }
   try {
     const androidBtn = document.querySelector('#helpSeg button[data-p="android"]');
     androidBtn.click(); await sleep(30);
@@ -182,6 +195,18 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     results['关闭弹层'] = document.querySelector('#practiceRoot .en-line') === null;
   }
 
+  // 已学内容弹层（录音后已有 progress 记录）
+  go('#/home'); await sleep(80);
+  const learnedBtn = document.querySelector('#btnLearned');
+  if (learnedBtn) {
+    learnedBtn.click(); await sleep(60);
+    results['已学内容弹层可打开'] = document.querySelector('#learnedRoot').classList.contains('show')
+      && document.querySelectorAll('#learnedRoot .lr-item').length > 0;
+    const lc = document.querySelector('#learnedClose');
+    if (lc) { lc.click(); await sleep(40); }
+    results['已学内容弹层可关闭'] = !document.querySelector('#learnedRoot').classList.contains('show');
+  }
+
   console.log('================ 冒烟测试结果 ================');
   for (const [k, v] of Object.entries(results)) console.log('  ' + k + ':', JSON.stringify(v));
   if (scriptErrors.length) console.log('\n❌ 脚本运行时错误:', scriptErrors);
@@ -189,11 +214,17 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   if (errors.length) console.log('\n❌ 测试流程错误:', errors);
 
   const pass = scriptErrors.length === 0 && errors.length === 0 &&
-    results['home 有「今日短句」'] === true &&
-    results['tabbar 按钮数'] === 5 &&
+    results['tabbar 按钮数'] === 4 &&
+    results['英文日期时间'] === true &&
+    results['开始学习卡片'] === true &&
+    results['home 有「练习天数」'] === true &&
+    results['home 有「已学内容」'] === true &&
+    results['数字目标可修改'] === true &&
+    results['统计 tab 已移除'] === true &&
     results['字幕解析(SRT 双语 2 条)'] === true &&
     results['打开跟读弹层'] === true &&
-    results['录音后结果渲染'] === true;
+    results['录音后结果渲染'] === true &&
+    results['已学内容弹层可打开'] === true;
   console.log('\n总体: ' + (pass ? '✅ PASS' : '❌ FAIL'));
   window.close();
   process.exit(pass ? 0 : 1);
