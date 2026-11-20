@@ -96,6 +96,8 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   results['英文日期时间'] = /\w{3}, \w{3} \d{1,2}, \d{4} · \d{1,2}:\d{2} (AM|PM)/.test(results['headerDate']);
   results['右上角头像按钮'] = document.querySelector('.head-user #avatarBtn') !== null;
   results['右上角用户ID可编辑'] = document.querySelector('#headUser #uidName') !== null;
+  results['默认头像为图片'] = document.querySelector('#avatarBtn img[src="assets/avatar-default.png"]') !== null;
+  results['默认ID为Charlie'] = document.querySelector('#uidName')?.textContent.trim() === 'Charlie';
   results['开始学习卡片'] = document.querySelector('#view .start-hero #btnStartLearn') !== null
     && /Today's Practice/.test(document.querySelector('#view .start-hero').textContent);
   results['开始学习进度按目标'] = /目标|已达标/.test((document.querySelector('#view .sh-meta') || { textContent: '' }).textContent);
