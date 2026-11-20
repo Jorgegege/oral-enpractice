@@ -102,9 +102,12 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     && /Today's Practice/.test(document.querySelector('#view .start-hero').textContent);
   results['开始学习进度按目标'] = /目标|已达标/.test((document.querySelector('#view .sh-meta') || { textContent: '' }).textContent);
   results['底部图标为4只不同小鸟'] = ['home','library','review','more'].every(n =>
-    document.querySelector(`#tabbar .tab[data-r="${n}"] .ico img[src="assets/tab-${n}.png"]`) !== null)
+    document.querySelector(`#tabbar .tab[data-r="${n}"] .ico img.ico-color[src="assets/tab-${n}.png"]`) !== null)
     && new Set(['home','library','review','more'].map(n =>
-      document.querySelector(`#tabbar .tab[data-r="${n}"] .ico img`)?.getAttribute('src'))).size === 4;
+      document.querySelector(`#tabbar .tab[data-r="${n}"] .ico img.ico-color`)?.getAttribute('src'))).size === 4;
+  results['底部图标含线条版与彩色版'] = ['home','library','review','more'].every(n =>
+    document.querySelector(`#tabbar .tab[data-r="${n}"] .ico img.ico-line[src="assets/tab-${n}-line.png"]`) !== null
+    && document.querySelector(`#tabbar .tab[data-r="${n}"] .ico img.ico-color`) !== null);
   const homeText = document.querySelector('#view').textContent;
   results['home 有「开始学习」'] = homeText.includes('开始学习');
   results['home 有「练习天数」'] = homeText.includes('练习天数') && document.querySelectorAll('#view .cal-grid .cal-day').length > 0;
