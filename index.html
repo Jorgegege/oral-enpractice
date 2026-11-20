@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#2F6B5E" />
+<meta name="theme-color" content="#6E8F7E" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -14,16 +14,17 @@
 <title>英语口语教练 · 跟读练发音</title>
 <style>
 :root{
-  --bg:#E9F3EC; --bg-soft:#D8E9DD; --card:#FFFFFF; --ink:#1B2620;
-  --ink-2:#5C6B62; --ink-3:#8A988F;
-  --line:#D3E5D9;
-  --primary:#2F6B5E; --primary-deep:#235247; --primary-soft:#E2F0E8;
-  --ok:#3E8E6E; --ok-soft:#E4F1EB;
-  --warn:#D9A441; --warn-soft:#F7EDD8;
-  --bad:#C25B4E; --bad-soft:#F8E7E4;
-  --accent:#3E7CB1; --accent-soft:#E4EEF7;
+  /* 莫兰迪绿护眼配色：低饱和、灰调、无纯白纯黑 */
+  --bg:#E7EDE6; --bg-soft:#D8E0D6; --card:#FAFBF7; --ink:#2E3A33;
+  --ink-2:#5E6D63; --ink-3:#94A096;
+  --line:#D4DED3;
+  --primary:#6E8F7E; --primary-deep:#506E5F; --primary-soft:#E3EDE5;
+  --ok:#7A9C87; --ok-soft:#E7EFE8;
+  --warn:#C2A375; --warn-soft:#F4EDDC;
+  --bad:#B67E73; --bad-soft:#F2E5E1;
+  --accent:#7D9AAE; --accent-soft:#E6EDF2;
   --radius:16px; --radius-sm:10px;
-  --shadow:0 1px 2px rgba(30,36,32,.06),0 6px 18px rgba(30,36,32,.07);
+  --shadow:0 1px 2px rgba(46,58,51,.05),0 6px 18px rgba(46,58,51,.06);
   --font-sans:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
   --font-en:Georgia,"Times New Roman",var(--font-sans);
   --safe-b:env(safe-area-inset-bottom,0px);
@@ -46,10 +47,12 @@ header{
   background:linear-gradient(135deg,var(--primary),var(--primary-deep));
   color:#fff;padding:14px 18px 12px;
   padding-top:calc(14px + env(safe-area-inset-top,0px));
-  box-shadow:0 2px 10px rgba(35,82,71,.18);
+  box-shadow:0 2px 12px rgba(80,110,95,.16);
 }
-header .row{display:flex;align-items:center;justify-content:space-between;}
-header .brand{font-size:19px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:8px;}
+header .row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+header .brand{font-size:19px;font-weight:700;letter-spacing:.3px;display:flex;align-items:center;gap:9px;}
+header .brand .brand-title{font-family:var(--font-en);font-style:italic;letter-spacing:.5px;}
+header .avatar-btn{width:38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(255,255,255,.18);overflow:hidden;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:18px;padding:0;color:#fff;}
 header .brand .brand-logo{width:30px;height:30px;border-radius:9px;object-fit:cover;flex:0 0 auto;box-shadow:0 1px 4px rgba(0,0,0,.18);}
 header .sub{font-size:12.5px;opacity:.85;margin-top:2px;}
 header .date-pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:5px 11px;border-radius:20px;font-size:12.5px;font-weight:600;white-space:nowrap;}
@@ -90,11 +93,14 @@ nav.tabbar{
   padding:6px 4px calc(8px + var(--safe-b));
   box-shadow:0 -2px 14px rgba(30,36,32,.06);
 }
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;background:none;border:none;cursor:pointer;color:var(--ink-3);font-family:var(--font-sans);}
-.tab .ico{font-size:21px;line-height:1;}
-.tab .lbl{font-size:11px;font-weight:600;}
-.tab.active{color:var(--primary);}
-.tab.active .lbl{font-weight:700;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;background:none;border:none;cursor:pointer;color:var(--ink-3);font-family:var(--font-sans);transition:color .2s;}
+.tab .ico{font-size:21px;line-height:1;display:flex;align-items:center;justify-content:center;width:38px;height:30px;border-radius:14px;transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .2s;}
+.tab .lbl{font-size:11px;font-weight:600;transition:transform .2s;}
+.tab:active .ico{transform:scale(.88);}
+.tab.active{color:var(--primary-deep);}
+.tab.active .lbl{font-weight:700;transform:translateY(-1px);}
+.tab.active .ico{background:var(--primary-soft);transform:translateY(-3px) scale(1.12);animation:tabPop .45s cubic-bezier(.34,1.56,.64,1);}
+@keyframes tabPop{0%{transform:translateY(2px) scale(.8)}60%{transform:translateY(-5px) scale(1.18)}100%{transform:translateY(-3px) scale(1.12)}}
 
 /* ===== 进度条 ===== */
 .progress-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;box-shadow:var(--shadow);margin-bottom:4px;}
@@ -130,6 +136,10 @@ nav.tabbar{
 .pp-navbtn button{border:1px solid var(--line);background:var(--bg-soft);color:var(--primary-deep);border-radius:14px;padding:3px 11px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font-sans);}
 .pp-navbtn button:disabled{opacity:.4;cursor:default;}
 .prac-prog .bar > i.done{background:linear-gradient(90deg,var(--ok),#5FB98F);}
+.mode-row{display:flex;align-items:center;gap:9px;margin-bottom:13px;}
+.mode-row .mode-lbl{font-size:13px;color:var(--ink-2);font-weight:600;flex:0 0 auto;}
+.mode-row .seg{flex:1;}
+.mode-tip{font-size:12px;color:var(--ink-3);margin:-6px 0 13px;line-height:1.5;}
 .prac-sentence{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;margin-bottom:14px;}
 .prac-sentence .en-line{font-family:var(--font-en);font-size:21px;line-height:1.6;}
 .prac-sentence .zh-line{font-size:14.5px;color:var(--ink-2);margin-top:8px;}
@@ -200,6 +210,9 @@ nav.tabbar{
 .seg button{border:none;background:none;padding:6px 13px;border-radius:7px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;font-family:var(--font-sans);}
 .seg button.on{background:var(--card);color:var(--primary-deep);box-shadow:0 1px 3px rgba(0,0,0,.08);}
 input[type=range]{width:110px;accent-color:var(--primary);}
+.goal-ctl{display:flex;align-items:center;gap:9px;}
+.goal-ctl input[type=range]{width:88px;}
+.goal-ctl b{min-width:26px;text-align:center;font-size:14px;color:var(--primary-deep);background:var(--primary-soft);border-radius:8px;padding:2px 5px;}
 
 /* 设备使用说明 */
 .help-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 15px;}
@@ -238,13 +251,17 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 <body>
 <div id="app">
   <header>
-    <div class="row">
-      <div>
-        <div class="brand"><img class="brand-logo" src="assets/logo.jpg" alt="英语口语教练">英语口语教练</div>
-        <div class="sub" id="headerSub">跟读 · 逐词纠音 · 每日更新</div>
+      <div class="row">
+      <div style="display:flex;align-items:center;gap:9px">
+        <button class="avatar-btn" id="avatarBtn" title="点击更换头像">👤</button>
+        <div>
+          <div class="brand"><img class="brand-logo" src="assets/logo.jpg" alt="Oral practice"><span class="brand-title">Oral practice</span></div>
+          <div class="sub" id="headerSub">跟读 · 逐词纠音 · 每日更新</div>
+        </div>
       </div>
       <div class="date-pill" id="headerDate">—</div>
     </div>
+    <input type="file" id="avatarFile" accept="image/*" style="display:none" />
   </header>
   <main id="view"><div class="loading"><div class="spinner"></div>加载中…</div></main>
   <nav class="tabbar" id="tabbar"></nav>
@@ -288,7 +305,8 @@ function toast(msg, ms=1900){
 // ---------- 本地状态 ----------
 const LS_KEY='esc-store-v2';
 const store = {
-  settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true },
+  settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct' },
+  avatar:'',       // 头像 dataURL（压缩后）
   progress:{},      // id -> {score, ts}
   mistakes:[],      // 需复习的 id（保留最近 60）
   wordsDone:{},     // date -> [w]
@@ -389,6 +407,43 @@ const DICTATION_SETUP_TIP = IS_IOS
   : IS_ANDROID
     ? '请确认已联网并允许麦克风权限，建议用 Chrome 浏览器打开'
     : '当前浏览器不支持语音识别，请用 Chrome 或 Safari 打开';
+
+// ---------- 头像 ----------
+function renderAvatar(){
+  const b=$('#avatarBtn'); if(!b) return;
+  if(store.avatar){ b.innerHTML=`<img src="${store.avatar}" alt="我的头像" style="width:100%;height:100%;object-fit:cover;">`; }
+  else { b.textContent='👤'; }
+}
+function setupAvatar(){
+  renderAvatar();
+  const btn=$('#avatarBtn'), file=$('#avatarFile');
+  if(!btn||!file) return;
+  btn.onclick=()=>file.click();
+  file.onchange=(e)=>{
+    const f=e.target.files&&e.target.files[0]; if(!f) return;
+    if(!/^image\//.test(f.type)){ toast('请选择图片文件'); return; }
+    const rd=new FileReader();
+    rd.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        try{
+          const S=120, cx=document.createElement('canvas'); cx.width=S; cx.height=S;
+          const ctx=cx.getContext('2d');
+          // 居中裁方
+          const side=Math.min(img.width,img.height);
+          const sx=(img.width-side)/2, sy=(img.height-side)/2;
+          ctx.drawImage(img, sx,sy,side,side, 0,0,S,S);
+          store.avatar=cx.toDataURL('image/jpeg',0.82);
+          saveStore(); renderAvatar(); toast('头像已更新 ✓');
+        }catch(err){ toast('头像处理失败，换张图试试'); }
+      };
+      img.onerror=()=>toast('图片读取失败');
+      img.src=rd.result;
+    };
+    rd.readAsDataURL(f);
+    file.value='';
+  };
+}
 
 // ---------- TTS ----------
 let ttsVoices=[];
@@ -656,6 +711,14 @@ function renderPracticeSheet(){
       <button class="close-btn" id="pracClose">✕</button>
     </div>
     ${practiceProgressHtml()}
+    <div class="mode-row">
+      <span class="mode-lbl">练习模式</span>
+      <div class="seg" id="modeSeg">
+        <button data-v="direct" class="${store.settings.practiceMode!=='listen'?'on':''}">🎤 直接跟读</button>
+        <button data-v="listen" class="${store.settings.practiceMode==='listen'?'on':''}">🎧 先听后读</button>
+      </div>
+    </div>
+    <div class="mode-tip" id="modeTip">${store.settings.practiceMode==='listen'?'点「开始跟读」会先播放示范，再自动开始识别。':'点「开始跟读」立即识别；想先听可随时点 🔊。'}</div>
     <div class="prac-sentence">
       <div class="meta-row" style="margin-top:0;margin-bottom:8px">
         ${badgeHtml(s)}
@@ -667,7 +730,7 @@ function renderPracticeSheet(){
     </div>
     <div class="ctl-row">
       <button class="ctl listen" id="btnListen">🔊 听示范</button>
-      <button class="ctl rec" id="btnRec">🎤 开始跟读</button>
+      <button class="ctl rec" id="btnRec">${store.settings.practiceMode==='listen'?'🎧 听后跟读':'🎤 直接跟读'}</button>
       <button class="ctl stop" id="btnStop" style="display:none">✋ 停止</button>
     </div>
     <div class="interim" id="interim"></div>
@@ -677,10 +740,17 @@ function renderPracticeSheet(){
   $('#btnListen').onclick=()=>{ speakWithBtn($('#btnListen'), s.en); };
   $('#btnRec').onclick=()=>beginRecord();
   $('#btnStop').onclick=()=>{ stopRecognition(); };
+  $$('#modeSeg button').forEach(b=>b.onclick=()=>{
+    store.settings.practiceMode=b.dataset.v; saveStore();
+    $$('#modeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v===b.dataset.v));
+    $('#modeTip').textContent=b.dataset.v==='listen'?'点「听后跟读」会先播放示范，再自动开始识别。':'点「直接跟读」立即识别；想先听可随时点 🔊。';
+    $('#btnRec').textContent=b.dataset.v==='listen'?'🎧 听后跟读':'🎤 直接跟读';
+  });
   $('#ppPrev').onclick=()=>gotoPractice(-1);
   $('#ppNext').onclick=()=>gotoPractice(1);
 }
 function gotoPractice(step){
+  if(pracCtx && pracCtx.cancelPendingListen) pracCtx.cancelPendingListen();
   stopRecognition(); try{ speechSynthesis.cancel(); }catch(e){}
   const {ids,index}=pracCtx;
   const ni=index+step;
@@ -690,17 +760,27 @@ function gotoPractice(step){
   pracCtx={ ids, index:ni, id, s };
   renderPracticeSheet();
 }
+function progressHtml(t){
+  const doneS=t.short.filter(isDone).length+t.long.filter(isDone).length;
+  const doneW=(store.wordsDone[t.date]||[]).length;
+  const goalS=store.settings.sentenceGoal||0, goalW=store.settings.wordGoal||0;
+  const sPct=goalS>0?Math.min(100,Math.round(doneS/goalS*100)):100;
+  const wPct=goalW>0?Math.min(100,Math.round(doneW/goalW*100)):100;
+  const pct=Math.round((sPct+wPct)/2);
+  const sTxt=goalS>0?`句子 <b>${doneS}/${goalS}</b>`:'句子 <b>不限</b>';
+  const wTxt=goalW>0?`单词 <b>${doneW}/${goalW}</b>`:'单词 <b>不限</b>';
+  const reached=(goalS>0&&doneS>=goalS)||(goalW>0&&doneW>=goalW);
+  return `<div class="progress-head"><span>今日目标 ${sTxt} · ${wTxt}</span><b>${reached?'🎯 ':''}${pct}%</b></div>
+    <div class="bar"><i style="width:${pct}%"></i></div>`;
+}
 function updateHomeProgressBar(){
   if(currentRoute()!=='home') return;
   const t=DB.today; if(!t) return;
   const wrap=$('#view .progress-wrap'); if(!wrap) return;
-  const doneShort=t.short.filter(isDone).length;
-  const doneLong=t.long.filter(isDone).length;
-  const doneWords=(store.wordsDone[t.date]||[]).length;
-  const pct=Math.round((doneShort+doneLong+doneWords)/(t.short.length+t.long.length+10)*100)||0;
-  wrap.innerHTML=`<div class="progress-head"><span>今日进度 <b>${doneShort}/${t.short.length} 短句</b> · <b>${doneLong}/${t.long.length} 长句</b> · <b>${doneWords}/${t.words.length} 新词</b></span><b>${pct}%</b></div><div class="bar"><i style="width:${pct}%"></i></div>`;
+  wrap.innerHTML=progressHtml(t);
 }
 function closePractice(){
+  if(pracCtx && pracCtx.cancelPendingListen) pracCtx.cancelPendingListen();
   stopRecognition(); try{ speechSynthesis.cancel(); }catch(e){}
   $('#practiceRoot').classList.remove('show');
   $('#practiceRoot').innerHTML='';
@@ -720,21 +800,40 @@ function beginRecord(){
   $('#pracEn').innerHTML=esc(s.en);
   const recBtn=$('#btnRec'), stopBtn=$('#btnStop'), interimEl=$('#interim');
   recBtn.style.display='none'; stopBtn.style.display='';
-  interimEl.classList.add('show'); interimEl.textContent='请朗读这句话…';
+  interimEl.classList.add('show');
   let lastInterim='';
   const handleFinal=(finalText)=>{
     const text=finalText||lastInterim;
     stopBtn.style.display='none'; recBtn.style.display='';
-    recBtn.innerHTML='🎤 重新跟读';
+    recBtn.textContent=store.settings.practiceMode==='listen'?'🎧 听后跟读':'🎤 重新跟读';
     interimEl.classList.remove('show');
     if(!text || !normalizeWords(text).length){ toast('没听清，请靠近麦克风再试一次'); return; }
     evaluate(s, text);
   };
-  const r=startRecognition(s.en,
-    handleFinal,
-    (t)=>{ lastInterim=t; interimEl.textContent='识别中：'+t; }
-  );
-  if(!r){ recBtn.style.display=''; stopBtn.style.display='none'; interimEl.classList.remove('show'); }
+  const doStart=()=>{
+    interimEl.textContent='请朗读这句话…';
+    const r=startRecognition(s.en, handleFinal, (t)=>{ lastInterim=t; interimEl.textContent='识别中：'+t; });
+    if(!r){ recBtn.style.display=''; stopBtn.style.display='none'; interimEl.classList.remove('show'); }
+  };
+  if(store.settings.practiceMode==='listen' && 'speechSynthesis' in window){
+    // 先听后读：播放示范，结束或超时后自动开始识别（iOS 的 onend 有时不触发，故加超时兜底）
+    interimEl.textContent='🔊 正在播放示范，随后自动开始识别…';
+    let started=false, alive=true;
+    const kick=()=>{
+      if(started || !alive) return;
+      // 切换句子/关闭弹层后不再启动识别
+      if(!pracCtx || pracCtx.s.id!==s.id || !$('#practiceRoot').classList.contains('show')) return;
+      started=true; doStart();
+    };
+    // 记录本次会话引用，停止时置为失效
+    pracCtx.cancelPendingListen=()=>{ alive=false; };
+    try{
+      speak(s.en, { onend:kick });
+      setTimeout(kick, 2200); // 兜底：避免个别设备 onend 不触发导致卡住
+    }catch(e){ kick(); }
+  } else {
+    doStart(); // 直接跟读：立即识别
+  }
 }
 function evaluate(s, finalText){
   const hasNext = pracCtx && pracCtx.index < pracCtx.ids.length-1;
@@ -803,11 +902,11 @@ function levenshtein(a,b){
 
 // ---------- 渲染各页 ----------
 const TABS=[
-  {id:'home', ico:'🏠', lbl:'今日'},
-  {id:'library', ico:'📚', lbl:'句库'},
-  {id:'review', ico:'🔁', lbl:'复习'},
-  {id:'stats', ico:'📊', lbl:'统计'},
-  {id:'more', ico:'⚙️', lbl:'更多'},
+  {id:'home', ico:'🌱', lbl:'今日'},
+  {id:'library', ico:'📖', lbl:'句库'},
+  {id:'review', ico:'💡', lbl:'复习'},
+  {id:'stats', ico:'📈', lbl:'统计'},
+  {id:'more', ico:'✨', lbl:'更多'},
 ];
 function currentRoute(){ const h=(location.hash||'#/home').replace('#/',''); return TABS.some(t=>t.id===h)?h:'home'; }
 function navigate(r){ location.hash='#/'+r; }
@@ -840,14 +939,9 @@ function sentenceCard(s, opts={}){
 }
 function renderHome(view){
   const t=DB.today; if(!t){ view.innerHTML=emptyHtml('今日计划还没准备好'); return; }
-  const doneShort=t.short.filter(isDone).length;
-  const doneLong=t.long.filter(isDone).length;
-  const doneWords=(store.wordsDone[t.date]||[]).length;
-  const pct=Math.round(((doneShort+t.long.length?doneShort:0)+doneLong+doneWords)/(t.short.length+t.long.length+10)*100)||0;
   view.innerHTML=`
     <div class="progress-wrap fade-in">
-      <div class="progress-head"><span>今日进度 <b>${doneShort}/${t.short.length} 短句</b> · <b>${doneLong}/${t.long.length} 长句</b> · <b>${doneWords}/${t.words.length} 新词</b></span><b>${pct}%</b></div>
-      <div class="bar"><i style="width:${pct}%"></i></div>
+      ${progressHtml(t)}
     </div>
     ${t.local?`<div class="hint-line" style="margin-top:10px">⚠️ 当前为本地兜底计划（未取到云端今日文件），仍可正常练习</div>`:''}
     <div class="section-title">📖 今日短句 <span class="count">${t.meta.shortCount} 句 · 共 ${t.meta.shortTotalWords} 词</span></div>
@@ -1032,6 +1126,10 @@ function renderMore(view){
         <div class="seg" id="segZh"><button data-v="1" class="${store.settings.showZh?'on':''}">显示</button><button data-v="0" class="${store.settings.showZh?'':'on'}">隐藏</button></div></div>
       <div class="set-row"><div>自动停止录音<div class="desc">按句长自动停止，避免空等</div></div>
         <div class="seg" id="segAuto"><button data-v="1" class="${store.settings.autoStop?'on':''}">开</button><button data-v="0" class="${store.settings.autoStop?'':'on'}">关</button></div></div>
+      <div class="set-row goal-row"><div>每日句子跟练目标<div class="desc">首页按此目标显示达成率</div></div>
+        <div class="goal-ctl"><input type="range" id="sentenceGoal" min="0" max="100" step="1" value="${store.settings.sentenceGoal}"><b id="sentenceGoalVal">${store.settings.sentenceGoal}</b></div></div>
+      <div class="set-row goal-row"><div>每日单词学习目标<div class="desc">首页按此目标显示达成率</div></div>
+        <div class="goal-ctl"><input type="range" id="wordGoal" min="0" max="100" step="1" value="${store.settings.wordGoal}"><b id="wordGoalVal">${store.settings.wordGoal}</b></div></div>
     </div>
 
     <div class="section-title">🎬 导入美剧 / 影视字幕</div>
@@ -1070,6 +1168,8 @@ function renderMore(view){
   $('#rateRange').oninput=(e)=>{ store.settings.rate=parseFloat(e.target.value); saveStore(); e.target.previousElementSibling.querySelector('.desc').textContent='当前 '+store.settings.rate.toFixed(2); };
   $$('#segZh button').forEach(b=>b.onclick=()=>{ store.settings.showZh=b.dataset.v==='1'; saveStore(); renderMore(view); });
   $$('#segAuto button').forEach(b=>b.onclick=()=>{ store.settings.autoStop=b.dataset.v==='1'; saveStore(); renderMore(view); });
+  $('#sentenceGoal').oninput=(e)=>{ store.settings.sentenceGoal=parseInt(e.target.value,10); $('#sentenceGoalVal').textContent=e.target.value; saveStore(); };
+  $('#wordGoal').oninput=(e)=>{ store.settings.wordGoal=parseInt(e.target.value,10); $('#wordGoalVal').textContent=e.target.value; saveStore(); };
   // 字幕
   $('#btnPickFile').onclick=()=>$('#subFile').click();
   $('#subFile').onchange=(e)=>{
@@ -1163,6 +1263,7 @@ function exportSubs(){
 // ---------- 启动 ----------
 (async function init(){
   loadStore();
+  setupAvatar();
   try{
     await loadAll();
   }catch(e){
