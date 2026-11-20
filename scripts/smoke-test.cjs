@@ -132,6 +132,16 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   go('#/more'); await sleep(80);
   results['more 有字幕导入区'] = document.querySelector('#subText') !== null && document.querySelector('#btnImportSub') !== null;
   results['设备使用说明双 tab'] = document.querySelectorAll('#helpSeg button').length === 2;
+  results['学习提醒设置区存在'] = document.querySelector('#segRemind') !== null
+    && document.querySelector('#remindTime') !== null && document.querySelector('#btnNotify') !== null;
+  results['提醒默认开启且时间21:00'] = document.querySelector('#segRemind button[data-v="1"]').classList.contains('on')
+    && document.querySelector('#remindTime').value === '21:00';
+  try {
+    document.querySelector('#segRemind button[data-v="0"]').click(); await sleep(50);
+    results['提醒可关闭'] = document.querySelector('#segRemind button[data-v="0"]').classList.contains('on');
+    document.querySelector('#segRemind button[data-v="1"]').click(); await sleep(50);
+    results['提醒可重新开启'] = document.querySelector('#segRemind button[data-v="1"]').classList.contains('on');
+  } catch (e) { results['提醒可关闭'] = false; errors.push('remind toggle: ' + e.message); }
   const sGoal = document.querySelector('#sentenceGoal'), wGoal = document.querySelector('#wordGoal');
   results['句子/单词目标为数字输入框'] = !!sGoal && !!wGoal && sGoal.type === 'number' && wGoal.type === 'number'
     && sGoal.min === '0' && sGoal.max === '100' && wGoal.min === '0' && wGoal.max === '100';
