@@ -264,6 +264,10 @@ nav.tabbar{
 .ctl.stop{background:var(--ink-3);}
 .ctl.ghost{background:var(--card);color:var(--primary-deep);border:1.5px solid var(--line);}
 .replay-row .ctl{gap:6px;}
+.skip-row{margin:-4px 0 12px;text-align:center;}
+.skip-btn{border:none;background:none;color:var(--ink-3);font-size:13px;cursor:pointer;font-family:var(--font-sans);padding:4px 8px;}
+.skip-btn span{font-size:11px;opacity:.8;}
+.skip-btn:hover{color:var(--primary-deep);}
 .replay-tip{font-size:12px;color:var(--ink-3);text-align:center;margin:-6px 0 2px;line-height:1.5;}
 .mic-pulse{width:12px;height:12px;border-radius:50%;background:#fff;display:inline-block;animation:pulse 1s infinite;}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.6)}100%{box-shadow:0 0 0 10px rgba(255,255,255,0)}}
@@ -306,11 +310,11 @@ nav.tabbar{
 .search-box:focus{border-color:var(--primary);}
 
 /* ===== 统计：合并为单卡三栏 ===== */
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden;}
-.stat-card{background:transparent;border:none;border-radius:0;box-shadow:none;padding:11px 6px;text-align:center;position:relative;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden;}
+.stat-card{background:transparent;border:none;border-radius:0;box-shadow:none;padding:11px 4px;text-align:center;position:relative;}
 .stat-card + .stat-card::before{content:'';position:absolute;left:0;top:18px;bottom:18px;width:1px;background:var(--line);}
-.stat-card .num{font-size:21px;font-weight:800;color:var(--primary-deep);font-family:var(--font-en);line-height:1.2;}
-.stat-card .lab{font-size:11px;color:var(--ink-3);margin-top:2px;}
+.stat-card .num{font-size:19px;font-weight:800;color:var(--primary-deep);font-family:var(--font-en);line-height:1.2;}
+.stat-card .lab{font-size:10.5px;color:var(--ink-3);margin-top:2px;}
 /* 连续打卡横幅：主色渐变，与主题统一 */
 .streak-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(115deg,var(--primary),var(--primary-deep));border:none;border-radius:var(--radius);padding:13px 15px;margin-bottom:10px;box-shadow:0 4px 12px rgba(80,110,95,.18);color:#fff;}
 .streak-banner .sb-flame{font-size:30px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.15));}
@@ -576,13 +580,15 @@ const THEMES=[
 ];
 const store = {
   settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
-    remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true, theme:'green' },
+    remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true, theme:'green', passScore:80 },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
   progress:{},      // id -> {score, ts}
   mistakes:[],      // 需复习的 id（保留最近 60）
   wordsDone:{},     // date -> [w]
   imported:[],      // 字幕导入句
+  skipped:{},       // date -> [id] 当日跳过的句子（不计入学习内容）
+  learnCursor:null, // {date, ids, index} 今日队列的最近学习位置，用于续学
 };
 function loadStore(){
   try{
@@ -600,13 +606,18 @@ function applyTheme(){
   const meta=document.querySelector('meta[name="theme-color"]');
   if(meta) meta.setAttribute('content', dark?theme.dark:theme.light);
 }
+// 达标线：用户自定义（默认 80），限制在 0–100
+function passLine(){
+  const v=Number(store.settings.passScore);
+  return Number.isFinite(v)&&v>=0&&v<=100 ? v : 80;
+}
 function markProgress(id, score){
   store.progress[id]={ score, ts:Date.now() };
   if(score<70 && !store.mistakes.includes(id)){ store.mistakes.push(id); if(store.mistakes.length>60) store.mistakes.shift(); }
-  if(score>=85){ const i=store.mistakes.indexOf(id); if(i>=0) store.mistakes.splice(i,1); }
+  if(score>=passLine()){ const i=store.mistakes.indexOf(id); if(i>=0) store.mistakes.splice(i,1); }
   saveStore();
 }
-function isDone(id){ const p=store.progress[id]; return p && p.score>=85; }
+function isDone(id){ const p=store.progress[id]; return p && p.score>=passLine(); }
 
 // ---------- 数据 ----------
 let DB={ today:null, corpus:[], words:[], wordMap:{}, wordsByIpa:[] };
@@ -815,7 +826,7 @@ function alignWords(targetText, recognizedText){
 }
 const scoreOf = a => a.target.length? Math.round(a.matchCount/a.target.length*100):0;
 function scoreLabel(s){
-  if(s>=85) return {text:'发音不错，继续保持', cls:'ok'};
+  if(s>=passLine()) return {text:'发音不错，继续保持', cls:'ok'};
   if(s>=70) return {text:'基本到位，个别词再练练', cls:'warn'};
   if(s>=50) return {text:'有几处没读准，建议重练', cls:'warn'};
   return {text:'差距较大，先听示范再尝试', cls:'bad'};
@@ -1161,12 +1172,26 @@ function practiceProgressHtml(){
     <div class="bar"><i class="done" style="width:${pct}%"></i></div>
   </div>`;
 }
+// 学习游标：仅在「今日队列」内维护，记录最近学习位置用于退出重进后续学
+function todayIdList(){
+  const t=DB.today; if(!t) return [];
+  return [...t.short.map(s=>s.id), ...t.long.map(s=>s.id)];
+}
+function saveLearnCursor(ids, index){
+  const t=DB.today; if(!t) return;
+  const tids=todayIdList();
+  // 只有与今日队列一致（集合相同）才记录，避免句库/复习的队列污染续学
+  if(ids.length!==tids.length || !ids.every(id=>tids.includes(id))) return;
+  store.learnCursor={ date:t.date, index };
+  saveStore();
+}
 function openPractice(id, ids){
   const s=findSentence(id); if(!s) return;
   if(!Array.isArray(ids)||!ids.length) ids=[id];
   ids=[...new Set(ids)];
   let index=ids.indexOf(id); if(index<0){ ids.unshift(id); index=0; }
   pracCtx={ ids, index, id, s };
+  saveLearnCursor(ids, index);
   renderPracticeSheet();
   $('#practiceRoot').classList.add('show');
   document.body.style.overflow='hidden';
@@ -1203,6 +1228,7 @@ function renderPracticeSheet(){
       <button class="ctl rec" id="btnRec">${store.settings.practiceMode==='listen'?'🎧 听后跟读':'🎤 直接跟读'}</button>
       <button class="ctl stop" id="btnStop" style="display:none">✋ 停止</button>
     </div>
+    <div class="skip-row"><button id="btnSkip" class="skip-btn">⏭ 跳过这句 <span>不计入今日学习</span></button></div>
     <div class="interim" id="interim"></div>
     <div class="result" id="result"></div>
   </div>`;
@@ -1218,6 +1244,22 @@ function renderPracticeSheet(){
   });
   $('#ppPrev').onclick=()=>gotoPractice(-1);
   $('#ppNext').onclick=()=>gotoPractice(1);
+  $('#btnSkip').onclick=skipPractice;
+}
+// 跳过当前句：不评分、不写 progress（不计入今日学习），记录到 skipped 并推进
+function skipPractice(){
+  if(!pracCtx) return;
+  const {ids,index,id}=pracCtx;
+  if(DB.today){
+    const d=DB.today.date;
+    store.skipped[d]=store.skipped[d]||[];
+    if(!store.skipped[d].includes(id)) store.skipped[d].push(id);
+  }
+  if(index>=ids.length-1){
+    saveLearnCursor(ids, index);
+    closePractice(); toast('已跳过最后一句'); return;
+  }
+  gotoPractice(1);
 }
 function gotoPractice(step){
   if(pracCtx && pracCtx.cancelPendingListen) pracCtx.cancelPendingListen();
@@ -1229,6 +1271,7 @@ function gotoPractice(step){
   const id=ids[ni], s=findSentence(id);
   if(!s){ toast('这一句暂时不可用'); return; }
   pracCtx={ ids, index:ni, id, s };
+  saveLearnCursor(ids, ni);
   renderPracticeSheet();
 }
 // 今日进度：按「每日句子目标」算达成率（目标0=按今日全部句子），返回给 hero 与即时刷新共用
@@ -1417,6 +1460,7 @@ function evaluate(s, finalText){
     ppDone.textContent=dn;
     const bar=$('.prac-prog .bar > i'); if(bar) bar.style.width=(ids.length?Math.round(dn/ids.length*100):0)+'%';
   }
+  const tCount=$('#todayPassedNum'); if(tCount) tCount.textContent=todayPassedCount();
   res.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 function levenshtein(a,b){
@@ -1546,7 +1590,20 @@ function renderHome(view){
   bindFold('#shortFold','#shortFoldBody');
   bindFold('#longFold','#longFoldBody');
   $('#btnStartLearn').onclick=()=>{
-    const next=todayIds.find(id=>!isDone(id))||todayIds[0];
+    // 按最新进度续学：从游标位置起找第一句「未达标且未跳过」，游标无效时从头找
+    const skipped=store.skipped[t.date]||[];
+    const cur=store.learnCursor;
+    let startIdx=0;
+    if(cur && cur.date===t.date && Number.isInteger(cur.index) && cur.index>=0 && cur.index<todayIds.length){
+      startIdx=cur.index;
+    }
+    let next=null;
+    for(let i=startIdx;i<todayIds.length;i++){
+      const id=todayIds[i];
+      if(!isDone(id) && !skipped.includes(id)){ next=id; break; }
+    }
+    if(!next) next=todayIds.find(id=>!isDone(id) && !skipped.includes(id));
+    if(!next) next=todayIds[startIdx]||todayIds[0];
     if(next) openPractice(next, todayIds);
   };
   $('#btnLearned').onclick=openLearned;
@@ -1577,16 +1634,23 @@ function streakBannerHtml(){
     <div class="sb-badge">STREAK</div>
   </div>`;
 }
+// 今日达标：今天有练习记录且分数达到自定义达标线的句子数
+function todayPassedCount(){
+  const ds=localDateStr(new Date()), line=passLine();
+  return Object.values(store.progress).filter(p=>p && p.ts && localDateStr(new Date(p.ts))===ds && p.score>=line).length;
+}
 // 统计小条（融入今日页，去掉平均/最高分）
 function buildStatStrip(){
   const scores=Object.values(store.progress);
-  const practiced=scores.length;
-  const done=scores.filter(p=>p.score>=85).length;
+  const line=passLine();
+  const done=scores.filter(p=>p.score>=line).length;
+  const todayDone=todayPassedCount();
   const days=new Set(scores.map(p=>localDateStr(new Date(p.ts)))).size;
   const words=Object.values(store.wordsDone).reduce((a,arr)=>a+arr.length,0);
   return `<div class="stat-grid">
     <div class="stat-card"><div class="num">${days}</div><div class="lab">练习天数</div></div>
-    <div class="stat-card"><div class="num">${done}</div><div class="lab">达标句数</div></div>
+    <div class="stat-card"><div class="num" id="todayPassedNum">${todayDone}</div><div class="lab">今日达标</div></div>
+    <div class="stat-card"><div class="num">${done}</div><div class="lab">累计达标</div></div>
     <div class="stat-card"><div class="num">${words}</div><div class="lab">已学单词</div></div>
   </div>`;
 }
@@ -1637,13 +1701,14 @@ function bindCalendar(view){
 function openLearned(){
   const root=$('#learnedRoot'); if(!root) return;
   const recs=Object.entries(store.progress).map(([id,p])=>({id,...p,s:findSentence(id)})).filter(r=>r.s).sort((a,b)=>b.ts-a.ts);
-  const done=recs.filter(r=>r.score>=85).length;
-  const sc=(score)=>score>=85?'ok':(score>=70?'warn':'bad');
+  const line=passLine();
+  const done=recs.filter(r=>r.score>=line).length;
+  const sc=(score)=>score>=line?'ok':(score>=70?'warn':'bad');
   root.innerHTML=`<div class="learned-sheet fade-in">
     <div class="prac-top"><div class="t">已学内容</div><button class="close-btn" id="learnedClose">✕</button></div>
     <div class="learned-stat">
       <div class="ls"><div class="n">${recs.length}</div><div class="l">练习句数</div></div>
-      <div class="ls"><div class="n">${done}</div><div class="l">已达标 (≥85)</div></div>
+      <div class="ls"><div class="n">${done}</div><div class="l">已达标 (≥${line})</div></div>
       <div class="ls"><div class="n">${new Set(recs.map(r=>localDateStr(new Date(r.ts)))).size}</div><div class="l">练习天数</div></div>
     </div>
     ${recs.length?recs.map(r=>`
@@ -1807,6 +1872,8 @@ function renderMore(view){
         <div class="seg" id="segLocalAsr"><button data-v="1" class="${store.settings.localAsr!==false?'on':''}">开</button><button data-v="0" class="${store.settings.localAsr===false?'on':''}">关</button></div></div>
       <div class="set-row"><div>本地识别模型<div class="desc" id="asrStatus">${ASR.loaded?'本地识别已就绪 ✓':(ASR.state==='loading'?'模型下载中 '+Math.round(ASR.progress)+'%':'未加载 · 首次使用会自动下载模型')}</div></div>
         <button id="btnAsrPrefetch" class="ghost" style="border-color:var(--line);background:var(--card);color:var(--ink-2);padding:7px 12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">预下载模型</button></div>
+      <div class="set-row goal-row"><div>达标分数<div class="desc">0–100 分，默认 80 · 跟读达到此分算达标</div></div>
+        <div class="goal-ctl"><input type="number" class="goal-input" id="passScore" min="0" max="100" step="1" inputmode="numeric" value="${passLine()}"><span class="goal-unit">分</span></div></div>
       <div class="set-row goal-row"><div>每日句子跟练目标<div class="desc">0–100 句，0 = 不限 · 今日页按此显示达成率</div></div>
         <div class="goal-ctl"><input type="number" class="goal-input" id="sentenceGoal" min="0" max="100" step="1" inputmode="numeric" value="${store.settings.sentenceGoal}"><span class="goal-unit">句</span></div></div>
       <div class="set-row goal-row"><div>每日单词学习目标<div class="desc">0–100 词，0 = 不限 · 今日页按此显示达成率</div></div>
@@ -1901,6 +1968,7 @@ function renderMore(view){
     el.onchange=commit;
     el.onblur=commit;
   };
+  bindGoal('#passScore','passScore');
   bindGoal('#sentenceGoal','sentenceGoal');
   bindGoal('#wordGoal','wordGoal');
   // 主题配色
