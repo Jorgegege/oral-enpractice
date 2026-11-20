@@ -91,6 +91,10 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   } catch (e) { errors.push('init timeout'); }
 
   results['headerDate'] = document.querySelector('#headerDate').textContent.trim();
+  results['标题 Oral practice'] = (document.querySelector('.brand-title') || { textContent: '' }).textContent.trim() === 'Oral practice';
+  results['头像按钮存在'] = document.querySelector('#avatarBtn') !== null;
+  results['首页进度条按目标'] = /今日目标/.test((document.querySelector('#view .progress-wrap') || { textContent: '' }).textContent);
+  results['底部图标已更新'] = (document.querySelector('#tabbar .tab .ico') || { textContent: '' }).textContent.trim() === '🌱';
   const homeText = document.querySelector('#view').textContent;
   results['home 有「今日短句」'] = homeText.includes('今日短句');
   results['home 有「挑战长句」'] = homeText.includes('挑战长句');
@@ -113,6 +117,13 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   go('#/more'); await sleep(80);
   results['more 有字幕导入区'] = document.querySelector('#subText') !== null && document.querySelector('#btnImportSub') !== null;
   results['设备使用说明双 tab'] = document.querySelectorAll('#helpSeg button').length === 2;
+  const sGoal = document.querySelector('#sentenceGoal'), wGoal = document.querySelector('#wordGoal');
+  results['句子/单词目标滑块'] = !!sGoal && !!wGoal && sGoal.max === '100' && wGoal.max === '100';
+  try {
+    sGoal.value = 33; sGoal.dispatchEvent(new window.Event('input'));
+    results['目标滑块可修改'] = document.querySelector('#sentenceGoalVal').textContent === '33';
+    sGoal.value = 20; sGoal.dispatchEvent(new window.Event('input'));
+  } catch (e) { results['目标滑块可修改'] = false; errors.push('goal slider: ' + e.message); }
   try {
     const androidBtn = document.querySelector('#helpSeg button[data-p="android"]');
     androidBtn.click(); await sleep(30);
@@ -138,6 +149,14 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     results['弹层有开始跟读按钮'] = document.querySelector('#btnRec') !== null;
     results['弹层有学习进度条'] = document.querySelector('#practiceRoot .prac-prog .bar > i') !== null
       && /第\s*\d+\s*\/\s*\d+\s*句/.test((document.querySelector('.prac-prog .pp-head')||{textContent:''}).textContent);
+    results['弹层有双模式切换'] = document.querySelectorAll('#modeSeg button').length === 2;
+    try {
+      const listenBtn = document.querySelector('#modeSeg button[data-v="listen"]');
+      listenBtn.click(); await sleep(30);
+      results['模式可切到先听后读'] = document.querySelector('#modeSeg button[data-v="listen"]').classList.contains('on')
+        && /听后跟读/.test(document.querySelector('#btnRec').textContent);
+      document.querySelector('#modeSeg button[data-v="direct"]').click(); await sleep(30);
+    } catch (e) { results['模式可切到先听后读'] = false; errors.push('mode switch: ' + e.message); }
     try {
       const before = document.querySelector('#pracEn').textContent.trim();
       const nextBtn = document.querySelector('#ppNext');
