@@ -157,8 +157,8 @@ nav.tabbar{
 .word-card .wrow{display:flex;align-items:center;gap:6px;}
 .icon-btn{border:none;background:var(--primary-soft);color:var(--primary-deep);width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;flex:0 0 auto;}
 .icon-btn:active{background:var(--primary);color:#fff;}
-.word-check{margin-left:auto;font-size:12.5px;color:var(--ink-3);background:none;border:1px solid var(--line);border-radius:14px;padding:3px 10px;cursor:pointer;font-family:var(--font-sans);}
-.word-check.on{background:var(--ok-soft);color:var(--ok);border-color:var(--ok);font-weight:600;}
+.word-check{margin-left:auto;flex:0 0 auto;border:1px solid var(--line);background:var(--bg-soft);color:var(--ink-3);width:28px;height:28px;border-radius:50%;font-size:14px;line-height:1;cursor:pointer;font-family:var(--font-sans);padding:0;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;}
+.word-check.on{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:700;}
 
 /* ===== 跟读练习弹层 ===== */
 #practiceRoot{position:fixed;inset:0;z-index:60;display:none;}
@@ -1380,7 +1380,7 @@ function wordCardHtml(w, dateStr){
   return `<div class="word-card">
     <div class="wrow"><span class="w">${esc(w.w)}</span>
       <button class="icon-btn" data-say="${esc(w.w)}" title="听发音">🔊</button>
-      <button class="word-check ${done?'on':''}" data-word="${esc(w.w)}" data-date="${dateStr}">${done?'已学 ✓':'标记已学'}</button>
+      <button class="word-check ${done?'on':''}" data-word="${esc(w.w)}" data-date="${dateStr}" title="${done?'取消已学':'标记已学'}">${done?'✓':'+'}</button>
     </div>
     <div class="ipa en">${esc(w.i||'')}</div>
     <div class="zh">${esc(w.z||'')}</div>
@@ -1392,7 +1392,9 @@ function bindWordCards(view){
     const d=b.dataset.date; store.wordsDone[d]=store.wordsDone[d]||[];
     const i=store.wordsDone[d].indexOf(b.dataset.word);
     if(i>=0) store.wordsDone[d].splice(i,1); else store.wordsDone[d].push(b.dataset.word);
-    saveStore(); b.classList.toggle('on', i<0); b.textContent=i<0?'已学 ✓':'标记已学';
+    const nowDone=i<0;
+    saveStore(); b.classList.toggle('on', nowDone);
+    b.textContent=nowDone?'✓':'+'; b.title=nowDone?'取消已学':'标记已学';
     if(currentRoute()==='home') renderHome($('#view'));
   });
 }
