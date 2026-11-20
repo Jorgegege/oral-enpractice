@@ -13,7 +13,7 @@
 <link rel="icon" href="icons/icon-192.png" />
 <title>Oral</title>
 <script>/* 夜间模式防闪烁：在样式生效前应用主题 */
-try{var _s=JSON.parse(localStorage.getItem('esc-store-v2')||'{}');if(_s.settings&&_s.settings.darkMode)document.documentElement.classList.add('dark');}catch(e){}
+try{var _s=JSON.parse(localStorage.getItem('esc-store-v2')||'{}');var _d=document.documentElement;if(_s.settings&&_s.settings.darkMode)_d.classList.add('dark');if(_s.settings&&_s.settings.theme&&_s.settings.theme!=='green')_d.setAttribute('data-theme',_s.settings.theme);}catch(e){}
 </script>
 <style>
 :root{
@@ -26,6 +26,9 @@ try{var _s=JSON.parse(localStorage.getItem('esc-store-v2')||'{}');if(_s.settings
   --warn:#C2A375; --warn-soft:#F4EDDC;
   --bad:#B67E73; --bad-soft:#F2E5E1;
   --accent:#7D9AAE; --accent-soft:#E6EDF2;
+  /* 夜间模式下的顶栏/底栏/横幅色（跟随主题切换） */
+  --dark-hdr-a:#2C3A31; --dark-hdr-b:#38483E; --dark-tab:rgba(35,43,38,.96);
+  --dark-bnr-a:#3B4E42; --dark-bnr-b:#2C3A31;
   --radius:16px; --radius-sm:10px;
   --shadow:0 1px 2px rgba(46,58,51,.05),0 6px 18px rgba(46,58,51,.06);
   --font-sans:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
@@ -44,13 +47,79 @@ html.dark{
   --accent:#7D9AAE; --accent-soft:#26333D;
   --shadow:0 1px 2px rgba(0,0,0,.25),0 6px 18px rgba(0,0,0,.28);
 }
-html.dark header{background:linear-gradient(135deg,#2C3A31,#38483E);box-shadow:0 2px 12px rgba(0,0,0,.3);}
-html.dark nav.tabbar{background:rgba(35,43,38,.96);}
+html.dark header{background:linear-gradient(135deg,var(--dark-hdr-a),var(--dark-hdr-b));box-shadow:0 2px 12px rgba(0,0,0,.3);}
+html.dark nav.tabbar{background:var(--dark-tab);}
 html.dark .tab .ico .ico-line{filter:brightness(1.9) saturate(.5);opacity:.8;}
 html.dark .badge.level{background:var(--bg-soft);color:var(--ink-3);}
 html.dark .seg button.on{background:var(--primary);color:#fff;box-shadow:none;}
 html.dark .seg{background:var(--bg-soft);}
 html.dark .import-area,html.dark input,html.dark textarea{background:var(--bg-soft);color:var(--ink);border-color:var(--line);}
+
+/* ===== 主题配色：莫兰迪粉 / 蓝 / 紫 / 棕（绿色为 :root 默认） ===== */
+html[data-theme="rose"]{
+  --bg:#F2EAEA; --bg-soft:#E8DBDC; --card:#FCF8F8; --ink:#3A2E30;
+  --ink-2:#6E5F61; --ink-3:#A79698; --line:#E8D8D9;
+  --primary:#B67F88; --primary-deep:#94626C; --primary-soft:#F3E4E7;
+  --ok:#84A08B; --ok-soft:#E8F0E9; --warn:#C4A377; --warn-soft:#F5EDDF;
+  --bad:#BC8479; --bad-soft:#F4E7E3; --accent:#A88A9B; --accent-soft:#F0E8ED;
+  --dark-hdr-a:#4A3539; --dark-hdr-b:#5C4248; --dark-tab:rgba(46,35,38,.96);
+  --dark-bnr-a:#543D42; --dark-bnr-b:#3E2D31;
+}
+html.dark[data-theme="rose"]{
+  --bg:#241C1E; --bg-soft:#302427; --card:#2B2124; --ink:#F0E5E6;
+  --ink-2:#C0AEB1; --ink-3:#8B787B; --line:#44363A;
+  --primary:#C7939B; --primary-deep:#E5BDC4; --primary-soft:#3D2B30;
+  --ok:#8FB79A; --ok-soft:#28382D; --warn:#CBB07E; --warn-soft:#3A3124;
+  --bad:#C49588; --bad-soft:#3D2B29; --accent:#B79CAE; --accent-soft:#332A32;
+}
+html[data-theme="blue"]{
+  --bg:#E9EFF3; --bg-soft:#DAE4EA; --card:#F7FAFC; --ink:#2B3740;
+  --ink-2:#5A6B77; --ink-3:#92A2AD; --line:#D1DEE6;
+  --primary:#6E90A8; --primary-deep:#4F7089; --primary-soft:#E2EBF2;
+  --ok:#7E9E8C; --ok-soft:#E6EFE9; --warn:#C0A178; --warn-soft:#F4ECDE;
+  --bad:#B48079; --bad-soft:#F2E4E1; --accent:#7D9BB0; --accent-soft:#E5EDF3;
+  --dark-hdr-a:#2C3B47; --dark-hdr-b:#374A59; --dark-tab:rgba(33,43,51,.96);
+  --dark-bnr-a:#384D5C; --dark-bnr-b:#2A3843;
+}
+html.dark[data-theme="blue"]{
+  --bg:#1B232A; --bg-soft:#26313A; --card:#222C34; --ink:#E4ECF1;
+  --ink-2:#AABBC7; --ink-3:#788B98; --line:#35434E;
+  --primary:#7FA3BD; --primary-deep:#B4D2E5; --primary-soft:#283945;
+  --ok:#86AF99; --ok-soft:#26382E; --warn:#C9AC7C; --warn-soft:#383122;
+  --bad:#C08E84; --bad-soft:#3B2B27; --accent:#87A8BF; --accent-soft:#293743;
+}
+html[data-theme="purple"]{
+  --bg:#EEEAF3; --bg-soft:#E1DAEA; --card:#FAF8FC; --ink:#332E3C;
+  --ink-2:#645B73; --ink-3:#9A90A8; --line:#DDD5E8;
+  --primary:#8E7BA8; --primary-deep:#6E5C88; --primary-soft:#EAE4F2;
+  --ok:#809C8B; --ok-soft:#E7EFE9; --warn:#C1A279; --warn-soft:#F4ECDF;
+  --bad:#B98288; --bad-soft:#F3E5E7; --accent:#8A86B0; --accent-soft:#E9E8F3;
+  --dark-hdr-a:#37304A; --dark-hdr-b:#443B5B; --dark-tab:rgba(39,34,52,.96);
+  --dark-bnr-a:#453C5C; --dark-bnr-b:#332D45;
+}
+html.dark[data-theme="purple"]{
+  --bg:#211D2B; --bg-soft:#2C2639; --card:#272132; --ink:#E9E4F1;
+  --ink-2:#B8AEC9; --ink-3:#877D9B; --line:#3B3449;
+  --primary:#A490C0; --primary-deep:#D0BFE3; --primary-soft:#342C43;
+  --ok:#8DB09C; --ok-soft:#29382F; --warn:#C9AC7E; --warn-soft:#383124;
+  --bad:#C49499; --bad-soft:#3D2C30; --accent:#9C99C4; --accent-soft:#302D40;
+}
+html[data-theme="sand"]{
+  --bg:#F0EBE3; --bg-soft:#E4DBCE; --card:#FBF8F3; --ink:#38332C;
+  --ink-2:#6D6457; --ink-3:#A29A8C; --line:#E2D8C9;
+  --primary:#A28864; --primary-deep:#816A4B; --primary-soft:#F0E8DA;
+  --ok:#829A7E; --ok-soft:#E7EEE3; --warn:#BFA070; --warn-soft:#F5EBD9;
+  --bad:#B57F70; --bad-soft:#F3E4DE; --accent:#948A70; --accent-soft:#EEEAE0;
+  --dark-hdr-a:#41382C; --dark-hdr-b:#514536; --dark-tab:rgba(46,40,32,.96);
+  --dark-bnr-a:#544736; --dark-bnr-b:#3E352A;
+}
+html.dark[data-theme="sand"]{
+  --bg:#241F19; --bg-soft:#302920; --card:#2B241D; --ink:#F0E9DE;
+  --ink-2:#C1B6A5; --ink-3:#8D8273; --line:#453B2E;
+  --primary:#BDA07A; --primary-deep:#E0C9A5; --primary-soft:#3D3325;
+  --ok:#91AC86; --ok-soft:#2A3825; --warn:#CFB080; --warn-soft:#3B3122;
+  --bad:#C79787; --bad-soft:#3E2D27; --accent:#AEA184; --accent-soft:#352F26;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
 body{
@@ -249,7 +318,9 @@ nav.tabbar{
 .streak-banner .sb-num{font-size:17px;font-weight:800;color:#fff;font-family:var(--font-en);}
 .streak-banner .sb-msg{font-size:11.5px;color:rgba(255,255,255,.88);margin-top:1px;}
 .streak-banner .sb-badge{font-size:9px;font-weight:800;letter-spacing:1px;color:#fff;border:1px solid rgba(255,255,255,.7);border-radius:6px;padding:2px 5px;flex:0 0 auto;}
-html.dark .streak-banner{background:linear-gradient(115deg,#3B4E42,#2C3A31);}
+html.dark .streak-banner{background:linear-gradient(115deg,var(--dark-bnr-a),var(--dark-bnr-b));}
+html.dark .start-hero{background:linear-gradient(135deg,var(--dark-bnr-a),var(--dark-bnr-b));}
+html.dark .start-btn{color:var(--dark-bnr-a);}
 
 /* ===== 今日页三块：开始学习 / 练习日历 / 已学内容 ===== */
 .home-block{margin-bottom:20px;}
@@ -311,6 +382,10 @@ html.dark .streak-banner{background:linear-gradient(115deg,#3B4E42,#2C3A31);}
 .set-row{display:flex;align-items:center;justify-content:space-between;padding:14px 15px;border-bottom:1px solid var(--line);font-size:15px;}
 .set-row:last-child{border-bottom:none;}
 .set-row .desc{font-size:12px;color:var(--ink-3);margin-top:2px;}
+.theme-swatches{display:flex;gap:9px;align-items:center;}
+.theme-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;position:relative;flex:0 0 auto;box-shadow:0 1px 3px rgba(0,0,0,.15);transition:transform .15s;}
+.theme-swatch:active{transform:scale(.9);}
+.theme-swatch.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--card),0 0 0 3.5px var(--ink);}
 .seg{display:flex;background:var(--bg-soft);border-radius:9px;padding:3px;gap:3px;}
 .seg button{border:none;background:none;padding:6px 13px;border-radius:7px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;font-family:var(--font-sans);}
 .seg button.on{background:var(--card);color:var(--primary-deep);box-shadow:0 1px 3px rgba(0,0,0,.08);}
@@ -491,9 +566,17 @@ function toast(msg, ms=1900){
 
 // ---------- 本地状态 ----------
 const LS_KEY='esc-store-v2';
+// 主题配置：key、名称、色块预览色、浏览器状态栏色（日间/夜间）
+const THEMES=[
+  {k:'green', name:'莫兰迪绿', sw:'#6E8F7E', light:'#6E8F7E', dark:'#1B211E'},
+  {k:'rose',  name:'莫兰迪粉', sw:'#B67F88', light:'#B67F88', dark:'#241C1E'},
+  {k:'blue',  name:'莫兰迪蓝', sw:'#6E90A8', light:'#6E90A8', dark:'#1B232A'},
+  {k:'purple',name:'莫兰迪紫', sw:'#8E7BA8', light:'#8E7BA8', dark:'#211D2B'},
+  {k:'sand',  name:'莫兰迪棕', sw:'#A28864', light:'#A28864', dark:'#241F19'},
+];
 const store = {
   settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
-    remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true },
+    remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true, theme:'green' },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
   progress:{},      // id -> {score, ts}
@@ -510,9 +593,12 @@ function loadStore(){
 function saveStore(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch(e){} }
 function applyTheme(){
   const dark=!!store.settings.darkMode;
-  document.documentElement.classList.toggle('dark', dark);
+  const theme=THEMES.find(t=>t.k===store.settings.theme)||THEMES[0];
+  const root=document.documentElement;
+  root.classList.toggle('dark', dark);
+  root.setAttribute('data-theme', theme.k);
   const meta=document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.setAttribute('content', dark?'#1B211E':'#6E8F7E');
+  if(meta) meta.setAttribute('content', dark?theme.dark:theme.light);
 }
 function markProgress(id, score){
   store.progress[id]={ score, ts:Date.now() };
@@ -1726,6 +1812,8 @@ function renderMore(view){
 
     <div class="section-title">🌙 外观模式</div>
     <div class="set-group">
+      <div class="set-row"><div>主题配色<div class="desc">${(THEMES.find(t=>t.k===store.settings.theme)||THEMES[0]).name}，点击查看效果</div></div>
+        <div class="theme-swatches" id="themeSwatches">${THEMES.map(t=>`<button class="theme-swatch ${t.k===(store.settings.theme||'green')?'on':''}" data-k="${t.k}" title="${t.name}" aria-label="${t.name}" style="background:${t.sw}"></button>`).join('')}</div></div>
       <div class="set-row"><div>夜间模式<div class="desc">深色护眼主题，晚上练习更舒适</div></div>
         <div class="seg" id="segTheme"><button data-v="0" class="${!store.settings.darkMode?'on':''}">☀️ 日间</button><button data-v="1" class="${store.settings.darkMode?'on':''}">🌙 夜间</button></div></div>
     </div>
@@ -1799,6 +1887,14 @@ function renderMore(view){
   };
   bindGoal('#sentenceGoal','sentenceGoal');
   bindGoal('#wordGoal','wordGoal');
+  // 主题配色
+  $$('#themeSwatches .theme-swatch').forEach(b=>b.onclick=()=>{
+    store.settings.theme=b.dataset.k; saveStore(); applyTheme();
+    $$('#themeSwatches .theme-swatch').forEach(x=>x.classList.toggle('on',x.dataset.k===b.dataset.k));
+    const row=b.closest('.set-row'), desc=row&&row.querySelector('.desc');
+    if(desc) desc.textContent=(THEMES.find(t=>t.k===b.dataset.k)||THEMES[0]).name+'，点击查看效果';
+    toast('已切换配色：'+(THEMES.find(t=>t.k===b.dataset.k)||THEMES[0]).name);
+  });
   // 夜间模式
   $$('#segTheme button').forEach(b=>b.onclick=()=>{
     store.settings.darkMode=b.dataset.v==='1';
