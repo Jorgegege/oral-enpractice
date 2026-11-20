@@ -1191,8 +1191,14 @@ function renderHome(view){
       <div class="fold-body" id="shortFoldBody">
         ${t.short.map(s=>sentenceCard(s)).join('')}
       </div>
-      <div class="section-title">🔥 挑战长句 <span class="count">${t.meta.longCount} 句 · 每句 30+ 词</span></div>
-      ${t.long.map(s=>sentenceCard(s,{btn:'挑战'})).join('')}
+      <div class="section-title fold-title" id="longFold" role="button" tabindex="0" aria-expanded="false">
+        <span>🔥</span>挑战长句 <span class="count">${t.meta.longCount} 句 · 每句 30+ 词</span>
+        <span class="sp"></span>
+        <span class="fold-hint"><span class="fold-hint-label">展开</span><span class="caret">▾</span></span>
+      </div>
+      <div class="fold-body" id="longFoldBody">
+        ${t.long.map(s=>sentenceCard(s,{btn:'挑战'})).join('')}
+      </div>
     </div>
 
     <!-- ② 练习天数 -->
@@ -1222,19 +1228,22 @@ function renderHome(view){
   `;
   bindSentenceCards(view);
   bindWordCards(view);
-  // 今日短句默认折叠，点标题展开/收起
-  const shortFold=$('#shortFold'), shortBody=$('#shortFoldBody');
-  if(shortFold && shortBody){
+  // 今日短句 / 挑战长句默认折叠，点标题展开/收起
+  const bindFold=(titleSel, bodySel)=>{
+    const title=$(titleSel), body=$(bodySel);
+    if(!title || !body) return;
     const toggleFold=()=>{
-      const open=shortBody.classList.toggle('open');
-      shortFold.classList.toggle('open',open);
-      shortFold.setAttribute('aria-expanded',open?'true':'false');
-      const lab=shortFold.querySelector('.fold-hint-label');
+      const open=body.classList.toggle('open');
+      title.classList.toggle('open',open);
+      title.setAttribute('aria-expanded',open?'true':'false');
+      const lab=title.querySelector('.fold-hint-label');
       if(lab) lab.textContent=open?'收起':'展开';
     };
-    shortFold.onclick=toggleFold;
-    shortFold.onkeydown=(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleFold(); } };
-  }
+    title.onclick=toggleFold;
+    title.onkeydown=(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleFold(); } };
+  };
+  bindFold('#shortFold','#shortFoldBody');
+  bindFold('#longFold','#longFoldBody');
   $('#btnStartLearn').onclick=()=>{
     const next=todayIds.find(id=>!isDone(id))||todayIds[0];
     if(next) openPractice(next, todayIds);
