@@ -493,7 +493,7 @@ function toast(msg, ms=1900){
 const LS_KEY='esc-store-v2';
 const store = {
   settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
-    remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false },
+    remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
   progress:{},      // id -> {score, ts}
@@ -600,7 +600,7 @@ const VOICE_SETUP_TIP = IS_IOS
 const DICTATION_SETUP_TIP = IS_IOS
   ? '请到 iPhone 设置 › 通用 › 键盘 › 听写，添加「英语(美国)」'
   : IS_ANDROID
-    ? '请确认已联网并允许麦克风权限，建议用 Chrome 浏览器打开'
+    ? '在线识别失败会自动切换到本地识别（首次需下载约 40MB 模型），请保持联网完成一次下载'
     : '当前浏览器不支持语音识别，请用 Chrome 或 Safari 打开';
 
 // ---------- 头像 ----------
@@ -843,12 +843,112 @@ function renderIpaDiff(targetIpa, badPhs){
   }).join('');
 }
 
+// ---------- 本地语音识别（Whisper tiny.en，不依赖 Google / 可离线）----------
+// 浏览器内用 Web Worker + Transformers.js 推理，模型首次下载约 40MB 后由浏览器缓存。
+// 优先用在线识别（快、可实时反馈），仅在网络错误/不支持时自动降级到本地。
+const ASR = { worker:null, state:'idle', progress:0, err:'', loaded:false,
+  loadWaiters:[], jobs:new Map(), seq:0 };
+function localAsrEnabled(){ return store.settings.localAsr !== false; }
+function asrSupported(){ return typeof Worker!=='undefined' && typeof (window.AudioContext||window.webkitAudioContext)!=='undefined'; }
+function setAsrStatus(state, progress, msg){
+  ASR.state=state; ASR.progress=progress||0; if(msg) ASR.err=msg;
+  const el=document.querySelector('#asrStatus'); if(!el) return;
+  const txt={idle:'未加载 · 首次使用会自动下载模型', loading:'模型下载中 '+Math.round(ASR.progress)+'%',
+    ready:'本地识别已就绪 ✓', error:'加载失败：'+ASR.err, transcribing:'本地识别中…'}[state]||'';
+  el.textContent=txt;
+}
+function ensureAsrWorker(){
+  if(ASR.worker) return ASR.worker;
+  if(!asrSupported()){ setAsrStatus('error',0,'当前浏览器不支持本地识别'); return null; }
+  try{
+    const w=new Worker('assets/asr-worker.js',{type:'module'});
+    w.onerror=(e)=>{
+      setAsrStatus('error',0,(e&&e.message)||'Worker 启动失败');
+      ASR.loadWaiters.splice(0).forEach(x=>x.reject(new Error(ASR.err)));
+      ASR.jobs.forEach(j=>j.reject(new Error(ASR.err))); ASR.jobs.clear();
+    };
+    w.onmessage=(ev)=>{
+      const d=ev.data||{};
+      if(d.type==='progress'){
+        if(d.status==='cdn-fail') return;
+        if(typeof d.progress==='number' && d.progress>=0 && d.progress<=100) setAsrStatus('loading', d.progress);
+        return;
+      }
+      if(d.type==='ready'){
+        ASR.loaded=true; setAsrStatus('ready');
+        ASR.loadWaiters.splice(0).forEach(x=>x.resolve());
+        return;
+      }
+      if(d.type==='error'){
+        if(d.phase==='init'){
+          setAsrStatus('error',0,d.msg);
+          ASR.loadWaiters.splice(0).forEach(x=>x.reject(new Error(d.msg)));
+        } else {
+          const job=ASR.jobs.get(d.id); if(job){ ASR.jobs.delete(d.id); job.reject(new Error(d.msg)); }
+        }
+        return;
+      }
+      if(d.type==='result'){
+        const job=ASR.jobs.get(d.id); if(job){ ASR.jobs.delete(d.id); job.resolve(d.text||''); }
+      }
+    };
+    ASR.worker=w;
+    return w;
+  }catch(e){ setAsrStatus('error',0,String(e&&e.message||e)); return null; }
+}
+function asrLoad(){
+  if(ASR.loaded) return Promise.resolve();
+  if(ASR.state==='loading'){
+    return new Promise((resolve,reject)=>ASR.loadWaiters.push({resolve,reject}));
+  }
+  const w=ensureAsrWorker(); if(!w) return Promise.reject(new Error(ASR.err||'无法启动本地识别'));
+  setAsrStatus('loading',0);
+  const p=new Promise((resolve,reject)=>ASR.loadWaiters.push({resolve,reject}));
+  w.postMessage({type:'init'});
+  return p;
+}
+// 把录音 blob 解码并重采样成 16kHz 单声道 PCM
+async function audioBlobToPcm(blob){
+  const AC=window.AudioContext||window.webkitAudioContext;
+  const ctx=new AC();
+  try{
+    const ab=await blob.arrayBuffer();
+    const buf=await ctx.decodeAudioData(ab);
+    const rate=buf.sampleRate, target=16000, chans=buf.numberOfChannels;
+    let mono=buf.getChannelData(0);
+    if(chans>1){
+      mono=new Float32Array(buf.length);
+      for(let c=0;c<chans;c++){ const d=buf.getChannelData(c); for(let i=0;i<mono.length;i++) mono[i]+=d[i]/chans; }
+    }
+    if(rate===target) return mono;
+    const len=Math.max(1,Math.round(mono.length*target/rate)), out=new Float32Array(len);
+    for(let i=0;i<len;i++){
+      const pos=i*rate/target, i0=Math.floor(pos), frac=pos-i0;
+      out[i]=mono[i0]*(1-frac)+(mono[Math.min(i0+1,mono.length-1)]||0)*frac;
+    }
+    return out;
+  } finally { try{ ctx.close(); }catch(e){} }
+}
+// 本地转录一段录音 blob，返回识别文本
+async function transcribeLocal(blob){
+  const w=ensureAsrWorker(); if(!w) throw new Error(ASR.err||'本地识别不可用');
+  const pcm=await audioBlobToPcm(blob);
+  if(!pcm.length) throw new Error('录音为空');
+  await asrLoad();
+  setAsrStatus('transcribing');
+  const id=++ASR.seq;
+  return new Promise((resolve,reject)=>{
+    ASR.jobs.set(id,{resolve, reject});
+    w.postMessage({type:'transcribe', id, pcm}, [pcm.buffer]);
+  });
+}
+
 // 识别会话
-let recog=null, recogTimer=null, recogFinal='';
-function startRecognition(targetText, onFinal, onInterim){
+let recog=null, recogTimer=null, recogFinal='', recogFallback=false;
+function startRecognition(targetText, onFinal, onInterim, onNetworkFail){
   if(!SR){ toast('不支持语音识别：'+DICTATION_SETUP_TIP, 3800); return null; }
   if(recog){ try{ recog.abort(); }catch(e){} }
-  recogFinal='';
+  recogFinal=''; recogFallback=false;
   recog=new SR();
   recog.lang = (store.settings.accent==='UK')?'en-GB':'en-US';
   recog.interimResults=true;
@@ -862,13 +962,21 @@ function startRecognition(targetText, onFinal, onInterim){
     if(final) recogFinal=final;
     if(interim) onInterim && onInterim(interim);
   };
-  recog.onend=()=>{ onFinal && onFinal(recogFinal || recog._lastInterim || ''); };
+  recog.onend=()=>{ if(recogFallback) return; onFinal && onFinal(recogFinal || recog._lastInterim || ''); };
   recog.onerror=(e)=>{
     console.warn('recognition error', e.error);
+    // 网络类错误且开启本地识别 → 交给调用方降级，不重复弹错误提示
+    if((e.error==='network'||e.error==='service-not-allowed') && localAsrEnabled() && asrSupported() && onNetworkFail){
+      recogFallback=true;
+      if(recogTimer){ clearTimeout(recogTimer); recogTimer=null; }
+      try{ recog.abort(); }catch(err){}
+      onNetworkFail();
+      return;
+    }
     const m={
       'not-allowed':'麦克风权限被拒绝：请在浏览器设置中允许本站使用麦克风后重试',
       'service-not-allowed':'麦克风权限被拒绝，请检查浏览器的麦克风设置',
-      'network':'语音识别需要联网：请确认网络可用（安卓需能访问 Google 服务）后重试',
+      'network':'语音识别需要联网：请确认网络可用后重试',
       'no-speech':'没听清，请靠近麦克风再读一遍',
       'audio-capture':'找不到麦克风，请检查设备'
     };
@@ -883,7 +991,12 @@ function startRecognition(targetText, onFinal, onInterim){
   }
   return recog;
 }
-function stopRecognition(){ if(recogTimer){ clearTimeout(recogTimer); recogTimer=null; } if(recog){ try{ recog.stop(); }catch(e){} } }
+let localFinalize=null, localTimer=null; // 本地兜底的收尾回调与自动停止定时器
+function stopRecognition(){
+  if(localFinalize){ clearTimeout(localTimer); localTimer=null; const f=localFinalize; localFinalize=null; f(); return; }
+  if(recogTimer){ clearTimeout(recogTimer); recogTimer=null; }
+  if(recog){ try{ recog.stop(); }catch(e){} }
+}
 
 // ---------- 我的录音回放（对比原声） ----------
 let myRecorder=null, myChunks=[], myStream=null, myRecActive=false, myAudioUrl=null;
@@ -910,21 +1023,22 @@ async function startMyRecording(){
   }catch(e){ console.warn('录音启动失败', e); myRecActive=false; return false; }
 }
 function stopMyRecording(onDone){
-  if(!myRecorder || !myRecActive){ onDone && onDone(null); return; }
+  if(!myRecorder || !myRecActive){ onDone && onDone(null, null); return; }
   myRecorder.onstop=()=>{
     myRecActive=false;
     if(myStream){ try{ myStream.getTracks().forEach(t=>t.stop()); }catch(e){} myStream=null; }
-    let url=null;
+    let url=null, blob=null;
     if(myChunks.length){
       try{
         const mime=myRecorder.mimeType||'audio/webm';
-        url=URL.createObjectURL(new Blob(myChunks,{type:mime}));
+        blob=new Blob(myChunks,{type:mime});
+        url=URL.createObjectURL(blob);
       }catch(e){}
     }
     myRecorder=null; myChunks=[];
-    onDone && onDone(url);
+    onDone && onDone(url, blob);
   };
-  try{ myRecorder.stop(); }catch(e){ myRecActive=false; myRecorder=null; onDone && onDone(null); }
+  try{ myRecorder.stop(); }catch(e){ myRecActive=false; myRecorder=null; onDone && onDone(null, null); }
 }
 function clearMyRecording(){
   if(myRecorder){ try{ if(myRecActive) myRecorder.stop(); }catch(e){} myRecorder=null; }
@@ -1021,6 +1135,7 @@ function renderPracticeSheet(){
 }
 function gotoPractice(step){
   if(pracCtx && pracCtx.cancelPendingListen) pracCtx.cancelPendingListen();
+  localFinalize=null; clearTimeout(localTimer); localTimer=null;
   stopRecognition(); stopMyRecording(); clearMyRecording(); try{ speechSynthesis.cancel(); }catch(e){}
   const {ids,index}=pracCtx;
   const ni=index+step;
@@ -1054,6 +1169,7 @@ function updateHomeProgressBar(){
 }
 function closePractice(){
   if(pracCtx && pracCtx.cancelPendingListen) pracCtx.cancelPendingListen();
+  localFinalize=null; clearTimeout(localTimer); localTimer=null;
   stopRecognition(); stopMyRecording(); clearMyRecording(); try{ speechSynthesis.cancel(); }catch(e){}
   $('#practiceRoot').classList.remove('show');
   $('#practiceRoot').innerHTML='';
@@ -1076,11 +1192,18 @@ function beginRecord(){
   interimEl.classList.add('show');
   let lastInterim='';
   if(myAudioUrl){ try{ URL.revokeObjectURL(myAudioUrl); }catch(e){} myAudioUrl=null; } // 清掉上一句回放
-  const handleFinal=(finalText)=>{
+  // knownUrl：本地兜底已停止录音并拿到回放 url 时传入，避免二次停止覆盖
+  const handleFinal=(finalText, knownUrl)=>{
     const text=finalText||lastInterim;
     stopBtn.style.display='none'; recBtn.style.display='';
     recBtn.textContent=store.settings.practiceMode==='listen'?'🎧 听后跟读':'🎤 重新跟读';
     interimEl.classList.remove('show');
+    if(knownUrl!==undefined){
+      myAudioUrl=knownUrl;
+      if(!text || !normalizeWords(text).length){ toast('没听清，请靠近麦克风再试一次'); return; }
+      evaluate(s, text);
+      return;
+    }
     // 停止录音，拿到 blob 后再渲染结果（保证回放按钮可用）
     stopMyRecording((url)=>{
       myAudioUrl=url;
@@ -1088,11 +1211,44 @@ function beginRecord(){
       evaluate(s, text);
     });
   };
+  // 在线识别失败时的本地兜底：让用户读完点「停止」（或自动超时），再用本地模型转录
+  let localBusy=false;
+  const runLocalFallback=()=>{
+    if(localBusy || localFinalize) return;
+    localBusy=true;
+    try{ if(recog){ recog.abort(); } }catch(e){}
+    if(recogTimer){ clearTimeout(recogTimer); recogTimer=null; }
+    interimEl.textContent='🔄 已切换到本地识别，请读完这句话后点「停止」…';
+    const finalize=()=>{
+      localFinalize=null; clearTimeout(localTimer); localTimer=null;
+      stopMyRecording((url, blob)=>{
+        myAudioUrl=url;
+        if(!blob){ toast('录音失败，无法本地识别，请重试'); localBusy=false; return; }
+        interimEl.textContent='🧠 本地识别中，首次需加载模型…';
+        transcribeLocal(blob).then((text)=>{
+          localBusy=false;
+          handleFinal(text, url); // 录音已停，传入 url 供回放
+        }).catch((err)=>{
+          localBusy=false;
+          toast('本地识别失败：'+((err&&err.message)||err), 4200);
+          stopBtn.style.display='none'; recBtn.style.display=''; interimEl.classList.remove('show');
+        });
+      });
+    };
+    localFinalize=finalize;
+    const words=wordCount(s.en);
+    const limitMs=Math.max(7000, Math.min(22000, 4000 + words*1000));
+    localTimer=setTimeout(finalize, limitMs); // 自动停止兜底
+  };
   const doStart=()=>{
     interimEl.textContent='请朗读这句话…';
     startMyRecording(); // 与识别并行录制，供回放对比（失败不影响识别）
-    const r=startRecognition(s.en, handleFinal, (t)=>{ lastInterim=t; interimEl.textContent='识别中：'+t; });
-    if(!r){ stopMyRecording(); recBtn.style.display=''; stopBtn.style.display='none'; interimEl.classList.remove('show'); }
+    const r=startRecognition(s.en, handleFinal, (t)=>{ lastInterim=t; interimEl.textContent='识别中：'+t; }, runLocalFallback);
+    if(!r){
+      // 浏览器完全不支持在线识别：直接走本地（若已开启）
+      if(localAsrEnabled() && asrSupported()) runLocalFallback();
+      else { stopMyRecording(); recBtn.style.display=''; stopBtn.style.display='none'; interimEl.classList.remove('show'); }
+    }
   };
   if(store.settings.practiceMode==='listen' && 'speechSynthesis' in window){
     // 先听后读：播放示范，结束或超时后自动开始识别（iOS 的 onend 有时不触发，故加超时兜底）
@@ -1517,7 +1673,7 @@ const HELP_STEPS = {
   android: [
     {t:'用 <b>Chrome</b> 浏览器打开', s:'QQ / UC / 微信内置浏览器常屏蔽语音识别，点跟读没反应多半是这个原因。请用 Chrome，或添加到主屏幕后打开。'},
     {t:'允许麦克风权限', s:'第一次点 🎤 选「允许」。若被拒：Chrome 地址栏锁形图标 › 网站权限 › 麦克风 → 允许；或 Chrome 设置 › 网站设置 › 麦克风。'},
-    {t:'保持联网', s:'安卓的语音识别走 Google 云端服务，需要网络。断网时朗读仍可用，但跟读识别会失败。'},
+    {t:'不用 Google 也能识别', s:'安卓在线识别失败时会自动切换到本地识别（设备内完成，不上传、无需 Google 服务）。首次使用需联网下载约 40MB 模型，之后可离线。也可在「更多 › 朗读设置」里点「预下载模型」提前准备好。'},
     {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
     {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
     {t:'添加到主屏幕（可选）', s:'Chrome 右上「⋮」菜单 →「添加到主屏幕」，即可像 App 一样打开。'},
@@ -1558,6 +1714,10 @@ function renderMore(view){
         <div class="seg" id="segZh"><button data-v="1" class="${store.settings.showZh?'on':''}">显示</button><button data-v="0" class="${store.settings.showZh?'':'on'}">隐藏</button></div></div>
       <div class="set-row"><div>自动停止录音<div class="desc">按句长自动停止，避免空等</div></div>
         <div class="seg" id="segAuto"><button data-v="1" class="${store.settings.autoStop?'on':''}">开</button><button data-v="0" class="${store.settings.autoStop?'':'on'}">关</button></div></div>
+      <div class="set-row"><div>本地离线识别<div class="desc">在线识别失败时自动启用，无需 Google</div></div>
+        <div class="seg" id="segLocalAsr"><button data-v="1" class="${store.settings.localAsr!==false?'on':''}">开</button><button data-v="0" class="${store.settings.localAsr===false?'on':''}">关</button></div></div>
+      <div class="set-row"><div>本地识别模型<div class="desc" id="asrStatus">${ASR.loaded?'本地识别已就绪 ✓':(ASR.state==='loading'?'模型下载中 '+Math.round(ASR.progress)+'%':'未加载 · 首次使用会自动下载模型')}</div></div>
+        <button id="btnAsrPrefetch" class="ghost" style="border-color:var(--line);background:var(--card);color:var(--ink-2);padding:7px 12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">预下载模型</button></div>
       <div class="set-row goal-row"><div>每日句子跟练目标<div class="desc">0–100 句，0 = 不限 · 今日页按此显示达成率</div></div>
         <div class="goal-ctl"><input type="number" class="goal-input" id="sentenceGoal" min="0" max="100" step="1" inputmode="numeric" value="${store.settings.sentenceGoal}"><span class="goal-unit">句</span></div></div>
       <div class="set-row goal-row"><div>每日单词学习目标<div class="desc">0–100 词，0 = 不限 · 今日页按此显示达成率</div></div>
@@ -1598,7 +1758,7 @@ function renderMore(view){
     <div class="card" style="font-size:13px;color:var(--ink-2);line-height:1.7">
       <b style="color:var(--ink)">英语口语教练</b>（个人自用）<br>
       · 内容：每日 20 短句 + 2~3 长句 + 10 新词，云端 06:00 更新<br>
-      · 纠音：浏览器语音识别 + 词级对齐 + IPA 音素级提示<br>
+      · 纠音：在线语音识别（失败自动转本地 Whisper）+ 词级对齐 + IPA 音素级提示<br>
       · 词库：COCA 高频词（音标 + 中文释义）<br>
       · 数据来源：BBC News / Wikipedia / Project Gutenberg / ZenQuotes<br>
       <span style="color:var(--ink-3);font-size:12px">💡 手机使用请见上方「设备使用说明」</span>
@@ -1616,6 +1776,16 @@ function renderMore(view){
   $('#rateRange').oninput=(e)=>{ store.settings.rate=parseFloat(e.target.value); saveStore(); e.target.previousElementSibling.querySelector('.desc').textContent='当前 '+store.settings.rate.toFixed(2); };
   $$('#segZh button').forEach(b=>b.onclick=()=>{ store.settings.showZh=b.dataset.v==='1'; saveStore(); renderMore(view); });
   $$('#segAuto button').forEach(b=>b.onclick=()=>{ store.settings.autoStop=b.dataset.v==='1'; saveStore(); renderMore(view); });
+  $$('#segLocalAsr button').forEach(b=>b.onclick=()=>{ store.settings.localAsr=b.dataset.v==='1'; saveStore(); renderMore(view); });
+  const btnPrefetch=$('#btnAsrPrefetch');
+  if(btnPrefetch) btnPrefetch.onclick=()=>{
+    if(!asrSupported()){ toast('当前浏览器不支持本地识别'); return; }
+    if(ASR.loaded){ toast('本地识别模型已就绪'); return; }
+    if(ASR.state==='loading'){ toast('模型下载中，请稍候 '+Math.round(ASR.progress)+'%'); return; }
+    btnPrefetch.disabled=true; btnPrefetch.textContent='下载中…';
+    asrLoad().then(()=>{ toast('本地识别模型已就绪，可离线使用'); btnPrefetch.disabled=false; btnPrefetch.textContent='已就绪 ✓'; })
+      .catch((e)=>{ toast('下载失败：'+((e&&e.message)||e), 4200); btnPrefetch.disabled=false; btnPrefetch.textContent='重试下载'; });
+  };
   const bindGoal=(sel,key)=>{
     const el=$(sel); if(!el) return;
     const commit=()=>{
