@@ -50,12 +50,15 @@ header{
   box-shadow:0 2px 12px rgba(80,110,95,.16);
 }
 header .row{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-header .brand{font-size:19px;font-weight:700;letter-spacing:.3px;display:flex;align-items:center;gap:9px;}
-header .brand .brand-title{font-family:var(--font-en);font-style:italic;letter-spacing:.5px;}
-header .avatar-btn{width:38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:rgba(255,255,255,.18);overflow:hidden;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:18px;padding:0;color:#fff;}
+header .brand{font-size:19px;font-weight:700;letter-spacing:.3px;display:flex;align-items:center;gap:9px;font-family:var(--font-en);}
+header .brand .brand-title{font-style:italic;letter-spacing:.5px;}
 header .brand .brand-logo{width:30px;height:30px;border-radius:9px;object-fit:cover;flex:0 0 auto;box-shadow:0 1px 4px rgba(0,0,0,.18);}
-header .sub{font-size:12.5px;opacity:.85;margin-top:2px;}
-header .date-pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:5px 11px;border-radius:20px;font-size:12.5px;font-weight:600;white-space:nowrap;}
+header .head-sub{font-family:var(--font-en);font-size:12px;opacity:.9;margin-top:2px;letter-spacing:.2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+header .head-user{display:flex;align-items:center;gap:7px;flex:0 0 auto;cursor:pointer;}
+header .avatar-btn{width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.18);overflow:hidden;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:18px;padding:0;color:#fff;}
+header .uid{font-family:var(--font-en);font-size:14px;font-weight:700;text-align:right;line-height:1.15;}
+header .uid .uid-name{display:block;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;}
+header .uid .uid-hint{display:block;font-size:10.5px;opacity:.75;font-weight:400;}
 
 /* ===== 主区 ===== */
 main{flex:1;padding:16px 16px 90px;overflow-x:hidden;}
@@ -93,14 +96,18 @@ nav.tabbar{
   padding:6px 4px calc(8px + var(--safe-b));
   box-shadow:0 -2px 14px rgba(30,36,32,.06);
 }
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;background:none;border:none;cursor:pointer;color:var(--ink-3);font-family:var(--font-sans);transition:color .2s;}
-.tab .ico{font-size:21px;line-height:1;display:flex;align-items:center;justify-content:center;width:38px;height:30px;border-radius:14px;transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .2s;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 0;background:none;border:none;cursor:pointer;color:var(--ink-3);font-family:var(--font-sans);transition:color .2s;}
+.tab .ico{width:34px;height:34px;display:flex;align-items:center;justify-content:center;transition:transform .25s cubic-bezier(.34,1.56,.64,1),filter .2s,opacity .2s;}
+.tab .ico img{width:100%;height:100%;object-fit:contain;display:block;}
+.tab:not(.active) .ico{filter:grayscale(.7);opacity:.45;}
 .tab .lbl{font-size:11px;font-weight:600;transition:transform .2s;}
 .tab:active .ico{transform:scale(.88);}
 .tab.active{color:var(--primary-deep);}
 .tab.active .lbl{font-weight:700;transform:translateY(-1px);}
-.tab.active .ico{background:var(--primary-soft);transform:translateY(-3px) scale(1.12);animation:tabPop .45s cubic-bezier(.34,1.56,.64,1);}
-@keyframes tabPop{0%{transform:translateY(2px) scale(.8)}60%{transform:translateY(-5px) scale(1.18)}100%{transform:translateY(-3px) scale(1.12)}}
+.tab.active .ico{transform:translateY(-3px) scale(1.08);animation:tabPop .45s cubic-bezier(.34,1.56,.64,1);}
+.tab.active .ico img{filter:hue-rotate(var(--hue,0deg)) drop-shadow(0 2px 3px rgba(46,58,51,.18));}
+.tab:not(.active) .ico img{filter:grayscale(.7);}
+@keyframes tabPop{0%{transform:translateY(2px) scale(.85)}60%{transform:translateY(-5px) scale(1.14)}100%{transform:translateY(-3px) scale(1.08)}}
 
 /* ===== 进度条 ===== */
 .progress-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;box-shadow:var(--shadow);margin-bottom:4px;}
@@ -196,10 +203,64 @@ nav.tabbar{
 .search-box:focus{border-color:var(--primary);}
 
 /* ===== 统计 ===== */
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
-.stat-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;text-align:center;border:1px solid var(--line);}
-.stat-card .num{font-size:30px;font-weight:800;color:var(--primary-deep);font-family:var(--font-en);}
-.stat-card .lab{font-size:12.5px;color:var(--ink-3);margin-top:3px;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;}
+.stat-card{background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);padding:12px 8px;text-align:center;border:1px solid var(--line);}
+.stat-card .num{font-size:23px;font-weight:800;color:var(--primary-deep);font-family:var(--font-en);}
+.stat-card .lab{font-size:11px;color:var(--ink-3);margin-top:2px;}
+
+/* ===== 今日页三块：开始学习 / 练习日历 / 已学内容 ===== */
+.home-block{margin-bottom:20px;}
+.block-head{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;margin:0 2px 10px;color:var(--primary-deep);}
+.block-head .bh-ico{font-size:19px;}
+.block-head .sp{flex:1;}
+.block-head .bh-more{font-size:12.5px;font-weight:600;color:var(--primary);background:none;border:none;cursor:pointer;font-family:var(--font-sans);padding:4px 8px;border-radius:12px;}
+.start-hero{background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border-radius:var(--radius);padding:16px 17px;margin-bottom:12px;box-shadow:var(--shadow);}
+.start-hero .sh-top{display:flex;align-items:center;gap:11px;}
+.start-hero .sh-mascot{width:46px;height:46px;flex:0 0 auto;}
+.start-hero .sh-txt{flex:1;min-width:0;}
+.start-hero .sh-t1{font-size:16px;font-weight:700;}
+.start-hero .sh-t2{font-size:12px;opacity:.9;margin-top:2px;}
+.start-hero .sh-bar{height:8px;border-radius:6px;background:rgba(255,255,255,.25);overflow:hidden;margin-top:13px;}
+.start-hero .sh-bar > i{display:block;height:100%;background:#fff;border-radius:6px;transition:width .4s ease;}
+.start-hero .sh-meta{display:flex;justify-content:space-between;font-size:11.5px;opacity:.92;margin-top:6px;}
+.start-btn{width:100%;margin-top:13px;border:none;background:#fff;color:var(--primary-deep);font-size:15.5px;font-weight:800;padding:12px;border-radius:12px;cursor:pointer;font-family:var(--font-sans);box-shadow:0 3px 10px rgba(0,0,0,.12);}
+.start-btn:active{transform:scale(.99);}
+
+/* 练习日历 */
+.cal-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-head .cal-title{font-family:var(--font-en);font-size:15px;font-weight:700;color:var(--primary-deep);}
+.cal-nav{display:flex;gap:6px;}
+.cal-nav button{border:1px solid var(--line);background:var(--bg-soft);color:var(--primary-deep);width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;font-family:var(--font-sans);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-dow{font-family:var(--font-en);font-size:10.5px;color:var(--ink-3);text-align:center;padding-bottom:3px;}
+.cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px;color:var(--ink-2);position:relative;line-height:1.1;}
+.cal-day.empty{visibility:hidden;}
+.cal-day .cd-n{font-family:var(--font-en);}
+.cal-day .cd-c{font-size:9px;font-weight:700;}
+.cal-day.has{background:var(--primary-soft);color:var(--primary-deep);}
+.cal-day.has .cd-c{color:var(--primary);}
+.cal-day.today{box-shadow:0 0 0 2px var(--primary) inset;}
+.cal-legend{display:flex;gap:14px;font-size:11px;color:var(--ink-3);margin-top:10px;justify-content:center;}
+.cal-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:4px;}
+
+/* 已学记录弹层 */
+#learnedRoot{position:fixed;inset:0;z-index:60;display:none;}
+#learnedRoot.show{display:block;}
+.learned-sheet{position:absolute;inset:0;background:var(--bg);overflow-y:auto;padding:calc(14px + env(safe-area-inset-top,0px)) 16px 40px;}
+.learned-stat{display:flex;gap:10px;margin-bottom:14px;}
+.learned-stat .ls{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;flex:1;text-align:center;}
+.learned-stat .ls .n{font-family:var(--font-en);font-size:22px;font-weight:800;color:var(--primary-deep);}
+.learned-stat .ls .l{font-size:11px;color:var(--ink-3);}
+.lr-item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 13px;margin-bottom:9px;box-shadow:var(--shadow);}
+.lr-item .lr-en{font-family:var(--font-en);font-size:15px;line-height:1.45;}
+.lr-item .lr-zh{font-size:12px;color:var(--ink-2);margin-top:4px;}
+.lr-item .lr-meta{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11.5px;color:var(--ink-3);}
+.lr-score{font-family:var(--font-en);font-weight:800;font-size:13px;padding:1px 8px;border-radius:10px;}
+.lr-score.ok{background:var(--ok-soft);color:var(--ok);}
+.lr-score.warn{background:var(--warn-soft);color:var(--warn);}
+.lr-score.bad{background:var(--bad-soft);color:var(--bad);}
+.lr-again{margin-left:auto;border:1px solid var(--line);background:var(--primary-soft);color:var(--primary-deep);font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:12px;cursor:pointer;font-family:var(--font-sans);}
 
 /* ===== 设置 / 更多 ===== */
 .set-group{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--line);margin-bottom:14px;overflow:hidden;}
@@ -210,9 +271,11 @@ nav.tabbar{
 .seg button{border:none;background:none;padding:6px 13px;border-radius:7px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;font-family:var(--font-sans);}
 .seg button.on{background:var(--card);color:var(--primary-deep);box-shadow:0 1px 3px rgba(0,0,0,.08);}
 input[type=range]{width:110px;accent-color:var(--primary);}
-.goal-ctl{display:flex;align-items:center;gap:9px;}
-.goal-ctl input[type=range]{width:88px;}
-.goal-ctl b{min-width:26px;text-align:center;font-size:14px;color:var(--primary-deep);background:var(--primary-soft);border-radius:8px;padding:2px 5px;}
+.goal-ctl{display:flex;align-items:center;gap:6px;}
+.goal-input{width:62px;text-align:center;font-family:var(--font-en);font-size:15px;font-weight:700;color:var(--primary-deep);background:var(--primary-soft);border:1.5px solid var(--line);border-radius:8px;padding:5px 4px;outline:none;-moz-appearance:textfield;}
+.goal-input::-webkit-inner-spin-button,.goal-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+.goal-input:focus{border-color:var(--primary);background:var(--card);}
+.goal-unit{font-size:12.5px;color:var(--ink-3);}
 
 /* 设备使用说明 */
 .help-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 15px;}
@@ -252,14 +315,14 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 <div id="app">
   <header>
       <div class="row">
-      <div style="display:flex;align-items:center;gap:9px">
-        <button class="avatar-btn" id="avatarBtn" title="点击更换头像">👤</button>
-        <div>
-          <div class="brand"><img class="brand-logo" src="assets/logo.jpg" alt="Oral practice"><span class="brand-title">Oral practice</span></div>
-          <div class="sub" id="headerSub">跟读 · 逐词纠音 · 每日更新</div>
-        </div>
+      <div>
+        <div class="brand"><img class="brand-logo" src="assets/tab-avatar.png" alt="Oral practice"><span class="brand-title">Oral practice</span></div>
+        <div class="head-sub" id="headerDate">—</div>
       </div>
-      <div class="date-pill" id="headerDate">—</div>
+      <div class="head-user" id="headUser" title="点击修改昵称">
+        <div class="uid"><span class="uid-name" id="uidName">Learner</span><span class="uid-hint">tap to edit</span></div>
+        <button class="avatar-btn" id="avatarBtn" title="点击更换头像">👤</button>
+      </div>
     </div>
     <input type="file" id="avatarFile" accept="image/*" style="display:none" />
   </header>
@@ -269,6 +332,8 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 
 <!-- 跟读练习弹层 -->
 <div id="practiceRoot"></div>
+<!-- 已学内容弹层 -->
+<div id="learnedRoot"></div>
 <!-- 轻提示 -->
 <div class="toast" id="toast"></div>
 
@@ -295,6 +360,15 @@ function fmtDateCN(dateStr){
   const d=new Date(dateStr+'T00:00:00');
   return `${d.getMonth()+1}月${d.getDate()}日 · 周${'日一二三四五六'[d.getDay()]}`;
 }
+// 英文日期 + 时间（标题下方显示，统一 en 字体）
+const EN_MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const EN_DAY=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function fmtHeaderDateTime(d=new Date()){
+  const date=`${EN_DAY[d.getDay()]}, ${EN_MON[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  let h=d.getHours(), m=String(d.getMinutes()).padStart(2,'0');
+  const ap=h>=12?'PM':'AM'; h=h%12||12;
+  return `${date} · ${h}:${m} ${ap}`;
+}
 const wordCount = s => String(s||'').trim().split(/\s+/).filter(Boolean).length;
 let toastTimer=null;
 function toast(msg, ms=1900){
@@ -307,6 +381,7 @@ const LS_KEY='esc-store-v2';
 const store = {
   settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct' },
   avatar:'',       // 头像 dataURL（压缩后）
+  uid:'Learner',   // 用户昵称（右上角显示，可点击修改）
   progress:{},      // id -> {score, ts}
   mistakes:[],      // 需复习的 id（保留最近 60）
   wordsDone:{},     // date -> [w]
@@ -409,13 +484,30 @@ const DICTATION_SETUP_TIP = IS_IOS
     : '当前浏览器不支持语音识别，请用 Chrome 或 Safari 打开';
 
 // ---------- 头像 ----------
+function renderUid(){
+  const el=$('#uidName'); if(!el) return;
+  el.textContent=store.uid||'Learner';
+}
 function renderAvatar(){
   const b=$('#avatarBtn'); if(!b) return;
   if(store.avatar){ b.innerHTML=`<img src="${store.avatar}" alt="我的头像" style="width:100%;height:100%;object-fit:cover;">`; }
   else { b.textContent='👤'; }
+  renderUid();
+}
+function setupUid(){
+  const box=$('#headUser'); if(!box) return;
+  box.onclick=(e)=>{
+    if(e.target.closest('#avatarBtn')) return; // 头像点击单独处理上传
+    const cur=store.uid||'Learner';
+    const name=window.prompt('Your nickname / ID', cur);
+    if(name==null) return;
+    const v=String(name).trim().slice(0,16)||'Learner';
+    store.uid=v; saveStore(); renderUid(); toast('昵称已更新 ✓');
+  };
 }
 function setupAvatar(){
   renderAvatar();
+  setupUid();
   const btn=$('#avatarBtn'), file=$('#avatarFile');
   if(!btn||!file) return;
   btn.onclick=()=>file.click();
@@ -760,24 +852,27 @@ function gotoPractice(step){
   pracCtx={ ids, index:ni, id, s };
   renderPracticeSheet();
 }
-function progressHtml(t){
-  const doneS=t.short.filter(isDone).length+t.long.filter(isDone).length;
-  const doneW=(store.wordsDone[t.date]||[]).length;
+// 今日进度：按「每日句子目标」算达成率（目标0=按今日全部句子），返回给 hero 与即时刷新共用
+function todayProgress(t){
+  const ids=[...t.short.map(s=>s.id), ...t.long.map(s=>s.id)];
+  const doneS=ids.filter(isDone).length;
+  const wordsDone=(store.wordsDone[t.date]||[]).length;
   const goalS=store.settings.sentenceGoal||0, goalW=store.settings.wordGoal||0;
-  const sPct=goalS>0?Math.min(100,Math.round(doneS/goalS*100)):100;
-  const wPct=goalW>0?Math.min(100,Math.round(doneW/goalW*100)):100;
-  const pct=Math.round((sPct+wPct)/2);
-  const sTxt=goalS>0?`句子 <b>${doneS}/${goalS}</b>`:'句子 <b>不限</b>';
-  const wTxt=goalW>0?`单词 <b>${doneW}/${goalW}</b>`:'单词 <b>不限</b>';
-  const reached=(goalS>0&&doneS>=goalS)||(goalW>0&&doneW>=goalW);
-  return `<div class="progress-head"><span>今日目标 ${sTxt} · ${wTxt}</span><b>${reached?'🎯 ':''}${pct}%</b></div>
-    <div class="bar"><i style="width:${pct}%"></i></div>`;
+  const sPct=goalS>0?Math.min(100,Math.round(doneS/goalS*100)):(ids.length?Math.round(doneS/ids.length*100):0);
+  const wPct=goalW>0?Math.min(100,Math.round(wordsDone/goalW*100)):100;
+  const pct=Math.round((sPct+(goalW>0?wPct:sPct))/2);
+  const label=goalS>0?`目标 ${doneS} / ${goalS} 句 · 已达标`:`今日已达标 ${doneS} / ${ids.length} 句`;
+  return {doneS, totalS:ids.length, wordsDone, goalS, goalW, sPct, wPct, pct, label};
 }
 function updateHomeProgressBar(){
   if(currentRoute()!=='home') return;
   const t=DB.today; if(!t) return;
-  const wrap=$('#view .progress-wrap'); if(!wrap) return;
-  wrap.innerHTML=progressHtml(t);
+  // 刷新「开始学习」卡片的今日进度（在弹层内评分后即时同步）
+  const hero=$('#view .start-hero'); if(!hero) return;
+  const pg=todayProgress(t);
+  const bar=$('#view .sh-bar > i'); if(bar) bar.style.width=pg.pct+'%';
+  const meta=$('#view .sh-meta'); if(meta) meta.innerHTML=`<span>${pg.label}</span><span>${pg.pct}% · 单词 ${pg.wordsDone}${pg.goalW?('/'+pg.goalW):''}</span>`;
+  const btn=$('#btnStartLearn'); if(btn && pg.doneS>0 && pg.doneS<pg.totalS) btn.textContent='继续学习 →';
 }
 function closePractice(){
   if(pracCtx && pracCtx.cancelPendingListen) pracCtx.cancelPendingListen();
@@ -902,17 +997,16 @@ function levenshtein(a,b){
 
 // ---------- 渲染各页 ----------
 const TABS=[
-  {id:'home', ico:'🌱', lbl:'今日'},
-  {id:'library', ico:'📖', lbl:'句库'},
-  {id:'review', ico:'💡', lbl:'复习'},
-  {id:'stats', ico:'📈', lbl:'统计'},
-  {id:'more', ico:'✨', lbl:'更多'},
+  {id:'home', lbl:'今日', hue:0},
+  {id:'library', lbl:'句库', hue:-28},
+  {id:'review', lbl:'复习', hue:24},
+  {id:'more', lbl:'更多', hue:52},
 ];
 function currentRoute(){ const h=(location.hash||'#/home').replace('#/',''); return TABS.some(t=>t.id===h)?h:'home'; }
 function navigate(r){ location.hash='#/'+r; }
 function renderTabbar(){
   const cur=currentRoute();
-  $('#tabbar').innerHTML=TABS.map(t=>`<button class="tab ${t.id===cur?'active':''}" data-r="${t.id}"><span class="ico">${t.ico}</span><span class="lbl">${t.lbl}</span></button>`).join('');
+  $('#tabbar').innerHTML=TABS.map(t=>`<button class="tab ${t.id===cur?'active':''}" data-r="${t.id}" aria-label="${t.lbl}"><span class="ico"><img src="assets/tab-avatar.png" alt="" style="--hue:${t.hue}deg"></span><span class="lbl">${t.lbl}</span></button>`).join('');
   $$('#tabbar .tab').forEach(b=>b.onclick=()=>navigate(b.dataset.r));
 }
 function render(){
@@ -920,7 +1014,7 @@ function render(){
   const r=currentRoute();
   const view=$('#view');
   view.innerHTML='<div class="loading"><div class="spinner"></div>加载中…</div>';
-  ({home:renderHome, library:renderLibrary, review:renderReview, stats:renderStats, more:renderMore})[r](view);
+  ({home:renderHome, library:renderLibrary, review:renderReview, more:renderMore})[r](view);
 }
 window.addEventListener('hashchange', render);
 
@@ -939,22 +1033,159 @@ function sentenceCard(s, opts={}){
 }
 function renderHome(view){
   const t=DB.today; if(!t){ view.innerHTML=emptyHtml('今日计划还没准备好'); return; }
+  const todayIds=[...t.short.map(s=>s.id), ...t.long.map(s=>s.id)];
+  const pg=todayProgress(t);
   view.innerHTML=`
-    <div class="progress-wrap fade-in">
-      ${progressHtml(t)}
+    <!-- ① 开始学习 -->
+    <div class="home-block fade-in">
+      <div class="block-head"><span class="bh-ico">🚀</span>开始学习<span class="sp"></span></div>
+      <div class="start-hero">
+        <div class="sh-top">
+          <img class="sh-mascot" src="assets/tab-avatar.png" alt="">
+          <div class="sh-txt">
+            <div class="sh-t1">Today's Practice</div>
+            <div class="sh-t2">${fmtDateCN(t.date)} · 今日 ${todayIds.length} 句 + ${t.words.length} 新词</div>
+          </div>
+        </div>
+        <div class="sh-bar"><i style="width:${pg.pct}%"></i></div>
+        <div class="sh-meta"><span>${pg.label}</span><span>${pg.pct}% · 单词 ${pg.wordsDone}${pg.goalW?('/'+pg.goalW):''}</span></div>
+        <button class="start-btn" id="btnStartLearn">${pg.doneS>0&&pg.doneS<todayIds.length?'继续学习 →':'开始学习 →'}</button>
+      </div>
+      ${t.local?`<div class="hint-line" style="margin-top:2px">⚠️ 当前为本地兜底计划（未取到云端今日文件），仍可正常练习</div>`:''}
+      <div class="section-title">📖 今日短句 <span class="count">${t.meta.shortCount} 句 · 共 ${t.meta.shortTotalWords} 词</span></div>
+      ${t.short.map(s=>sentenceCard(s)).join('')}
+      <div class="section-title">🔥 挑战长句 <span class="count">${t.meta.longCount} 句 · 每句 30+ 词</span></div>
+      ${t.long.map(s=>sentenceCard(s,{btn:'挑战'})).join('')}
     </div>
-    ${t.local?`<div class="hint-line" style="margin-top:10px">⚠️ 当前为本地兜底计划（未取到云端今日文件），仍可正常练习</div>`:''}
-    <div class="section-title">📖 今日短句 <span class="count">${t.meta.shortCount} 句 · 共 ${t.meta.shortTotalWords} 词</span></div>
-    ${t.short.map(s=>sentenceCard(s)).join('')}
-    <div class="section-title">🔥 挑战长句 <span class="count">${t.meta.longCount} 句 · 每句 30+ 词</span></div>
-    ${t.long.map(s=>sentenceCard(s,{btn:'挑战'})).join('')}
-    <div class="section-title">🆕 今日新词 <span class="count">${t.words.length} 词 · COCA 高频</span></div>
-    <div class="word-grid">
-      ${t.words.map(w=>wordCardHtml(w, t.date)).join('')}
+
+    <!-- ② 练习天数 -->
+    <div class="home-block">
+      <div class="block-head"><span class="bh-ico">📅</span>练习天数</div>
+      ${buildStatStrip()}
+      ${calendarHtml()}
+    </div>
+
+    <!-- ③ 已学内容 -->
+    <div class="home-block">
+      <div class="block-head"><span class="bh-ico">📚</span>已学内容</div>
+      <div class="card tap" id="btnLearned" style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:30px;flex:0 0 auto">📖</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:15px;color:var(--ink)">查看学习记录</div>
+          <div style="font-size:12px;color:var(--ink-3);margin-top:2px" id="learnedSummary">—</div>
+        </div>
+        <div style="color:var(--ink-3);font-size:20px">›</div>
+      </div>
+      <div class="section-title">🆕 今日新词 <span class="count">${t.words.length} 词 · COCA 高频</span></div>
+      <div class="word-grid">
+        ${t.words.map(w=>wordCardHtml(w, t.date)).join('')}
+      </div>
     </div>
   `;
   bindSentenceCards(view);
   bindWordCards(view);
+  $('#btnStartLearn').onclick=()=>{
+    const next=todayIds.find(id=>!isDone(id))||todayIds[0];
+    if(next) openPractice(next, todayIds);
+  };
+  $('#btnLearned').onclick=openLearned;
+  bindCalendar(view);
+}
+// 统计小条（融入今日页，去掉平均/最高分）
+function buildStatStrip(){
+  const scores=Object.values(store.progress);
+  const practiced=scores.length;
+  const done=scores.filter(p=>p.score>=85).length;
+  const days=new Set(scores.map(p=>localDateStr(new Date(p.ts)))).size;
+  const words=Object.values(store.wordsDone).reduce((a,arr)=>a+arr.length,0);
+  return `<div class="stat-grid">
+    <div class="stat-card"><div class="num">${days}</div><div class="lab">练习天数</div></div>
+    <div class="stat-card"><div class="num">${done}</div><div class="lab">达标句数</div></div>
+    <div class="stat-card"><div class="num">${words}</div><div class="lab">已学单词</div></div>
+  </div>`;
+}
+// 练习日历：按日期统计当天练习句子数
+let calYM=null; // {y,m}
+function dayPracticeCount(dateStr){
+  return Object.values(store.progress).filter(p=>localDateStr(new Date(p.ts))===dateStr).length;
+}
+function calendarHtml(){
+  const now=new Date();
+  const y=calYM?calYM.y:now.getFullYear(), m=calYM?calYM.m:now.getMonth();
+  const firstDow=new Date(y,m,1).getDay();
+  const daysIn=new Date(y,m+1,0).getDate();
+  const todayStr=localDateStr();
+  let cells=EN_DAY.map(d=>`<div class="cal-dow">${d[0]}</div>`).join('');
+  for(let i=0;i<firstDow;i++) cells+='<div class="cal-day empty"></div>';
+  for(let d=1;d<=daysIn;d++){
+    const ds=localDateStr(new Date(y,m,d));
+    const cnt=dayPracticeCount(ds);
+    const cls=['cal-day',cnt?'has':'',ds===todayStr?'today':''].filter(Boolean).join(' ');
+    cells+=`<div class="${cls}" title="${ds}"><span class="cd-n">${d}</span>${cnt?`<span class="cd-c">${cnt}句</span>`:''}</div>`;
+  }
+  return `<div class="cal-card">
+    <div class="cal-head">
+      <div class="cal-title">${EN_MON[m]} ${y}</div>
+      <div class="cal-nav">
+        <button id="calPrev" aria-label="上个月">‹</button>
+        <button id="calNext" aria-label="下个月">›</button>
+      </div>
+    </div>
+    <div class="cal-grid">${cells}</div>
+    <div class="cal-legend"><span><i style="background:var(--primary-soft)"></i>当天有练习</span><span><i style="background:transparent;box-shadow:0 0 0 1.5px var(--primary) inset"></i>今天</span></div>
+  </div>`;
+}
+function bindCalendar(view){
+  const shift=(delta)=>{
+    const now=new Date();
+    const base=calYM||{y:now.getFullYear(),m:now.getMonth()};
+    const d=new Date(base.y,base.m+delta,1);
+    calYM={y:d.getFullYear(),m:d.getMonth()};
+    const card=$('#view .cal-card'); if(card){ card.outerHTML=calendarHtml(); bindCalendar(view); }
+  };
+  const p=$('#calPrev'), n=$('#calNext');
+  if(p) p.onclick=()=>shift(-1);
+  if(n) n.onclick=()=>shift(1);
+}
+// 已学内容弹层：按时间倒序列出所有练习记录与句子
+function openLearned(){
+  const root=$('#learnedRoot'); if(!root) return;
+  const recs=Object.entries(store.progress).map(([id,p])=>({id,...p,s:findSentence(id)})).filter(r=>r.s).sort((a,b)=>b.ts-a.ts);
+  const done=recs.filter(r=>r.score>=85).length;
+  const sc=(score)=>score>=85?'ok':(score>=70?'warn':'bad');
+  root.innerHTML=`<div class="learned-sheet fade-in">
+    <div class="prac-top"><div class="t">已学内容</div><button class="close-btn" id="learnedClose">✕</button></div>
+    <div class="learned-stat">
+      <div class="ls"><div class="n">${recs.length}</div><div class="l">练习句数</div></div>
+      <div class="ls"><div class="n">${done}</div><div class="l">已达标 (≥85)</div></div>
+      <div class="ls"><div class="n">${new Set(recs.map(r=>localDateStr(new Date(r.ts)))).size}</div><div class="l">练习天数</div></div>
+    </div>
+    ${recs.length?recs.map(r=>`
+      <div class="lr-item">
+        <div class="lr-en">${esc(r.s.en)}</div>
+        ${r.s.zh?`<div class="lr-zh">${esc(r.s.zh)}</div>`:''}
+        <div class="lr-meta">
+          <span class="lr-score ${sc(r.score)}">${r.score} 分</span>
+          <span>${localDateStr(new Date(r.ts))}</span>
+          <button class="lr-again" data-open="${esc(r.id)}">再练一次 ›</button>
+        </div>
+      </div>`).join(''):`<div class="empty"><div class="e-ico">📭</div>还没有学习记录<br><span style="font-size:12.5px">完成一次跟读后，记录会出现在这里</span></div>`}
+  </div>`;
+  root.classList.add('show');
+  document.body.style.overflow='hidden';
+  const summary=$('#learnedSummary');
+  if(summary) summary.textContent=recs.length?`已练习 ${recs.length} 句 · 达标 ${done} 句`:'还没有学习记录，点「开始学习」试试';
+  $('#learnedClose').onclick=closeLearned;
+  $$('#learnedRoot [data-open]').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.open; closeLearned();
+    const ids=Object.keys(store.progress);
+    openPractice(id, ids);
+  });
+}
+function closeLearned(){
+  const root=$('#learnedRoot');
+  root.classList.remove('show'); root.innerHTML='';
+  document.body.style.overflow='';
 }
 function wordCardHtml(w, dateStr){
   const done=(store.wordsDone[dateStr]||[]).includes(w.w);
@@ -1028,51 +1259,6 @@ function renderReview(view){
   bindSentenceCards(view);
 }
 
-// -- 统计 --
-function renderStats(view){
-  const scores=Object.values(store.progress);
-  const done=Object.keys(store.progress).filter(id=>store.progress[id].score>=85).length;
-  const avg=scores.length?Math.round(scores.reduce((a,p)=>a+p.score,0)/scores.length):0;
-  const practicedDays=new Set(scores.map(p=>new Date(p.ts).toDateString())).size;
-  const wordsLearned=Object.values(store.wordsDone).reduce((a,arr)=>a+arr.length,0);
-  const best=scores.length?Math.max(...scores.map(p=>p.score)):0;
-  view.innerHTML=`
-    <div class="section-title">📊 学习统计</div>
-    <div class="stat-grid">
-      <div class="stat-card"><div class="num">${scores.length}</div><div class="lab">累计练习句数</div></div>
-      <div class="stat-card"><div class="num">${done}</div><div class="lab">达标句数 (≥85)</div></div>
-      <div class="stat-card"><div class="num">${avg}</div><div class="lab">平均得分</div></div>
-      <div class="stat-card"><div class="num">${best}</div><div class="lab">最高得分</div></div>
-      <div class="stat-card"><div class="num">${practicedDays}</div><div class="lab">练习天数</div></div>
-      <div class="stat-card"><div class="num">${wordsLearned}</div><div class="lab">已学单词</div></div>
-    </div>
-    <div class="section-title">📈 最近 7 日练习</div>
-    ${weekChartHtml()}
-    <div class="section-title">📚 句库规模</div>
-    <div class="card" style="font-size:14px;color:var(--ink-2)">
-      全量句库 <b style="color:var(--primary-deep)">${DB.allSentences.length}</b> 句 ·
-      COCA 高频词 <b style="color:var(--primary-deep)">${DB.words.length}</b> 词<br>
-      <span style="font-size:12.5px;color:var(--ink-3)">云端每日 06:00（北京时间）自动更新，含时政新闻 / 名著 / 名言 / 同日史</span>
-    </div>`;
-}
-function weekChartHtml(){
-  const days=[];
-  for(let i=6;i>=0;i--){
-    const d=shiftDate(localDateStr(),-i);
-    const cnt=Object.values(store.progress).filter(p=>localDateStr(new Date(p.ts))===d).length;
-    days.push({d,cnt});
-  }
-  const max=Math.max(1,...days.map(x=>x.cnt));
-  return `<div class="card" style="padding:16px 14px">
-    <div style="display:flex;align-items:flex-end;gap:8px;height:120px">
-      ${days.map(x=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end">
-        <div style="font-size:11px;color:var(--ink-3)">${x.cnt||''}</div>
-        <div style="width:70%;max-width:26px;background:${x.cnt?'linear-gradient(180deg,var(--primary),#4E9C88)':'var(--bg-soft)'};border-radius:5px;height:${Math.max(4,x.cnt/max*90)}px"></div>
-        <div style="font-size:10.5px;color:var(--ink-3)">${x.d.slice(5).replace('-','/')}</div>
-      </div>`).join('')}
-    </div></div>`;
-}
-
 const HELP_STEPS = {
   ios: [
     {t:'用 <b>Safari</b> 打开', s:'iPhone 上 Chrome/微信内置浏览器也走 Safari 内核，但直接 Safari 最稳。建议用 Safari 打开本网站。'},
@@ -1126,10 +1312,10 @@ function renderMore(view){
         <div class="seg" id="segZh"><button data-v="1" class="${store.settings.showZh?'on':''}">显示</button><button data-v="0" class="${store.settings.showZh?'':'on'}">隐藏</button></div></div>
       <div class="set-row"><div>自动停止录音<div class="desc">按句长自动停止，避免空等</div></div>
         <div class="seg" id="segAuto"><button data-v="1" class="${store.settings.autoStop?'on':''}">开</button><button data-v="0" class="${store.settings.autoStop?'':'on'}">关</button></div></div>
-      <div class="set-row goal-row"><div>每日句子跟练目标<div class="desc">首页按此目标显示达成率</div></div>
-        <div class="goal-ctl"><input type="range" id="sentenceGoal" min="0" max="100" step="1" value="${store.settings.sentenceGoal}"><b id="sentenceGoalVal">${store.settings.sentenceGoal}</b></div></div>
-      <div class="set-row goal-row"><div>每日单词学习目标<div class="desc">首页按此目标显示达成率</div></div>
-        <div class="goal-ctl"><input type="range" id="wordGoal" min="0" max="100" step="1" value="${store.settings.wordGoal}"><b id="wordGoalVal">${store.settings.wordGoal}</b></div></div>
+      <div class="set-row goal-row"><div>每日句子跟练目标<div class="desc">0–100 句，0 = 不限 · 今日页按此显示达成率</div></div>
+        <div class="goal-ctl"><input type="number" class="goal-input" id="sentenceGoal" min="0" max="100" step="1" inputmode="numeric" value="${store.settings.sentenceGoal}"><span class="goal-unit">句</span></div></div>
+      <div class="set-row goal-row"><div>每日单词学习目标<div class="desc">0–100 词，0 = 不限 · 今日页按此显示达成率</div></div>
+        <div class="goal-ctl"><input type="number" class="goal-input" id="wordGoal" min="0" max="100" step="1" inputmode="numeric" value="${store.settings.wordGoal}"><span class="goal-unit">词</span></div></div>
     </div>
 
     <div class="section-title">🎬 导入美剧 / 影视字幕</div>
@@ -1168,8 +1354,19 @@ function renderMore(view){
   $('#rateRange').oninput=(e)=>{ store.settings.rate=parseFloat(e.target.value); saveStore(); e.target.previousElementSibling.querySelector('.desc').textContent='当前 '+store.settings.rate.toFixed(2); };
   $$('#segZh button').forEach(b=>b.onclick=()=>{ store.settings.showZh=b.dataset.v==='1'; saveStore(); renderMore(view); });
   $$('#segAuto button').forEach(b=>b.onclick=()=>{ store.settings.autoStop=b.dataset.v==='1'; saveStore(); renderMore(view); });
-  $('#sentenceGoal').oninput=(e)=>{ store.settings.sentenceGoal=parseInt(e.target.value,10); $('#sentenceGoalVal').textContent=e.target.value; saveStore(); };
-  $('#wordGoal').oninput=(e)=>{ store.settings.wordGoal=parseInt(e.target.value,10); $('#wordGoalVal').textContent=e.target.value; saveStore(); };
+  const bindGoal=(sel,key)=>{
+    const el=$(sel); if(!el) return;
+    const commit=()=>{
+      let v=parseInt(el.value,10);
+      if(!isFinite(v)) v=store.settings[key];
+      v=Math.max(0,Math.min(100,v));
+      el.value=v; store.settings[key]=v; saveStore();
+    };
+    el.onchange=commit;
+    el.onblur=commit;
+  };
+  bindGoal('#sentenceGoal','sentenceGoal');
+  bindGoal('#wordGoal','wordGoal');
   // 字幕
   $('#btnPickFile').onclick=()=>$('#subFile').click();
   $('#subFile').onchange=(e)=>{
@@ -1270,13 +1467,11 @@ function exportSubs(){
     console.error('加载数据失败', e);
     DB.today=localGeneratePlan([], [], localDateStr());
   }
-  // 顶栏
-  const dateStr=DB.today?DB.today.date:localDateStr();
-  $('#headerDate').textContent=fmtDateCN(dateStr);
-  $('#headerSub').textContent = SR? '跟读 · 逐词纠音 · 每日更新' : '⚠️ 当前浏览器不支持跟读，换 Chrome 试试';
-  render();
-  // 首次进入引导开启听写
+  // 顶栏：英文日期 + 时间（走时）
+  const tick=()=>{ const el=$('#headerDate'); if(el) el.textContent=fmtHeaderDateTime(); };
+  tick(); setInterval(tick, 15000);
   if(!SR) setTimeout(()=>toast(DICTATION_SETUP_TIP, 4500), 800);
+  render();
 })();
 </script>
 </body>
