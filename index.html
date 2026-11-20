@@ -122,6 +122,14 @@ nav.tabbar{
 .prac-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .prac-top .t{font-size:17px;font-weight:700;color:var(--primary-deep);}
 .close-btn{border:none;background:var(--card);width:34px;height:34px;border-radius:50%;font-size:17px;cursor:pointer;color:var(--ink-2);box-shadow:var(--shadow);}
+/* 弹层内学习进度条 */
+.prac-prog{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;box-shadow:var(--shadow);}
+.prac-prog .pp-head{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--ink-2);margin-bottom:8px;}
+.prac-prog .pp-head b{color:var(--primary-deep);}
+.prac-prog .pp-head .pp-navbtn{display:flex;gap:6px;}
+.pp-navbtn button{border:1px solid var(--line);background:var(--bg-soft);color:var(--primary-deep);border-radius:14px;padding:3px 11px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font-sans);}
+.pp-navbtn button:disabled{opacity:.4;cursor:default;}
+.prac-prog .bar > i.done{background:linear-gradient(90deg,var(--ok),#5FB98F);}
 .prac-sentence{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 16px;margin-bottom:14px;}
 .prac-sentence .en-line{font-family:var(--font-en);font-size:21px;line-height:1.6;}
 .prac-sentence .zh-line{font-size:14.5px;color:var(--ink-2);margin-top:8px;}
@@ -192,6 +200,17 @@ nav.tabbar{
 .seg button{border:none;background:none;padding:6px 13px;border-radius:7px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;font-family:var(--font-sans);}
 .seg button.on{background:var(--card);color:var(--primary-deep);box-shadow:0 1px 3px rgba(0,0,0,.08);}
 input[type=range]{width:110px;accent-color:var(--primary);}
+
+/* 设备使用说明 */
+.help-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 15px;}
+.help-card .seg{margin-bottom:13px;}
+.help-step{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+.help-step:last-child{border-bottom:none;}
+.help-step .hs-n{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--primary-soft);color:var(--primary-deep);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.help-step .hs-t{font-size:13.5px;color:var(--ink);line-height:1.6;}
+.help-step .hs-t b{color:var(--primary-deep);}
+.help-step .hs-t .sub{display:block;color:var(--ink-2);font-size:12.5px;margin-top:2px;}
+.help-warn{background:var(--warn-soft);border-radius:var(--radius-sm);padding:9px 11px;font-size:12.5px;color:var(--warn);line-height:1.6;margin-top:10px;}
 
 /* 字幕导入 */
 .import-area{width:100%;min-height:120px;border:1.5px dashed var(--line);border-radius:var(--radius-sm);padding:12px;font-size:14px;font-family:monospace;background:var(--bg);resize:vertical;outline:none;line-height:1.5;}
@@ -600,10 +619,35 @@ function startRecognition(targetText, onFinal, onInterim){
 function stopRecognition(){ if(recogTimer){ clearTimeout(recogTimer); recogTimer=null; } if(recog){ try{ recog.stop(); }catch(e){} } }
 
 // ---------- 跟读练习 UI ----------
-let pracCtx=null;
-function openPractice(id){
+let pracCtx=null; // { ids:[...], index, id, s }
+function practiceProgressHtml(){
+  const {ids,index}=pracCtx;
+  const total=ids.length, cur=index+1;
+  const done=ids.filter(isDone).length;
+  const pct=total?Math.round(done/total*100):0;
+  return `<div class="prac-prog">
+    <div class="pp-head">
+      <span>第 <b>${cur}</b> / ${total} 句 · 已达标 <b id="ppDone">${done}</b> 句</span>
+      <span class="pp-navbtn">
+        <button id="ppPrev" ${index<=0?'disabled':''}>‹ 上一句</button>
+        <button id="ppNext" ${index>=total-1?'disabled':''}>下一句 ›</button>
+      </span>
+    </div>
+    <div class="bar"><i class="done" style="width:${pct}%"></i></div>
+  </div>`;
+}
+function openPractice(id, ids){
   const s=findSentence(id); if(!s) return;
-  pracCtx={ id, s, recogOn:false };
+  if(!Array.isArray(ids)||!ids.length) ids=[id];
+  ids=[...new Set(ids)];
+  let index=ids.indexOf(id); if(index<0){ ids.unshift(id); index=0; }
+  pracCtx={ ids, index, id, s };
+  renderPracticeSheet();
+  $('#practiceRoot').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function renderPracticeSheet(){
+  const s=pracCtx.s;
   const root=$('#practiceRoot');
   root.innerHTML = `
   <div class="prac-sheet fade-in">
@@ -611,6 +655,7 @@ function openPractice(id){
       <div class="t">跟读练习</div>
       <button class="close-btn" id="pracClose">✕</button>
     </div>
+    ${practiceProgressHtml()}
     <div class="prac-sentence">
       <div class="meta-row" style="margin-top:0;margin-bottom:8px">
         ${badgeHtml(s)}
@@ -628,19 +673,40 @@ function openPractice(id){
     <div class="interim" id="interim"></div>
     <div class="result" id="result"></div>
   </div>`;
-  root.classList.add('show');
-  document.body.style.overflow='hidden';
-  $('#btnListen').onclick=()=>{ speakWithBtn($('#btnListen'), s.en); };
   $('#pracClose').onclick=closePractice;
+  $('#btnListen').onclick=()=>{ speakWithBtn($('#btnListen'), s.en); };
   $('#btnRec').onclick=()=>beginRecord();
   $('#btnStop').onclick=()=>{ stopRecognition(); };
+  $('#ppPrev').onclick=()=>gotoPractice(-1);
+  $('#ppNext').onclick=()=>gotoPractice(1);
+}
+function gotoPractice(step){
+  stopRecognition(); try{ speechSynthesis.cancel(); }catch(e){}
+  const {ids,index}=pracCtx;
+  const ni=index+step;
+  if(ni<0||ni>=ids.length){ toast(ni<0?'已经是第一句了':'已经是最后一句了'); return; }
+  const id=ids[ni], s=findSentence(id);
+  if(!s){ toast('这一句暂时不可用'); return; }
+  pracCtx={ ids, index:ni, id, s };
+  renderPracticeSheet();
+}
+function updateHomeProgressBar(){
+  if(currentRoute()!=='home') return;
+  const t=DB.today; if(!t) return;
+  const wrap=$('#view .progress-wrap'); if(!wrap) return;
+  const doneShort=t.short.filter(isDone).length;
+  const doneLong=t.long.filter(isDone).length;
+  const doneWords=(store.wordsDone[t.date]||[]).length;
+  const pct=Math.round((doneShort+doneLong+doneWords)/(t.short.length+t.long.length+10)*100)||0;
+  wrap.innerHTML=`<div class="progress-head"><span>今日进度 <b>${doneShort}/${t.short.length} 短句</b> · <b>${doneLong}/${t.long.length} 长句</b> · <b>${doneWords}/${t.words.length} 新词</b></span><b>${pct}%</b></div><div class="bar"><i style="width:${pct}%"></i></div>`;
 }
 function closePractice(){
-  stopRecognition(); speechSynthesis && speechSynthesis.cancel();
+  stopRecognition(); try{ speechSynthesis.cancel(); }catch(e){}
   $('#practiceRoot').classList.remove('show');
   $('#practiceRoot').innerHTML='';
   document.body.style.overflow='';
   pracCtx=null;
+  updateHomeProgressBar();
 }
 function badgeHtml(s){
   const c=s.cat||'daily';
@@ -671,6 +737,7 @@ function beginRecord(){
   if(!r){ recBtn.style.display=''; stopBtn.style.display='none'; interimEl.classList.remove('show'); }
 }
 function evaluate(s, finalText){
+  const hasNext = pracCtx && pracCtx.index < pracCtx.ids.length-1;
   const align=alignWords(s.en, finalText);
   const score=scoreOf(align);
   const lbl=scoreLabel(score);
@@ -712,10 +779,19 @@ function evaluate(s, finalText){
         </div>`}
     <div class="ctl-row" style="margin-top:14px">
       <button class="ctl ghost" id="btnReListen">🔊 再听示范</button>
-      <button class="ctl" id="btnFinish">完成 ${isDone(s.id)?'✓':''}</button>
+      ${hasNext?`<button class="ctl" id="btnNext">下一句 →</button>`:''}
+      <button class="ctl ghost" id="btnFinish">完成${isDone(s.id)?' ✓':''}</button>
     </div>`;
   $('#btnReListen').onclick=(e)=>speakWithBtn(e.target, s.en);
+  if(hasNext) $('#btnNext').onclick=()=>gotoPractice(1);
   $('#btnFinish').onclick=closePractice;
+  updateHomeProgressBar();
+  const ppDone=$('#ppDone'); // 即时刷新弹层进度
+  if(ppDone){
+    const {ids}=pracCtx; const dn=ids.filter(isDone).length;
+    ppDone.textContent=dn;
+    const bar=$('.prac-prog .bar > i'); if(bar) bar.style.width=(ids.length?Math.round(dn/ids.length*100):0)+'%';
+  }
   res.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 function levenshtein(a,b){
@@ -808,7 +884,9 @@ function bindWordCards(view){
   });
 }
 function bindSentenceCards(view){
-  $$('[data-open]',view).forEach(el=>el.onclick=(e)=>{ e.stopPropagation(); openPractice(el.dataset.open); });
+  const cards=$$('[data-open]',view);
+  const ids=[...new Set(cards.map(el=>el.dataset.open))]; // 该容器内的句子队列（去重、保序）
+  cards.forEach(el=>el.onclick=(e)=>{ e.stopPropagation(); openPractice(el.dataset.open, ids); });
 }
 function emptyHtml(msg){ return `<div class="empty"><div class="e-ico">📭</div>${esc(msg)}</div>`; }
 
@@ -901,9 +979,46 @@ function weekChartHtml(){
     </div></div>`;
 }
 
-// -- 更多 / 设置 / 字幕导入 --
+const HELP_STEPS = {
+  ios: [
+    {t:'用 <b>Safari</b> 打开', s:'iPhone 上 Chrome/微信内置浏览器也走 Safari 内核，但直接 Safari 最稳。建议用 Safari 打开本网站。'},
+    {t:'先关掉静音模式', s:'拨一下手机左侧的静音键，让橙色消失。iOS 上网页朗读在静音模式下会完全没声音——这是「🔊 听示范没反应」最常见的原因。'},
+    {t:'允许麦克风', s:'第一次点 🎤 开始跟读时，弹窗选「允许」。若误点了不允许：Safari › 设置 › 网站 › 麦克风，把本站改为「允许」。'},
+    {t:'打开听写 + 英语语言', s:'设置 › 通用 › 键盘 › 听写（开启），并添加「英语（美国）」。跟读纠音依赖听写识别英文。'},
+    {t:'朗读音量', s:'点 🔊 听示范的同时按侧边「音量+」。若没英文声音：设置 › 辅助功能 › 朗读内容 › 语音 › 添加英语声音。'},
+    {t:'添加到主屏幕（可选）', s:'Safari 底部「分享」→「添加到主屏幕」，之后像 App 一样全屏打开。换图标需先删除旧图标再重新添加。'},
+  ],
+  android: [
+    {t:'用 <b>Chrome</b> 浏览器打开', s:'QQ / UC / 微信内置浏览器常屏蔽语音识别，点跟读没反应多半是这个原因。请用 Chrome，或添加到主屏幕后打开。'},
+    {t:'允许麦克风权限', s:'第一次点 🎤 选「允许」。若被拒：Chrome 地址栏锁形图标 › 网站权限 › 麦克风 → 允许；或 Chrome 设置 › 网站设置 › 麦克风。'},
+    {t:'保持联网', s:'安卓的语音识别走 Google 云端服务，需要网络。断网时朗读仍可用，但跟读识别会失败。'},
+    {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
+    {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
+    {t:'添加到主屏幕（可选）', s:'Chrome 右上「⋮」菜单 →「添加到主屏幕」，即可像 App 一样打开。'},
+  ]
+};
+function helpContent(platform){
+  const steps=HELP_STEPS[platform]||HELP_STEPS.ios;
+  const warn = platform==='ios'
+    ? 'iOS 常见坑：<b>静音模式</b>会让朗读完全没声音，先拨静音键再试 🔊。'
+    : '安卓常见坑：<b>必须用 Chrome</b> 且保持联网；微信/QQ 内置浏览器用不了跟读。';
+  return `<div class="help-card">
+    <div class="seg" id="helpSeg">
+      <button data-p="ios" class="${platform==='ios'?'on':''}">🍎 iPhone / iPad</button>
+      <button data-p="android" class="${platform==='android'?'on':''}">🤖 安卓手机</button>
+    </div>
+    <div id="helpSteps">
+      ${steps.map((x,i)=>`<div class="help-step"><span class="hs-n">${i+1}</span><div class="hs-t">${x.t}<span class="sub">${x.s}</span></div></div>`).join('')}
+    </div>
+    <div class="help-warn">⚠️ ${warn}</div>
+  </div>`;
+}
 function renderMore(view){
+  const helpPlatform = IS_ANDROID?'android':'ios';
   view.innerHTML=`
+    <div class="section-title">📱 设备使用说明</div>
+    <div id="helpBox">${helpContent(helpPlatform)}</div>
+
     <div class="section-title">⚙️ 朗读设置</div>
     <div class="set-group">
       <div class="set-row"><div>口音<div class="desc">示范朗读的声音</div></div>
@@ -940,9 +1055,16 @@ function renderMore(view){
       · 纠音：浏览器语音识别 + 词级对齐 + IPA 音素级提示<br>
       · 词库：COCA 高频词（音标 + 中文释义）<br>
       · 数据来源：BBC News / Wikipedia / Project Gutenberg / ZenQuotes<br>
-      <span style="color:var(--ink-3);font-size:12px">⚠️ 跟读功能需在 设置 › 通用 › 键盘 › 听写 开启"英语(美国)"</span>
+      <span style="color:var(--ink-3);font-size:12px">💡 手机使用请见上方「设备使用说明」</span>
     </div>
   `;
+  // 设备说明 tab 切换
+  const bindHelpSeg=()=>$$('#helpSeg button').forEach(b=>b.onclick=()=>{
+    $('#helpBox').innerHTML=helpContent(b.dataset.p);
+    $$('#helpSeg button').forEach(x=>x.classList.toggle('on',x.dataset.p===b.dataset.p));
+    bindHelpSeg();
+  });
+  bindHelpSeg();
   // 设置绑定
   $$('#segAccent button').forEach(b=>b.onclick=()=>{ store.settings.accent=b.dataset.v; saveStore(); renderMore(view); });
   $('#rateRange').oninput=(e)=>{ store.settings.rate=parseFloat(e.target.value); saveStore(); e.target.previousElementSibling.querySelector('.desc').textContent='当前 '+store.settings.rate.toFixed(2); };
