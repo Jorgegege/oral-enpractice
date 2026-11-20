@@ -320,8 +320,8 @@ input[type=range]{width:110px;accent-color:var(--primary);}
         <div class="head-sub" id="headerDate">—</div>
       </div>
       <div class="head-user" id="headUser" title="点击修改昵称">
-        <div class="uid"><span class="uid-name" id="uidName">Learner</span><span class="uid-hint">tap to edit</span></div>
-        <button class="avatar-btn" id="avatarBtn" title="点击更换头像">👤</button>
+        <div class="uid"><span class="uid-name" id="uidName">Charlie</span><span class="uid-hint">tap to edit</span></div>
+        <button class="avatar-btn" id="avatarBtn" title="点击更换头像"><img src="assets/avatar-default.png" alt="我的头像" style="width:100%;height:100%;object-fit:cover;"></button>
       </div>
     </div>
     <input type="file" id="avatarFile" accept="image/*" style="display:none" />
@@ -380,8 +380,8 @@ function toast(msg, ms=1900){
 const LS_KEY='esc-store-v2';
 const store = {
   settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct' },
-  avatar:'',       // 头像 dataURL（压缩后）
-  uid:'Learner',   // 用户昵称（右上角显示，可点击修改）
+  avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
+  uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
   progress:{},      // id -> {score, ts}
   mistakes:[],      // 需复习的 id（保留最近 60）
   wordsDone:{},     // date -> [w]
@@ -486,22 +486,22 @@ const DICTATION_SETUP_TIP = IS_IOS
 // ---------- 头像 ----------
 function renderUid(){
   const el=$('#uidName'); if(!el) return;
-  el.textContent=store.uid||'Learner';
+  el.textContent=store.uid||'Charlie';
 }
 function renderAvatar(){
   const b=$('#avatarBtn'); if(!b) return;
-  if(store.avatar){ b.innerHTML=`<img src="${store.avatar}" alt="我的头像" style="width:100%;height:100%;object-fit:cover;">`; }
-  else { b.textContent='👤'; }
+  const src=store.avatar||'assets/avatar-default.png';
+  b.innerHTML=`<img src="${src}" alt="我的头像" style="width:100%;height:100%;object-fit:cover;">`;
   renderUid();
 }
 function setupUid(){
   const box=$('#headUser'); if(!box) return;
   box.onclick=(e)=>{
     if(e.target.closest('#avatarBtn')) return; // 头像点击单独处理上传
-    const cur=store.uid||'Learner';
+    const cur=store.uid||'Charlie';
     const name=window.prompt('Your nickname / ID', cur);
     if(name==null) return;
-    const v=String(name).trim().slice(0,16)||'Learner';
+    const v=String(name).trim().slice(0,16)||'Charlie';
     store.uid=v; saveStore(); renderUid(); toast('昵称已更新 ✓');
   };
 }
