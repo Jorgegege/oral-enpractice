@@ -365,6 +365,61 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 .remind-actions button{flex:1;padding:11px 0;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-sans);border:none;}
 .remind-go{background:var(--primary);color:#fff;}
 .remind-later{background:var(--bg-soft);color:var(--ink-2);}
+
+/* ===== 响应式：平板 / 桌面（手机端保持原样） ===== */
+/* —— 平板 ≥720px：加宽容器、底栏收进内容区宽度、卡片多列 —— */
+@media (min-width:720px){
+  #app{max-width:760px;}
+  main{padding:20px 24px 100px;}
+  header{padding-left:26px;padding-right:26px;}
+  .word-grid{grid-template-columns:repeat(3,1fr);}
+  .sentence-en{font-size:18px;}
+  nav.tabbar{
+    left:50%;right:auto;transform:translateX(-50%);
+    width:min(100%,760px);
+    border-radius:14px 14px 0 0;
+    padding-bottom:calc(10px + var(--safe-b));
+  }
+  .toast{bottom:calc(104px + var(--safe-b));}
+  /* 练习/已学弹层居中成卡片 */
+  #practiceRoot.show,#learnedRoot.show{
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:40px 24px;background:rgba(46,58,51,.4);backdrop-filter:blur(4px);
+  }
+  .prac-sheet,.learned-sheet{
+    position:relative;inset:auto;width:100%;max-width:660px;
+    max-height:calc(100vh - 80px);border-radius:18px;
+    border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.25);
+    padding:20px 24px 40px;
+  }
+}
+/* —— 桌面 ≥1040px：首页两栏，句库/复习双列 —— */
+@media (min-width:1040px){
+  #app{max-width:1160px;}
+  main{padding:24px 32px 100px;}
+  header{padding-left:36px;padding-right:36px;}
+  header .brand{font-size:21px;}
+  header .brand .brand-logo{width:34px;height:34px;}
+  .section-title{font-size:17px;}
+  nav.tabbar{width:min(100%,1160px);border-radius:16px 16px 0 0;}
+  /* 首页：左主内容(开始学习+已学新词) + 右侧栏(统计日历，滚动跟随) */
+  #view.route-home{
+    display:grid;
+    grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);
+    grid-template-areas:"learn side" "learned side";
+    gap:0 24px;align-items:start;
+  }
+  #view.route-home .hb-learn{grid-area:learn;}
+  #view.route-home .hb-days{grid-area:side;position:sticky;top:92px;}
+  #view.route-home .hb-learned{grid-area:learned;}
+  #view.route-home .home-block{margin-bottom:8px;}
+  /* 展开后的句子列表双列 */
+  #view.route-home .fold-body.open{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;}
+  /* 句库、复习句子双列 */
+  #libList,.review-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;align-items:start;}
+  .word-grid{grid-template-columns:repeat(3,1fr);}
+}
+/* 复习页包一层以便双列布局 */
 </style>
 </head>
 <body>
@@ -1147,6 +1202,7 @@ function render(){
   renderTabbar();
   const r=currentRoute();
   const view=$('#view');
+  view.className='route-'+r;
   view.innerHTML='<div class="loading"><div class="spinner"></div>加载中…</div>';
   ({home:renderHome, library:renderLibrary, review:renderReview, more:renderMore})[r](view);
 }
@@ -1171,7 +1227,7 @@ function renderHome(view){
   const pg=todayProgress(t);
   view.innerHTML=`
     <!-- ① 开始学习 -->
-    <div class="home-block fade-in">
+    <div class="home-block hb-learn fade-in">
       <div class="block-head"><span class="bh-ico">🚀</span>开始学习<span class="sp"></span></div>
       <div class="start-hero">
         <div class="sh-top">
@@ -1205,7 +1261,7 @@ function renderHome(view){
     </div>
 
     <!-- ② 练习天数 -->
-    <div class="home-block">
+    <div class="home-block hb-days">
       <div class="block-head"><span class="bh-ico">📅</span>练习天数</div>
       ${streakBannerHtml()}
       ${buildStatStrip()}
@@ -1213,7 +1269,7 @@ function renderHome(view){
     </div>
 
     <!-- ③ 已学内容 -->
-    <div class="home-block">
+    <div class="home-block hb-learned">
       <div class="block-head"><span class="bh-ico">📚</span>已学内容</div>
       <div class="card tap" id="btnLearned" style="display:flex;align-items:center;gap:12px">
         <div style="font-size:30px;flex:0 0 auto">📖</div>
@@ -1444,8 +1500,8 @@ function renderReview(view){
     view.innerHTML=`<div class="empty"><div class="e-ico">🎉</div>太棒了，暂无待复习的句子<br><span style="font-size:12.5px">评分低于 70 分的句子会出现在这里</span></div>`;
     return;
   }
-  view.innerHTML=`<div class="section-title">🔁 待复习 <span class="count">${items.length} 句</span></div>` +
-    items.map(s=>sentenceCard(s,{btn:'再练'})).join('');
+  view.innerHTML=`<div class="section-title">🔁 待复习 <span class="count">${items.length} 句</span></div><div class="review-list">` +
+    items.map(s=>sentenceCard(s,{btn:'再练'})).join('') + '</div>';
   bindSentenceCards(view);
 }
 
