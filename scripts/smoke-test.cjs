@@ -111,6 +111,8 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   const homeText = document.querySelector('#view').textContent;
   results['home 有「开始学习」'] = homeText.includes('开始学习');
   results['home 有「练习天数」'] = homeText.includes('练习天数') && document.querySelectorAll('#view .cal-grid .cal-day').length > 0;
+  results['连续打卡横幅存在'] = document.querySelector('#view #streakBanner .sb-flame') !== null
+    && /连续 \d+ 天/.test((document.querySelector('#view #streakBanner .sb-num')||{textContent:''}).textContent);
   results['home 有「已学内容」'] = homeText.includes('已学内容') && document.querySelector('#view #btnLearned') !== null;
   results['home 有「今日短句」'] = homeText.includes('今日短句');
   results['home 有「挑战长句」'] = homeText.includes('挑战长句');
@@ -145,6 +147,15 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     document.querySelector('#segRemind button[data-v="1"]').click(); await sleep(50);
     results['提醒可重新开启'] = document.querySelector('#segRemind button[data-v="1"]').classList.contains('on');
   } catch (e) { results['提醒可关闭'] = false; errors.push('remind toggle: ' + e.message); }
+  results['夜间模式设置区存在'] = document.querySelector('#segTheme') !== null
+    && document.querySelector('#segTheme button[data-v="0"]').classList.contains('on');
+  try {
+    document.querySelector('#segTheme button[data-v="1"]').click(); await sleep(50);
+    results['夜间模式可开启'] = document.documentElement.classList.contains('dark')
+      && document.querySelector('#segTheme button[data-v="1"]').classList.contains('on');
+    document.querySelector('#segTheme button[data-v="0"]').click(); await sleep(50);
+    results['夜间模式可关闭'] = !document.documentElement.classList.contains('dark');
+  } catch (e) { results['夜间模式可开启'] = false; errors.push('theme toggle: ' + e.message); }
   const sGoal = document.querySelector('#sentenceGoal'), wGoal = document.querySelector('#wordGoal');
   results['句子/单词目标为数字输入框'] = !!sGoal && !!wGoal && sGoal.type === 'number' && wGoal.type === 'number'
     && sGoal.min === '0' && sGoal.max === '100' && wGoal.min === '0' && wGoal.max === '100';
@@ -207,6 +218,8 @@ function waitFor(fn, timeout = 6000, interval = 50) {
       results['结果显示分数环'] = !!document.querySelector('#result .score-ring');
       results['结果显示词高亮'] = document.querySelectorAll('#pracEn .wtok').length;
       results['结果页有下一句按钮'] = document.querySelector('#btnNext') !== null;
+      results['结果页有回放我的按钮'] = document.querySelector('#btnPlayMine') !== null
+        && !!document.querySelector('.replay-tip');
     } catch (e) { errors.push('record flow: ' + e.message); }
     const closeBtn = document.querySelector('#pracClose');
     if (closeBtn) { closeBtn.click(); await sleep(60); }
