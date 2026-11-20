@@ -112,6 +112,13 @@ function waitFor(fn, timeout = 6000, interval = 50) {
 
   go('#/more'); await sleep(80);
   results['more 有字幕导入区'] = document.querySelector('#subText') !== null && document.querySelector('#btnImportSub') !== null;
+  results['设备使用说明双 tab'] = document.querySelectorAll('#helpSeg button').length === 2;
+  try {
+    const androidBtn = document.querySelector('#helpSeg button[data-p="android"]');
+    androidBtn.click(); await sleep(30);
+    results['说明 tab 可切换'] = document.querySelector('#helpSteps').textContent.indexOf('Chrome') > -1
+      && document.querySelector('#helpSeg button[data-p="android"]').classList.contains('on');
+  } catch (e) { results['说明 tab 可切换'] = false; errors.push('help tab: ' + e.message); }
 
   // 字幕解析（标准 SRT：条目间空行；验证 en/zh 分离与 source 透传）
   try {
@@ -129,6 +136,19 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     firstCard.click(); await sleep(60);
     results['打开跟读弹层'] = document.querySelector('#practiceRoot .en-line') !== null;
     results['弹层有开始跟读按钮'] = document.querySelector('#btnRec') !== null;
+    results['弹层有学习进度条'] = document.querySelector('#practiceRoot .prac-prog .bar > i') !== null
+      && /第\s*\d+\s*\/\s*\d+\s*句/.test((document.querySelector('.prac-prog .pp-head')||{textContent:''}).textContent);
+    try {
+      const before = document.querySelector('#pracEn').textContent.trim();
+      const nextBtn = document.querySelector('#ppNext');
+      results['有下一句按钮'] = !!nextBtn && !nextBtn.disabled;
+      nextBtn.click(); await sleep(60);
+      const after = document.querySelector('#pracEn').textContent.trim();
+      results['下一句可切换句子'] = after !== before && document.querySelector('#practiceRoot .prac-prog') !== null;
+      const prevBtn = document.querySelector('#ppPrev');
+      if (prevBtn && !prevBtn.disabled) { prevBtn.click(); await sleep(40); }
+      results['上一句可回退'] = document.querySelector('#pracEn').textContent.trim() === before;
+    } catch (e) { errors.push('nav flow: ' + e.message); }
     try {
       const rec = document.querySelector('#btnRec');
       rec.click(); await sleep(120);
@@ -136,6 +156,7 @@ function waitFor(fn, timeout = 6000, interval = 50) {
       results['录音后结果渲染'] = resEl && resEl.classList.contains('show');
       results['结果显示分数环'] = !!document.querySelector('#result .score-ring');
       results['结果显示词高亮'] = document.querySelectorAll('#pracEn .wtok').length;
+      results['结果页有下一句按钮'] = document.querySelector('#btnNext') !== null;
     } catch (e) { errors.push('record flow: ' + e.message); }
     const closeBtn = document.querySelector('#pracClose');
     if (closeBtn) { closeBtn.click(); await sleep(60); }
