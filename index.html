@@ -1784,8 +1784,11 @@ function helpContent(platform){
 function renderMore(view){
   const helpPlatform = IS_ANDROID?'android':'ios';
   view.innerHTML=`
-    <div class="section-title">📱 设备使用说明</div>
-    <div id="helpBox">${helpContent(helpPlatform)}</div>
+    <div class="section-title fold-title" id="helpFold" role="button" tabindex="0" aria-expanded="false">
+      <span>📱</span>设备使用说明 <span class="sp"></span>
+      <span class="fold-hint"><span class="fold-hint-label">展开</span><span class="caret">▾</span></span>
+    </div>
+    <div class="fold-body" id="helpFoldBody">${helpContent(helpPlatform)}</div>
 
     <div class="section-title">⚙️ 朗读设置</div>
     <div class="set-group">
@@ -1852,9 +1855,22 @@ function renderMore(view){
       <span style="color:var(--ink-3);font-size:12px">💡 手机使用请见上方「设备使用说明」</span>
     </div>
   `;
+  // 设备说明：默认折叠，点标题展开/收起
+  const helpFold=$('#helpFold'), helpBody=$('#helpFoldBody');
+  if(helpFold && helpBody){
+    const toggle=()=>{
+      const open=helpBody.classList.toggle('open');
+      helpFold.classList.toggle('open',open);
+      helpFold.setAttribute('aria-expanded',open?'true':'false');
+      const lab=helpFold.querySelector('.fold-hint-label');
+      if(lab) lab.textContent=open?'收起':'展开';
+    };
+    helpFold.onclick=toggle;
+    helpFold.onkeydown=(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } };
+  }
   // 设备说明 tab 切换
   const bindHelpSeg=()=>$$('#helpSeg button').forEach(b=>b.onclick=()=>{
-    $('#helpBox').innerHTML=helpContent(b.dataset.p);
+    $('#helpFoldBody').innerHTML=helpContent(b.dataset.p);
     $$('#helpSeg button').forEach(x=>x.classList.toggle('on',x.dataset.p===b.dataset.p));
     bindHelpSeg();
   });
