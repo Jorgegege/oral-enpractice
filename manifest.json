@@ -1,6 +1,6 @@
 {
-  "name": "英语口语教练",
-  "short_name": "口语教练",
+  "name": "Oral",
+  "short_name": "Oral",
   "description": "跟读美剧/名著/时政，逐词纠音，每日更新",
   "lang": "zh-CN",
   "start_url": "./index.html",
