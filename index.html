@@ -105,7 +105,7 @@ nav.tabbar{
 .tab.active{color:var(--primary-deep);}
 .tab.active .lbl{font-weight:700;transform:translateY(-1px);}
 .tab.active .ico{transform:translateY(-3px) scale(1.08);animation:tabPop .45s cubic-bezier(.34,1.56,.64,1);}
-.tab.active .ico img{filter:hue-rotate(var(--hue,0deg)) drop-shadow(0 2px 3px rgba(46,58,51,.18));}
+.tab.active .ico img{filter:drop-shadow(0 2px 3px rgba(46,58,51,.18));}
 .tab:not(.active) .ico img{filter:grayscale(.7);}
 @keyframes tabPop{0%{transform:translateY(2px) scale(.85)}60%{transform:translateY(-5px) scale(1.14)}100%{transform:translateY(-3px) scale(1.08)}}
 
@@ -997,16 +997,16 @@ function levenshtein(a,b){
 
 // ---------- 渲染各页 ----------
 const TABS=[
-  {id:'home', lbl:'今日', hue:0},
-  {id:'library', lbl:'句库', hue:-28},
-  {id:'review', lbl:'复习', hue:24},
-  {id:'more', lbl:'更多', hue:52},
+  {id:'home', lbl:'今日', ico:'assets/tab-home.png'},
+  {id:'library', lbl:'句库', ico:'assets/tab-library.png'},
+  {id:'review', lbl:'复习', ico:'assets/tab-review.png'},
+  {id:'more', lbl:'更多', ico:'assets/tab-more.png'},
 ];
 function currentRoute(){ const h=(location.hash||'#/home').replace('#/',''); return TABS.some(t=>t.id===h)?h:'home'; }
 function navigate(r){ location.hash='#/'+r; }
 function renderTabbar(){
   const cur=currentRoute();
-  $('#tabbar').innerHTML=TABS.map(t=>`<button class="tab ${t.id===cur?'active':''}" data-r="${t.id}" aria-label="${t.lbl}"><span class="ico"><img src="assets/tab-avatar.png" alt="" style="--hue:${t.hue}deg"></span><span class="lbl">${t.lbl}</span></button>`).join('');
+  $('#tabbar').innerHTML=TABS.map(t=>`<button class="tab ${t.id===cur?'active':''}" data-r="${t.id}" aria-label="${t.lbl}"><span class="ico"><img src="${t.ico}" alt=""></span><span class="lbl">${t.lbl}</span></button>`).join('');
   $$('#tabbar .tab').forEach(b=>b.onclick=()=>navigate(b.dataset.r));
 }
 function render(){
