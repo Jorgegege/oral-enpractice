@@ -309,6 +309,18 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .toast{position:fixed;left:50%;bottom:calc(90px + var(--safe-b));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:24px;font-size:13.5px;z-index:80;box-shadow:0 4px 16px rgba(0,0,0,.2);opacity:0;transition:opacity .2s;pointer-events:none;max-width:82%;text-align:center;}
 .toast.show{opacity:.95;}
+/* ===== 学习提醒弹窗 ===== */
+#remindRoot{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(46,58,51,.35);backdrop-filter:blur(3px);}
+#remindRoot.show{display:flex;}
+.remind-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 22px 20px;max-width:340px;width:100%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.18);animation:remindPop .35s cubic-bezier(.34,1.56,.64,1);}
+@keyframes remindPop{from{opacity:0;transform:scale(.85) translateY(12px)}to{opacity:1;transform:none}}
+.remind-ico{font-size:44px;line-height:1;margin-bottom:10px;}
+.remind-title{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:8px;}
+.remind-body{font-size:13.5px;color:var(--ink-2);line-height:1.65;margin-bottom:18px;}
+.remind-actions{display:flex;gap:10px;}
+.remind-actions button{flex:1;padding:11px 0;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-sans);border:none;}
+.remind-go{background:var(--primary);color:#fff;}
+.remind-later{background:var(--bg-soft);color:var(--ink-2);}
 </style>
 </head>
 <body>
@@ -336,6 +348,8 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 <div id="learnedRoot"></div>
 <!-- 轻提示 -->
 <div class="toast" id="toast"></div>
+<!-- 学习提醒弹窗 -->
+<div id="remindRoot"></div>
 
 <script>
 "use strict";
@@ -379,7 +393,8 @@ function toast(msg, ms=1900){
 // ---------- 本地状态 ----------
 const LS_KEY='esc-store-v2';
 const store = {
-  settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct' },
+  settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
+    remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'' },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
   progress:{},      // id -> {score, ts}
@@ -1318,6 +1333,16 @@ function renderMore(view){
         <div class="goal-ctl"><input type="number" class="goal-input" id="wordGoal" min="0" max="100" step="1" inputmode="numeric" value="${store.settings.wordGoal}"><span class="goal-unit">词</span></div></div>
     </div>
 
+    <div class="section-title">⏰ 学习提醒</div>
+    <div class="set-group">
+      <div class="set-row"><div>每日学习提醒<div class="desc">到点还没学习时提醒你（需保持页面在浏览器中打开）</div></div>
+        <div class="seg" id="segRemind"><button data-v="1" class="${store.settings.remindEnabled?'on':''}">开</button><button data-v="0" class="${store.settings.remindEnabled?'':'on'}">关</button></div></div>
+      <div class="set-row"><div>提醒时间<div class="desc">当天 0 点起算，过此时间未学习即提醒</div></div>
+        <input type="time" id="remindTime" value="${store.settings.remindTime||'21:00'}" style="background:var(--bg-soft);border:1px solid var(--line);border-radius:9px;padding:7px 10px;color:var(--ink);font-family:var(--font-en);font-size:14px;font-weight:600;"></div>
+      <div class="set-row" id="notifyRow"><div>系统通知<div class="desc">授权后即使切到后台标签页也能收到通知</div></div>
+        <button id="btnNotify" class="ghost" style="border-color:var(--line);background:var(--card);color:var(--ink-2);padding:7px 12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">授权通知</button></div>
+    </div>
+
     <div class="section-title">🎬 导入美剧 / 影视字幕</div>
     <div class="card">
       <div class="hint-line">把 .srt / .ass / .vtt 字幕粘贴或选择文件，自动解析成可跟读的句子（支持中英双语，会自动配对中文）。个人自用。</div>
@@ -1367,6 +1392,31 @@ function renderMore(view){
   };
   bindGoal('#sentenceGoal','sentenceGoal');
   bindGoal('#wordGoal','wordGoal');
+  // 学习提醒
+  $$('#segRemind button').forEach(b=>b.onclick=()=>{
+    store.settings.remindEnabled=b.dataset.v==='1';
+    saveStore();
+    if(store.settings.remindEnabled) requestNotifyPermission();
+    renderMore(view);
+  });
+  const rt=$('#remindTime'); if(rt) rt.onchange=()=>{
+    store.settings.remindTime=rt.value||'21:00';
+    store.settings.remindNotifiedDate=''; // 改时间后允许当天重新提醒
+    saveStore(); toast('提醒时间已设为 '+store.settings.remindTime);
+  };
+  const btnN=$('#btnNotify'), rowN=$('#notifyRow');
+  const paintNotify=()=>{
+    if(!rowN||!btnN) return;
+    if(!('Notification' in window)){ btnN.textContent='不支持'; btnN.disabled=true; return; }
+    const p=Notification.permission;
+    btnN.textContent = p==='granted'?'已授权 ✓':(p==='denied'?'已拒绝':(p==='default'?'授权通知':'授权通知'));
+    btnN.disabled = p==='granted';
+  };
+  paintNotify();
+  if(btnN) btnN.onclick=()=>{
+    if(!('Notification' in window)) return;
+    Notification.requestPermission().then(p=>{ paintNotify(); toast(p==='granted'?'通知已授权 ✓':'未授权，仍会页面内提醒'); });
+  };
   // 字幕
   $('#btnPickFile').onclick=()=>$('#subFile').click();
   $('#subFile').onchange=(e)=>{
@@ -1457,6 +1507,68 @@ function exportSubs(){
   toast('已导出 JSON 备份');
 }
 
+// ---------- 每日学习提醒 ----------
+function hasLearnedToday(){
+  const today=localDateStr();
+  // 句子跟读记录：progress 里今天有时间戳
+  const sentDone=Object.values(store.progress||{}).some(p=>p&&p.ts&&localDateStr(new Date(p.ts))===today);
+  // 单词学习记录：wordsDone 今天有条目
+  const wordDone=(store.wordsDone[today]||[]).length>0;
+  return sentDone||wordDone;
+}
+function requestNotifyPermission(){
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='default'){
+    try{ Notification.requestPermission(); }catch(e){}
+  }
+}
+function showReminderCard(){
+  const root=$('#remindRoot'); if(!root) return;
+  root.innerHTML=`
+    <div class="remind-card">
+      <div class="remind-ico">⏰</div>
+      <div class="remind-title">今天还没学习哦</div>
+      <div class="remind-body">已经到 ${esc(store.settings.remindTime||'21:00')} 了，今天还没有练习口语。<br>花几分钟跟读几句，保持连续学习吧！</div>
+      <div class="remind-actions">
+        <button class="remind-later" id="remindLater">稍后再说</button>
+        <button class="remind-go" id="remindGo">开始学习 →</button>
+      </div>
+    </div>`;
+  root.classList.add('show');
+  $('#remindLater').onclick=closeReminder;
+  $('#remindGo').onclick=()=>{ closeReminder(); navigate('home'); setTimeout(()=>{ const b=$('#btnStartLearn'); if(b) b.click(); }, 120); };
+}
+function closeReminder(){ const root=$('#remindRoot'); if(root){ root.classList.remove('show'); root.innerHTML=''; } }
+function fireReminder(){
+  showReminderCard();
+  // 系统通知（已授权才发）
+  try{
+    if('Notification' in window && Notification.permission==='granted'){
+      const n=new Notification('该练口语啦 ⏰', { body:'今天还没学习，花几分钟跟读几句吧！', icon:'assets/avatar-default.png', tag:'oral-reminder' });
+      n.onclick=()=>{ window.focus(); closeReminder(); navigate('home'); };
+    }
+  }catch(e){}
+}
+function checkReminder(){
+  const s=store.settings;
+  if(!s.remindEnabled) return;
+  const today=localDateStr();
+  if(s.remindNotifiedDate===today) return;       // 今天已提醒过
+  const [hh,mm]=(s.remindTime||'21:00').split(':').map(Number);
+  const now=new Date();
+  const mins=now.getHours()*60+now.getMinutes();
+  const target=(hh||21)*60+(mm||0);
+  if(mins<target) return;                        // 还没到提醒时间
+  if(hasLearnedToday()) return;                  // 今天已学习
+  s.remindNotifiedDate=today; saveStore();       // 标记今天已提醒，避免重复
+  fireReminder();
+}
+function startReminderLoop(){
+  requestNotifyPermission();
+  checkReminder();                               // 打开时若已过点且未学习，立即检查
+  setInterval(checkReminder, 60*1000);           // 每分钟检查
+}
+
 // ---------- 启动 ----------
 (async function init(){
   loadStore();
@@ -1472,6 +1584,7 @@ function exportSubs(){
   tick(); setInterval(tick, 15000);
   if(!SR) setTimeout(()=>toast(DICTATION_SETUP_TIP, 4500), 800);
   render();
+  startReminderLoop();
 })();
 </script>
 </body>
