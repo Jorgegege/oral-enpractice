@@ -87,6 +87,14 @@ main{flex:1;padding:16px 16px 90px;overflow-x:hidden;}
 .section-title{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;margin:20px 2px 10px;color:var(--primary-deep);}
 .section-title .count{font-size:12px;font-weight:600;color:var(--ink-3);background:var(--primary-soft);padding:1px 8px;border-radius:10px;}
 .section-title .sp{flex:1;}
+/* 可折叠区块：默认收起，点标题展开 */
+.fold-title{cursor:pointer;user-select:none;-webkit-user-select:none;}
+.fold-title:active{opacity:.65;}
+.fold-hint{font-size:12px;font-weight:600;color:var(--primary);display:inline-flex;align-items:center;gap:3px;flex:0 0 auto;}
+.fold-hint .caret{display:inline-block;transition:transform .2s ease;font-size:13px;line-height:1;}
+.fold-title.open .caret{transform:rotate(180deg);}
+.fold-body{display:none;}
+.fold-body.open{display:block;}
 .hint-line{font-size:12.5px;color:var(--ink-3);margin:4px 2px 10px;}
 
 /* ===== 卡片 ===== */
@@ -259,23 +267,23 @@ nav.tabbar{
 .start-btn{width:100%;margin-top:13px;border:none;background:#fff;color:var(--primary-deep);font-size:15.5px;font-weight:800;padding:12px;border-radius:12px;cursor:pointer;font-family:var(--font-sans);box-shadow:0 3px 10px rgba(0,0,0,.12);}
 .start-btn:active{transform:scale(.99);}
 
-/* 练习日历 */
-.cal-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;}
-.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.cal-head .cal-title{font-family:var(--font-en);font-size:15px;font-weight:700;color:var(--primary-deep);}
-.cal-nav{display:flex;gap:6px;}
-.cal-nav button{border:1px solid var(--line);background:var(--bg-soft);color:var(--primary-deep);width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;font-family:var(--font-sans);}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-.cal-dow{font-family:var(--font-en);font-size:10.5px;color:var(--ink-3);text-align:center;padding-bottom:3px;}
-.cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px;color:var(--ink-2);position:relative;line-height:1.1;}
+/* 练习日历（紧凑版） */
+.cal-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow);padding:10px 11px;max-width:330px;margin:0 auto;}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.cal-head .cal-title{font-family:var(--font-en);font-size:13px;font-weight:700;color:var(--primary-deep);}
+.cal-nav{display:flex;gap:5px;}
+.cal-nav button{border:1px solid var(--line);background:var(--bg-soft);color:var(--primary-deep);width:24px;height:24px;border-radius:50%;font-size:13px;line-height:1;padding:0;cursor:pointer;font-family:var(--font-sans);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-dow{font-family:var(--font-en);font-size:9px;color:var(--ink-3);text-align:center;padding-bottom:1px;}
+.cal-day{aspect-ratio:1;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:10.5px;color:var(--ink-2);position:relative;line-height:1;}
 .cal-day.empty{visibility:hidden;}
 .cal-day .cd-n{font-family:var(--font-en);}
-.cal-day .cd-c{font-size:9px;font-weight:700;}
+.cal-day .cd-logo{width:13px;height:13px;object-fit:contain;display:block;margin-top:1px;}
 .cal-day.has{background:var(--primary-soft);color:var(--primary-deep);}
-.cal-day.has .cd-c{color:var(--primary);}
-.cal-day.today{box-shadow:0 0 0 2px var(--primary) inset;}
-.cal-legend{display:flex;gap:14px;font-size:11px;color:var(--ink-3);margin-top:10px;justify-content:center;}
-.cal-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:4px;}
+.cal-day.today{box-shadow:0 0 0 1.5px var(--primary) inset;}
+.cal-legend{display:flex;gap:10px;font-size:10px;color:var(--ink-3);margin-top:7px;justify-content:center;align-items:center;}
+.cal-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;vertical-align:-1px;margin-right:3px;}
+.cal-legend img{width:11px;height:11px;object-fit:contain;vertical-align:-1px;margin-right:3px;}
 
 /* 已学记录弹层 */
 #learnedRoot{position:fixed;inset:0;z-index:60;display:none;}
@@ -1175,8 +1183,14 @@ function renderHome(view){
         <button class="start-btn" id="btnStartLearn">${pg.doneS>0&&pg.doneS<todayIds.length?'继续学习 →':'开始学习 →'}</button>
       </div>
       ${t.local?`<div class="hint-line" style="margin-top:2px">⚠️ 当前为本地兜底计划（未取到云端今日文件），仍可正常练习</div>`:''}
-      <div class="section-title">📖 今日短句 <span class="count">${t.meta.shortCount} 句 · 共 ${t.meta.shortTotalWords} 词</span></div>
-      ${t.short.map(s=>sentenceCard(s)).join('')}
+      <div class="section-title fold-title" id="shortFold" role="button" tabindex="0" aria-expanded="false">
+        <span>📖</span>今日短句 <span class="count">${t.meta.shortCount} 句 · 共 ${t.meta.shortTotalWords} 词</span>
+        <span class="sp"></span>
+        <span class="fold-hint"><span class="fold-hint-label">展开</span><span class="caret">▾</span></span>
+      </div>
+      <div class="fold-body" id="shortFoldBody">
+        ${t.short.map(s=>sentenceCard(s)).join('')}
+      </div>
       <div class="section-title">🔥 挑战长句 <span class="count">${t.meta.longCount} 句 · 每句 30+ 词</span></div>
       ${t.long.map(s=>sentenceCard(s,{btn:'挑战'})).join('')}
     </div>
@@ -1208,6 +1222,19 @@ function renderHome(view){
   `;
   bindSentenceCards(view);
   bindWordCards(view);
+  // 今日短句默认折叠，点标题展开/收起
+  const shortFold=$('#shortFold'), shortBody=$('#shortFoldBody');
+  if(shortFold && shortBody){
+    const toggleFold=()=>{
+      const open=shortBody.classList.toggle('open');
+      shortFold.classList.toggle('open',open);
+      shortFold.setAttribute('aria-expanded',open?'true':'false');
+      const lab=shortFold.querySelector('.fold-hint-label');
+      if(lab) lab.textContent=open?'收起':'展开';
+    };
+    shortFold.onclick=toggleFold;
+    shortFold.onkeydown=(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleFold(); } };
+  }
   $('#btnStartLearn').onclick=()=>{
     const next=todayIds.find(id=>!isDone(id))||todayIds[0];
     if(next) openPractice(next, todayIds);
@@ -1270,7 +1297,7 @@ function calendarHtml(){
     const ds=localDateStr(new Date(y,m,d));
     const cnt=dayPracticeCount(ds);
     const cls=['cal-day',cnt?'has':'',ds===todayStr?'today':''].filter(Boolean).join(' ');
-    cells+=`<div class="${cls}" title="${ds}"><span class="cd-n">${d}</span>${cnt?`<span class="cd-c">${cnt}句</span>`:''}</div>`;
+    cells+=`<div class="${cls}" title="${ds}"><span class="cd-n">${d}</span>${cnt?'<img class="cd-logo" src="assets/tab-home.png" alt="已打卡">':''}</div>`;
   }
   return `<div class="cal-card">
     <div class="cal-head">
@@ -1281,7 +1308,7 @@ function calendarHtml(){
       </div>
     </div>
     <div class="cal-grid">${cells}</div>
-    <div class="cal-legend"><span><i style="background:var(--primary-soft)"></i>当天有练习</span><span><i style="background:transparent;box-shadow:0 0 0 1.5px var(--primary) inset"></i>今天</span></div>
+    <div class="cal-legend"><span><img src="assets/tab-home.png" alt="">当天有练习</span><span><i style="background:transparent;box-shadow:0 0 0 1px var(--primary) inset"></i>今天</span></div>
   </div>`;
 }
 function bindCalendar(view){
