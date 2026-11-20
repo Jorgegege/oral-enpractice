@@ -356,6 +356,21 @@ function findSentence(id){
   return DB.allSentences.find(x=>x.id===id) || DB.today.short.find(x=>x.id===id) || DB.today.long.find(x=>x.id===id) || null;
 }
 
+// ---------- 平台探测（iOS / Android / 其他）----------
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+const IS_ANDROID = /Android/i.test(navigator.userAgent);
+// 语音功能不可用时的跨平台指引文案
+const VOICE_SETUP_TIP = IS_IOS
+  ? '请到 iPhone 设置 › 辅助功能 › 朗读内容 › 语音，添加「美国英语」'
+  : IS_ANDROID
+    ? '请确认已安装 Google 文字转语音，并在 设置 › 系统 › 语言与输入 › 文字转语音 中下载英语语音'
+    : '当前浏览器未找到英文语音，请安装英文语音包后重试';
+const DICTATION_SETUP_TIP = IS_IOS
+  ? '请到 iPhone 设置 › 通用 › 键盘 › 听写，添加「英语(美国)」'
+  : IS_ANDROID
+    ? '请确认已联网并允许麦克风权限，建议用 Chrome 浏览器打开'
+    : '当前浏览器不支持语音识别，请用 Chrome 或 Safari 打开';
+
 // ---------- TTS ----------
 let ttsVoices=[];
 function refreshVoices(){ if('speechSynthesis' in window){ try{ ttsVoices=speechSynthesis.getVoices(); }catch(e){} } }
@@ -384,7 +399,7 @@ function speak(text, {rate, accent, onend}={}){
   const lang=(accent||store.settings.accent)==='UK'?'en-GB':'en-US';
   const v=pickVoice(lang);
   if(!v){
-    toast('没找到英文语音：请到 iPhone 设置 › 辅助功能 › 朗读内容 › 语音，添加「美国英语」',3500);
+    toast('没找到英文语音：'+VOICE_SETUP_TIP, 4000);
   }
   const u=new SpeechSynthesisUtterance(text);
   u.rate = rate!=null?rate:store.settings.rate;
@@ -545,7 +560,7 @@ function renderIpaDiff(targetIpa, badPhs){
 // 识别会话
 let recog=null, recogTimer=null, recogFinal='';
 function startRecognition(targetText, onFinal, onInterim){
-  if(!SR){ toast('不支持语音识别：请开启 设置 › 通用 › 键盘 › 听写，并添加"英语(美国)"', 3200); return null; }
+  if(!SR){ toast('不支持语音识别：'+DICTATION_SETUP_TIP, 3800); return null; }
   if(recog){ try{ recog.abort(); }catch(e){} }
   recogFinal='';
   recog=new SR();
@@ -562,7 +577,17 @@ function startRecognition(targetText, onFinal, onInterim){
     if(interim) onInterim && onInterim(interim);
   };
   recog.onend=()=>{ onFinal && onFinal(recogFinal || recog._lastInterim || ''); };
-  recog.onerror=(e)=>{ console.warn('recognition error', e.error); };
+  recog.onerror=(e)=>{
+    console.warn('recognition error', e.error);
+    const m={
+      'not-allowed':'麦克风权限被拒绝：请在浏览器设置中允许本站使用麦克风后重试',
+      'service-not-allowed':'麦克风权限被拒绝，请检查浏览器的麦克风设置',
+      'network':'语音识别需要联网：请确认网络可用（安卓需能访问 Google 服务）后重试',
+      'no-speech':'没听清，请靠近麦克风再读一遍',
+      'audio-capture':'找不到麦克风，请检查设备'
+    };
+    if(m[e.error]) toast(m[e.error], 3500);
+  };
   try{ recog.start(); }catch(e){ toast('启动识别失败，请重试'); return null; }
   // 超时：随词数缩放（每词 ~0.9s + 3s 缓冲），可手动停止
   const words=wordCount(targetText);
@@ -1025,10 +1050,10 @@ function exportSubs(){
   // 顶栏
   const dateStr=DB.today?DB.today.date:localDateStr();
   $('#headerDate').textContent=fmtDateCN(dateStr);
-  $('#headerSub').textContent = SR? '跟读 · 逐词纠音 · 每日更新' : '⚠️ 未开启系统听写，跟读不可用';
+  $('#headerSub').textContent = SR? '跟读 · 逐词纠音 · 每日更新' : '⚠️ 当前浏览器不支持跟读，换 Chrome 试试';
   render();
   // 首次进入引导开启听写
-  if(!SR) setTimeout(()=>toast('跟读需在 设置›通用›键盘›听写 开启"英语(美国)"', 4000), 800);
+  if(!SR) setTimeout(()=>toast(DICTATION_SETUP_TIP, 4500), 800);
 })();
 </script>
 </body>
