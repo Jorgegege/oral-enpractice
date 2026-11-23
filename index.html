@@ -254,6 +254,7 @@ nav.tabbar{
 .wtok{display:inline-block;padding:1px 2px;border-radius:4px;transition:background .2s;}
 .wtok.match{background:var(--ok-soft);color:var(--ok);font-weight:600;}
 .wtok.miss{background:var(--bad-soft);color:var(--bad);text-decoration:underline wavy var(--bad) 1.5px;}
+.wtok.ignore{color:var(--ink-3);opacity:.75;border-bottom:1px dotted var(--line);}
 .wtok.current{box-shadow:0 0 0 2px var(--accent);}
 
 .ctl-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
@@ -399,7 +400,7 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 .goal-input::-webkit-inner-spin-button,.goal-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .goal-input:focus{border-color:var(--primary);background:var(--card);}
 .goal-unit{font-size:12.5px;color:var(--ink-3);}
-/* 朗读声音 / 人名发音修正 */
+/* 朗读声音 / 自定义音源 */
 .voice-ctl{display:flex;align-items:center;gap:6px;max-width:62%;}
 .voice-ctl select{flex:1;min-width:0;max-width:168px;background:var(--bg-soft);border:1px solid var(--line);border-radius:9px;padding:7px 8px;color:var(--ink);font-family:var(--font-sans);font-size:12.5px;font-weight:600;}
 .voice-ctl button{flex:0 0 auto;border:1px solid var(--line);background:var(--primary-soft);color:var(--primary-deep);border-radius:9px;padding:7px 9px;font-size:13px;cursor:pointer;font-family:var(--font-sans);white-space:nowrap;}
@@ -409,11 +410,6 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 .namefix-row input:focus{border-color:var(--primary);}
 .namefix-row span{font-size:13px;color:var(--ink-3);}
 .namefix-row button{border:1px solid var(--line);background:var(--primary-soft);color:var(--primary-deep);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font-sans);}
-.namefix-list{display:flex;flex-wrap:wrap;gap:6px;padding:0 15px 12px;}
-.namefix-chip{background:var(--bg-soft);border:1px solid var(--line);border-radius:20px;padding:4px 5px 4px 10px;font-size:12px;color:var(--ink-3);display:inline-flex;gap:5px;align-items:center;}
-.namefix-chip b{color:var(--primary-deep);font-family:var(--font-en);}
-.namefix-chip button{border:none;background:none;color:var(--ink-3);font-size:14px;line-height:1;cursor:pointer;padding:0 3px;}
-.namefix-empty{font-size:12px;color:var(--ink-3);padding:0 15px 12px;}
 
 /* 设备使用说明 */
 .help-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 15px;}
@@ -594,7 +590,7 @@ const THEMES=[
   {k:'sand',  name:'莫兰迪棕', sw:'#A28864', light:'#A28864', dark:'#241F19'},
 ];
 const store = {
-  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', nameFix:{}, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
+  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
     remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true, theme:'green', passScore:80 },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
@@ -817,27 +813,9 @@ function unlockSpeech(){
     speechSynthesis.speak(d);
   }catch(e){}
 }
-// 人名 / 缩写识别：安卓 TTS 常把不认识的名字、全大写词逐字母念，先改成自然拼读
-const NAME_FIX_BUILTIN={
-  jorge:'Hoar-hee', josé:'Ho-say', jose:'Ho-say', sean:'Shawn',
-  chloe:'Klo-ee', zoe:'Zo-ee', liam:'Lee-um', noah:'No-uh', aimee:'Ay-mee'
-};
+// 全大写词改成首字母大写，避免安卓 TTS 把缩写/字幕里的词逐字母念
 function speechText(raw){
-  let t=String(raw==null?'':raw).trim();
-  if(!t) return t;
-  t=t.replace(/\b[A-Z]{2,}\b/g, m=>m[0]+m.slice(1).toLowerCase());
-  const dict={};
-  Object.keys(NAME_FIX_BUILTIN).forEach(k=>{ dict[k.toLowerCase()]=NAME_FIX_BUILTIN[k]; });
-  Object.keys(store.settings.nameFix||{}).forEach(k=>{ if(k) dict[k.toLowerCase()]=store.settings.nameFix[k]; });
-  Object.keys(dict).forEach(k=>{
-    const to=dict[k];
-    if(!k||!to||k===to) return;
-    let re;
-    try{ re=new RegExp('\\b'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','gi'); }
-    catch(e){ return; }
-    t=t.replace(re, to);
-  });
-  return t;
+  return String(raw==null?'':raw).trim().replace(/\b[A-Z]{2,}\b/g, m=>m[0]+m.slice(1).toLowerCase());
 }
 // 按标点切成短句，逐段朗读并加轻微停顿，明显减轻机械味
 function splitForSpeech(t){
@@ -953,21 +931,54 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 function normalizeWords(text){
   return (text||'').toLowerCase().replace(/[^a-z0-9' \-]/g,' ').replace(/['\-]/g,' ').trim().split(/\s+/).filter(Boolean);
 }
-// 顺序对齐：原句每词 match/miss + 多出的 extra
+// 人名识别：常见英文名 + 用户昵称 + 词库里查不到的首字母大写词，跟读评分时忽略
+const HUMAN_NAMES=new Set(('jorge charlie george sarah michael jessica david john mary james linda robert patricia william elizabeth richard susan joseph thomas charles daniel matthew anthony mark donald steven paul andrew joshua kenneth kevin brian timothy ronald edward jason jeffrey ryan jacob gary nicholas eric jonathan stephen larry justin scott brandon benjamin samuel gregory frank alexander raymond patrick jack dennis jerry tyler aaron jose adam nathan henry zachary douglas peter kyle noah ethan jeremy walter christian keith roger terry austin sean gerald carl harold dylan arthur lawrence jordan jesse bryan billy bruce gabriel joe logan alan albert willie elijah wayne randy vincent mason roy ralph bobby russell bradley philip eugene louis emma olivia ava mia amelia harper evelyn abigail ella scarlett grace lily nora hazel layla rachel alice clara lucy anna sophia isabella charlotte rose emily maya monica ross joey piper phoebe chandler lisa moira').split(/\s+/));
+let cachedCommonWords=null;
+function commonWordSet(){
+  if(!cachedCommonWords || !cachedCommonWords.size){
+    cachedCommonWords=new Set();
+    (DB.words||[]).forEach(x=>{ if(x&&x.w) cachedCommonWords.add(String(x.w).toLowerCase()); });
+  }
+  return cachedCommonWords;
+}
+function nameMask(text){
+  const rawTokens=String(text||'').trim().split(/\s+/).filter(Boolean);
+  const common=commonWordSet(), uid=String(store.uid||'').toLowerCase(), flags=[];
+  rawTokens.forEach((raw,idx)=>{
+    const clean=raw.replace(/^[^A-Za-z]+|[^A-Za-z']+$/g,'');
+    const lower=clean.toLowerCase().replace(/'/g,'');
+    const n=normalizeWords(clean).length;
+    let yes=false;
+    if(lower){
+      if(HUMAN_NAMES.has(lower) || (uid && lower===uid)) yes=true;
+      else if(/^[A-Z][a-z]{2,}$/.test(clean) && idx>0 && !common.has(lower) && !common.has(lower.replace(/s$/,''))) yes=true;
+    }
+    for(let i=0;i<n;i++) flags.push(yes);
+  });
+  return flags;
+}
+// 顺序对齐：人名不参与对齐与计分（不计漏读、也不算多出）
 function alignWords(targetText, recognizedText){
   const t=normalizeWords(targetText), r=normalizeWords(recognizedText);
-  const res=t.map(w=>({word:w, state:'miss'}));
+  const flags=nameMask(targetText);
+  const res=t.map((w,i)=>({word:w, state:flags[i]?'ignore':'miss'}));
   const extras=[]; let j=0;
   for(let i=0;i<t.length;i++){
+    if(flags[i]){
+      if(j<r.length && r[j]===t[i]) j++; // 读到人名也不算“多出”
+      continue;
+    }
     if(j<r.length && t[i]===r[j]){ res[i].state='match'; j++; continue; }
     const k=r.indexOf(t[i], j);
     if(k>-1){ for(let x=j;x<k;x++) extras.push(r[x]); j=k+1; res[i].state='match'; }
     else res[i].state='miss';
   }
   for(let x=j;x<r.length;x++) extras.push(r[x]);
-  return {target:res, extras, matchCount:res.filter(x=>x.state==='match').length};
+  const scored=res.filter(x=>x.state!=='ignore');
+  return {target:res, extras, matchCount:scored.filter(x=>x.state==='match').length,
+    scoredCount:scored.length, ignoredCount:res.length-scored.length};
 }
-const scoreOf = a => a.target.length? Math.round(a.matchCount/a.target.length*100):0;
+const scoreOf = a => a.scoredCount ? Math.round(a.matchCount/a.scoredCount*100) : 100;
 function scoreLabel(s){
   if(s>=passLine()) return {text:'发音不错，继续保持', cls:'ok'};
   if(s>=70) return {text:'基本到位，个别词再练练', cls:'warn'};
@@ -1550,7 +1561,7 @@ function evaluate(s, finalText){
   markProgress(s.id, score);
   // 高亮句子
   const enEl=$('#pracEn');
-  enEl.innerHTML=align.target.map(t=>`<span class="wtok ${t.state}">${esc(t.word)}</span>`).join(' ');
+  enEl.innerHTML=align.target.map(t=>`<span class="wtok ${t.state}" ${t.state==='ignore'?'title="人名 · 不计入正确率"':''}>${esc(t.word)}</span>`).join(' ');
   // 问题词：miss 的词 + 尽量匹配识别到的相近词
   const missed=align.target.filter(t=>t.state==='miss');
   const rWords=normalizeWords(finalText);
@@ -1569,7 +1580,7 @@ function evaluate(s, finalText){
     <div class="score-head">
       <div class="score-ring ${ringCls}" style="--p:${score}"><i>${score}</i></div>
       <div><div class="score-label" style="color:var(--${lbl.cls==='ok'?'ok':lbl.cls==='warn'?'warn':'bad'})">${lbl.text}</div>
-      <div class="score-sub">对 ${align.matchCount}/${align.target.length} 词${align.extras.length?' · 多出 '+align.extras.length:' '}</div></div>
+      <div class="score-sub">对 ${align.matchCount}/${align.scoredCount} 词${align.ignoredCount?' · 人名 '+align.ignoredCount+' 词不计分':''}${align.extras.length?' · 多出 '+align.extras.length:' '}</div></div>
     </div>
     ${missed.length===0
       ? `<div class="no-issue">✓ 全部单词都读到了，发音很完整！</div>`
@@ -1962,7 +1973,7 @@ const HELP_STEPS = {
     {t:'允许麦克风', s:'第一次点 🎤 开始跟读时，弹窗选「允许」。若误点了不允许：Safari › 设置 › 网站 › 麦克风，把本站改为「允许」。'},
     {t:'打开听写 + 英语语言', s:'设置 › 通用 › 键盘 › 听写（开启），并添加「英语（美国）」。跟读纠音依赖听写识别英文。'},
     {t:'朗读音量', s:'点 🔊 听示范的同时按侧边「音量+」。若没英文声音：设置 › 辅助功能 › 朗读内容 › 语音 › 添加英语声音。'},
-    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「示范音源」切成「在线自然音」，或换一个更自然的英文人声；若某个英文名字被逐个字母念出来，在「人名发音修正」里加一条，例如 Jorge → Hoar-hee。'},
+    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「示范音源」切成「在线自然音」，或换一个更自然的英文人声。跟读评分会自动忽略人名，名字读不准不会影响正确率。'},
     {t:'添加到主屏幕（可选）', s:'Safari 底部「分享」→「添加到主屏幕」，之后像 App 一样全屏打开。换图标需先删除旧图标再重新添加。'},
   ],
   android: [
@@ -1970,7 +1981,7 @@ const HELP_STEPS = {
     {t:'允许麦克风权限', s:'第一次点 🎤 选「允许」。若被拒：点地址栏左侧锁形图标 › 网站权限 › 麦克风 → 允许；或在浏览器设置里找到「网站设置 / 隐私」→ 麦克风。'},
     {t:'不用 Google 也能识别', s:'安卓在线识别失败时会自动切换到本地识别（设备内完成，不上传、无需 Google 服务）。首次使用需联网下载约 40MB 模型，之后可离线。也可在「更多 › 朗读设置」里点「预下载模型」提前准备好。'},
     {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
-    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「示范音源」切成「在线自然音」试试；也可以在「朗读声音」里挑系统自带的人声。若某个英文名字被逐个字母念出来，在「人名发音修正」里加一条，例如 Jorge → Hoar-hee，之后会自动识别并按你写的读法念。'},
+    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「示范音源」切成「在线自然音」试试，也可以在「朗读声音」里挑系统自带的人声。跟读评分会自动忽略人名，名字读不准不会影响正确率。'},
     {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
     {t:'添加到主屏幕（可选）', s:'浏览器菜单 →「添加到主屏幕」，即可像 App 一样全屏打开（菜单位置因浏览器而异）。'},
   ]
@@ -2042,9 +2053,6 @@ function renderMore(view){
           <option value="">自动（推荐）</option>
           ${listedVoices.map(v=>`<option value="${esc(voiceKey(v))}" ${voiceKey(v)===(store.settings.voiceURI||'')?'selected':''}>${esc((v.name||'Voice')+' · '+(v.lang||''))}${voiceScore(v,langForAccent())<0?' ⚠️非英文':''}</option>`).join('')}
         </select><button type="button" id="btnVoiceTest">🔊 试听</button></div></div>`:`<div class="set-row"><div>试听<div class="desc">用当前音源读一句示范</div></div><button type="button" id="btnVoiceTest" class="ghost" style="border-color:var(--line);background:var(--card);color:var(--ink-2);padding:7px 12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">🔊 试听当前音源</button></div>`}
-      <div class="set-row namefix-set"><div>人名发音修正<div class="desc">名字被逐字母念时，填「名字 → 读法」，例：Jorge → Hoar-hee</div>
-        <div class="namefix-row"><input id="nfFrom" placeholder="名字" aria-label="名字"><span>→</span><input id="nfTo" placeholder="读法" aria-label="读法"><button type="button" id="nfAdd">添加</button></div></div></div>
-      <div id="nameFixList" class="namefix-list"></div>
       <div class="set-row"><div>显示中文翻译</div>
         <div class="seg" id="segZh"><button data-v="1" class="${store.settings.showZh?'on':''}">显示</button><button data-v="0" class="${store.settings.showZh?'':'on'}">隐藏</button></div></div>
       <div class="set-row"><div>自动停止录音<div class="desc">按句长自动停止，避免空等</div></div>
@@ -2141,26 +2149,6 @@ function renderMore(view){
   if(voiceSelect) voiceSelect.onchange=()=>{ store.settings.voiceURI=voiceSelect.value; saveStore(); };
   const btnVoiceTest=$('#btnVoiceTest');
   if(btnVoiceTest) btnVoiceTest.onclick=()=>speak('Hi, my name is George. Nice to meet you!');
-  const renderNameFixes=()=>{
-    const box=$('#nameFixList'); if(!box) return;
-    const fixes=store.settings.nameFix||{}, keys=Object.keys(fixes);
-    box.innerHTML=keys.length
-      ? keys.map(k=>`<span class="namefix-chip"><b>${esc(k)} → ${esc(fixes[k])}</b><button type="button" data-k="${esc(k)}" title="删除">×</button></span>`).join('')
-      : '<div class="namefix-empty">未自定义 · 内置已识别 Jorge / Sean / Chloe 等常见名字</div>';
-    $$('#nameFixList button[data-k]').forEach(b=>b.onclick=()=>{
-      delete store.settings.nameFix[b.dataset.k]; saveStore(); renderNameFixes();
-    });
-  };
-  renderNameFixes();
-  const nfAdd=$('#nfAdd');
-  if(nfAdd) nfAdd.onclick=()=>{
-    const from=$('#nfFrom').value.trim(), to=$('#nfTo').value.trim();
-    if(!from||!to){ toast('请填写名字和读法'); return; }
-    store.settings.nameFix=store.settings.nameFix||{};
-    store.settings.nameFix[from]=to; saveStore(); renderNameFixes();
-    $('#nfFrom').value=''; $('#nfTo').value='';
-    toast('已添加：'+from+' → '+to);
-  };
   $$('#segZh button').forEach(b=>b.onclick=()=>{ store.settings.showZh=b.dataset.v==='1'; saveStore(); renderMore(view); });
   $$('#segAuto button').forEach(b=>b.onclick=()=>{ store.settings.autoStop=b.dataset.v==='1'; saveStore(); renderMore(view); });
   $$('#segLocalAsr button').forEach(b=>b.onclick=()=>{ store.settings.localAsr=b.dataset.v==='1'; saveStore(); renderMore(view); });
