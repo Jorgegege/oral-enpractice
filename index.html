@@ -594,7 +594,7 @@ const THEMES=[
   {k:'sand',  name:'莫兰迪棕', sw:'#A28864', light:'#A28864', dark:'#241F19'},
 ];
 const store = {
-  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', nameFix:{}, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
+  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', nameFix:{}, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
     remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true, theme:'green', passScore:80 },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
@@ -795,12 +795,16 @@ function englishVoices(lang){
   return ttsVoices.map(v=>({v,s:voiceScore(v,lang)})).filter(x=>x.s>=0)
     .sort((a,b)=>b.s-a.s).map(x=>x.v);
 }
+function allVoices(){
+  if(!ttsVoices.length) refreshVoices();
+  return ttsVoices.slice();
+}
 function pickVoice(lang){
   if(!ttsVoices.length) refreshVoices();
   const saved=store.settings.voiceURI;
   if(saved){
     const hit=ttsVoices.find(v=>voiceKey(v)===saved);
-    if(hit && voiceScore(hit,lang)>=0) return hit;
+    if(hit) return hit; // 用户手动选过的声音优先，即使不是英语
   }
   return englishVoices(lang)[0]||null;
 }
@@ -845,8 +849,56 @@ function splitForSpeech(t){
   const last=buf.trim(); if(last) out.push(last);
   return out;
 }
+// 可选音源：系统语音 / 在线自然音（百度翻译）/ 自定义 TTS URL
+let ttsAudio=null;
+function pauseTtsAudio(){ if(ttsAudio){ try{ ttsAudio.pause(); }catch(e){} ttsAudio.onended=null; ttsAudio.onerror=null; } }
+function cancelSpeech(){
+  speakSeq++;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  pauseTtsAudio();
+}
+function ttsUrlFor(text){
+  const src=store.settings.ttsSource||'system';
+  const q=encodeURIComponent(speechText(text));
+  if(src==='online'){
+    const preset=store.settings.onlinePreset||'baidu';
+    if(preset==='youdao') return 'https://dict.youdao.com/dictvoice?audio='+q+'&type=2&le=en';
+    if(preset==='google') return 'https://translate.google.com/translate_tts?ie=UTF-8&q='+q+'&tl=en&client=tw-ob';
+    const spd=['1','2','3','5','7'].includes(store.settings.onlineVoice)?store.settings.onlineVoice:'3';
+    return 'https://fanyi.baidu.com/gettts?lan=en&text='+q+'&spd='+spd+'&source=web';
+  }
+  if(src==='custom'){
+    const tpl=String(store.settings.customTtsUrl||'').trim();
+    if(!tpl) return '';
+    if(!/^https:\/\//i.test(tpl)){ toast('自定义音源需使用 https 地址'); return ''; }
+    return tpl.includes('{text}')?tpl.replace(/\{text\}/g,q)
+      : tpl+(tpl.includes('?')?'&':'?')+'text='+q;
+  }
+  return '';
+}
+function playOnline(url, {onend, fallback}){
+  let done=false;
+  const finish=(ok)=>{ if(done)return; done=true; if(!ok && fallback) fallback(); else if(onend) onend(); };
+  try{
+    if(!ttsAudio){ ttsAudio=new Audio(); ttsAudio.preload='auto'; }
+    ttsAudio.pause();
+    ttsAudio.onended=()=>finish(true);
+    ttsAudio.onerror=()=>finish(false);
+    ttsAudio.src=url;
+    const p=ttsAudio.play();
+    if(p && p.catch) p.catch(()=>finish(false));
+  }catch(e){ finish(false); }
+}
 let speakSeq=0;
 function speak(text, {rate, accent, onend}={}){
+  const src=store.settings.ttsSource||'system';
+  if(src==='online'||src==='custom'){
+    const url=ttsUrlFor(text);
+    if(url){ cancelSpeech(); playOnline(url, {onend, fallback:()=>speakSystem(text,{rate,accent,onend})}); return; }
+  }
+  speakSystem(text, {rate, accent, onend});
+}
+function speakSystem(text, {rate, accent, onend}={}){
   if(!('speechSynthesis' in window)){ toast('当前浏览器不支持语音示范'); return; }
   if(!ttsVoices.length) refreshVoices();
   const lang=(accent==='UK'||(!accent&&store.settings.accent==='UK'))?'en-GB':'en-US';
@@ -859,6 +911,7 @@ function speak(text, {rate, accent, onend}={}){
   const pitch=Number(store.settings.pitch)||1;
   unlockSpeech();
   try{ speechSynthesis.cancel(); }catch(e){}
+  pauseTtsAudio();
   let i=0;
   const next=()=>{
     if(seq!==speakSeq) return;
@@ -1235,7 +1288,7 @@ function clearMyRecording(){
 }
 function playMyAudio(btn){
   if(!myAudioUrl){ toast('当前设备未录到声音，无法回放'); return; }
-  try{ speechSynthesis.cancel(); }catch(e){}
+  cancelSpeech();
   const a=new Audio(myAudioUrl);
   const old=btn.textContent;
   btn.textContent='⏸ 播放中…'; btn.disabled=true;
@@ -1354,7 +1407,7 @@ function skipPractice(){
 function gotoPractice(step){
   if(pracCtx && pracCtx.cancelPendingListen) pracCtx.cancelPendingListen();
   localFinalize=null; clearTimeout(localTimer); localTimer=null;
-  stopRecognition(); stopMyRecording(); clearMyRecording(); try{ speechSynthesis.cancel(); }catch(e){}
+  stopRecognition(); stopMyRecording(); clearMyRecording(); cancelSpeech();
   const {ids,index}=pracCtx;
   const ni=index+step;
   if(ni<0||ni>=ids.length){ toast(ni<0?'已经是第一句了':'已经是最后一句了'); return; }
@@ -1389,7 +1442,7 @@ function updateHomeProgressBar(){
 function closePractice(){
   if(pracCtx && pracCtx.cancelPendingListen) pracCtx.cancelPendingListen();
   localFinalize=null; clearTimeout(localTimer); localTimer=null;
-  stopRecognition(); stopMyRecording(); clearMyRecording(); try{ speechSynthesis.cancel(); }catch(e){}
+  stopRecognition(); stopMyRecording(); clearMyRecording(); cancelSpeech();
   $('#practiceRoot').classList.remove('show');
   $('#practiceRoot').innerHTML='';
   document.body.style.overflow='';
@@ -1909,7 +1962,7 @@ const HELP_STEPS = {
     {t:'允许麦克风', s:'第一次点 🎤 开始跟读时，弹窗选「允许」。若误点了不允许：Safari › 设置 › 网站 › 麦克风，把本站改为「允许」。'},
     {t:'打开听写 + 英语语言', s:'设置 › 通用 › 键盘 › 听写（开启），并添加「英语（美国）」。跟读纠音依赖听写识别英文。'},
     {t:'朗读音量', s:'点 🔊 听示范的同时按侧边「音量+」。若没英文声音：设置 › 辅助功能 › 朗读内容 › 语音 › 添加英语声音。'},
-    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」换一个更自然的英文人声；若某个英文名字被逐个字母念出来，在「人名发音修正」里加一条，例如 Jorge → Hoar-hee。'},
+    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「示范音源」切成「在线自然音」，或换一个更自然的英文人声；若某个英文名字被逐个字母念出来，在「人名发音修正」里加一条，例如 Jorge → Hoar-hee。'},
     {t:'添加到主屏幕（可选）', s:'Safari 底部「分享」→「添加到主屏幕」，之后像 App 一样全屏打开。换图标需先删除旧图标再重新添加。'},
   ],
   android: [
@@ -1917,7 +1970,7 @@ const HELP_STEPS = {
     {t:'允许麦克风权限', s:'第一次点 🎤 选「允许」。若被拒：点地址栏左侧锁形图标 › 网站权限 › 麦克风 → 允许；或在浏览器设置里找到「网站设置 / 隐私」→ 麦克风。'},
     {t:'不用 Google 也能识别', s:'安卓在线识别失败时会自动切换到本地识别（设备内完成，不上传、无需 Google 服务）。首次使用需联网下载约 40MB 模型，之后可离线。也可在「更多 › 朗读设置」里点「预下载模型」提前准备好。'},
     {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
-    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「朗读声音」换成更自然的人声；若某个英文名字被逐个字母念出来，在「人名发音修正」里加一条，例如 Jorge → Hoar-hee，之后会自动识别并按你写的读法念。'},
+    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「示范音源」切成「在线自然音」试试；也可以在「朗读声音」里挑系统自带的人声。若某个英文名字被逐个字母念出来，在「人名发音修正」里加一条，例如 Jorge → Hoar-hee，之后会自动识别并按你写的读法念。'},
     {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
     {t:'添加到主屏幕（可选）', s:'浏览器菜单 →「添加到主屏幕」，即可像 App 一样全屏打开（菜单位置因浏览器而异）。'},
   ]
@@ -1941,6 +1994,11 @@ function helpContent(platform){
 function renderMore(view){
   const helpPlatform = IS_ANDROID?'android':'ios';
   const accentVoices = englishVoices(langForAccent());
+  const listedVoices = allVoices().sort((a,b)=>{
+    const sa=voiceScore(a,langForAccent()), sb=voiceScore(b,langForAccent());
+    return (sb>=0?sb:-100)-(sa>=0?sa:-100);
+  });
+  const ttsSource=store.settings.ttsSource||'system';
   view.innerHTML=`
     <div class="section-title fold-title" id="helpFold" role="button" tabindex="0" aria-expanded="false">
       <span>📱</span>设备使用说明 <span class="sp"></span>
@@ -1950,20 +2008,40 @@ function renderMore(view){
 
     <div class="section-title">⚙️ 朗读设置</div>
     <div class="set-group">
-      <div class="set-row"><div>口音<div class="desc">示范朗读的声音</div></div>
+      <div class="set-row"><div>示范音源<div class="desc">可切换系统声音或在线自然音</div></div>
+        <div class="seg" id="segTtsSource">
+          <button data-v="system" class="${ttsSource==='system'?'on':''}">系统语音</button>
+          <button data-v="online" class="${ttsSource==='online'?'on':''}">在线自然音</button>
+          <button data-v="custom" class="${ttsSource==='custom'?'on':''}">自定义</button>
+        </div></div>
+      ${ttsSource==='online'?`<div class="set-row"><div>在线服务<div class="desc">句子会发送到所选服务 · 失败自动回退系统语音</div></div>
+        <div class="seg" id="segOnlinePreset">
+          <button data-v="baidu" class="${(store.settings.onlinePreset||'baidu')==='baidu'?'on':''}">百度</button>
+          <button data-v="youdao" class="${store.settings.onlinePreset==='youdao'?'on':''}">有道</button>
+          <button data-v="google" class="${store.settings.onlinePreset==='google'?'on':''}">谷歌</button>
+        </div></div>
+        <div class="set-row"><div>在线语速<div class="desc">仅百度服务有效</div></div>
+        <div class="seg" id="segOnlineVoice">
+          <button data-v="1" class="${store.settings.onlineVoice==='1'?'on':''}">慢速</button>
+          <button data-v="3" class="${!store.settings.onlineVoice||store.settings.onlineVoice==='3'?'on':''}">标准</button>
+          <button data-v="5" class="${store.settings.onlineVoice==='5'?'on':''}">快速</button>
+        </div></div>`:''}
+      ${ttsSource==='custom'?`<div class="set-row namefix-set"><div>自定义 TTS 地址<div class="desc">填接口 URL，用 {text} 代表句子；必须是 https，失败自动回退系统语音</div>
+        <div class="namefix-row"><input id="customTtsUrl" type="url" placeholder="https://…/tts?text={text}" value="${esc(store.settings.customTtsUrl||'')}" aria-label="自定义 TTS 地址" style="width:100%;max-width:none;"></div></div></div>`:''}
+      <div class="set-row"><div>口音<div class="desc">系统语音的示范口音</div></div>
         <div class="seg" id="segAccent">
           <button data-v="US" class="${store.settings.accent==='US'?'on':''}">美式</button>
           <button data-v="UK" class="${store.settings.accent==='UK'?'on':''}">英式</button>
         </div></div>
-      <div class="set-row"><div>语速<div class="desc">当前 ${store.settings.rate.toFixed(2)}</div></div>
+      <div class="set-row"><div>语速<div class="desc">当前 ${store.settings.rate.toFixed(2)} · 系统语音有效</div></div>
         <input type="range" id="rateRange" min="0.6" max="1.2" step="0.05" value="${store.settings.rate}"></div>
-      <div class="set-row"><div>音调<div class="desc">当前 ${(store.settings.pitch||1).toFixed(2)} · 1.00 最接近真人</div></div>
+      <div class="set-row"><div>音调<div class="desc">当前 ${(store.settings.pitch||1).toFixed(2)} · 仅系统语音有效</div></div>
         <input type="range" id="pitchRange" min="0.8" max="1.2" step="0.05" value="${store.settings.pitch||1}"></div>
-      <div class="set-row"><div>朗读声音<div class="desc" id="voiceDesc">${accentVoices.length?accentVoices.length+' 个英文声音 · 挑一个更自然的':'自动使用系统英文声音'}</div></div>
+      ${ttsSource==='system'?`<div class="set-row"><div>朗读声音<div class="desc" id="voiceDesc">${listedVoices.length?listedVoices.length+' 个声音可选':'自动使用系统英文声音'}</div></div>
         <div class="voice-ctl"><select id="voiceSelect" aria-label="朗读声音">
           <option value="">自动（推荐）</option>
-          ${accentVoices.map(v=>`<option value="${esc(voiceKey(v))}" ${voiceKey(v)===(store.settings.voiceURI||'')?'selected':''}>${esc(v.name||v.lang)}</option>`).join('')}
-        </select><button type="button" id="btnVoiceTest">🔊 试听</button></div></div>
+          ${listedVoices.map(v=>`<option value="${esc(voiceKey(v))}" ${voiceKey(v)===(store.settings.voiceURI||'')?'selected':''}>${esc((v.name||'Voice')+' · '+(v.lang||''))}${voiceScore(v,langForAccent())<0?' ⚠️非英文':''}</option>`).join('')}
+        </select><button type="button" id="btnVoiceTest">🔊 试听</button></div></div>`:`<div class="set-row"><div>试听<div class="desc">用当前音源读一句示范</div></div><button type="button" id="btnVoiceTest" class="ghost" style="border-color:var(--line);background:var(--card);color:var(--ink-2);padding:7px 12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">🔊 试听当前音源</button></div>`}
       <div class="set-row namefix-set"><div>人名发音修正<div class="desc">名字被逐字母念时，填「名字 → 读法」，例：Jorge → Hoar-hee</div>
         <div class="namefix-row"><input id="nfFrom" placeholder="名字" aria-label="名字"><span>→</span><input id="nfTo" placeholder="读法" aria-label="读法"><button type="button" id="nfAdd">添加</button></div></div></div>
       <div id="nameFixList" class="namefix-list"></div>
@@ -2046,6 +2124,11 @@ function renderMore(view){
   });
   bindHelpSeg();
   // 设置绑定
+  $$('#segTtsSource button').forEach(b=>b.onclick=()=>{ store.settings.ttsSource=b.dataset.v; saveStore(); renderMore(view); });
+  $$('#segOnlinePreset button').forEach(b=>b.onclick=()=>{ store.settings.onlinePreset=b.dataset.v; saveStore(); renderMore(view); });
+  $$('#segOnlineVoice button').forEach(b=>b.onclick=()=>{ store.settings.onlineVoice=b.dataset.v; saveStore(); renderMore(view); });
+  const customUrl=$('#customTtsUrl');
+  if(customUrl) customUrl.onchange=()=>{ store.settings.customTtsUrl=customUrl.value.trim(); saveStore(); };
   $$('#segAccent button').forEach(b=>b.onclick=()=>{ store.settings.accent=b.dataset.v; saveStore(); renderMore(view); });
   $('#rateRange').oninput=(e)=>{ store.settings.rate=parseFloat(e.target.value); saveStore(); e.target.previousElementSibling.querySelector('.desc').textContent='当前 '+store.settings.rate.toFixed(2); };
   const pitchRange=$('#pitchRange');
