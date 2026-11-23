@@ -597,7 +597,7 @@ const THEMES=[
   {k:'sand',  name:'莫兰迪棕', sw:'#A28864', light:'#A28864', dark:'#241F19'},
 ];
 const store = {
-  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', neuralVoice:'af_heart', showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
+  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', neuralTier:'lite', neuralVoice:'af_heart', showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
     remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true, theme:'green', passScore:80 },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
@@ -1232,8 +1232,12 @@ async function transcribeLocal(blob){
   });
 }
 
-// ---------- 本地神经语音包（Kokoro，浏览器内合成）----------
-const NEURAL = { worker:null, state:'idle', progress:0, err:'', loaded:false,
+// ---------- 本地神经语音包（浏览器内合成）----------
+// 双档位：lite（MMS TTS q8，约36MB，单音色，默认）/ hq（Kokoro q8，约82MB，8音色）
+const NEURAL_TIERS={ lite:{name:'轻量', size:'36MB', worker:'assets/tts-lite-worker.js'},
+  hq:{name:'高音质', size:'82MB', worker:'assets/tts-worker.js'} };
+function neuralTier(){ return store.settings.neuralTier==='hq'?'hq':'lite'; }
+const NEURAL = { worker:null, tier:null, state:'idle', progress:0, err:'', loaded:false,
   loadWaiters:[], jobs:new Map(), seq:0, audio:null };
 const NEURAL_VOICES=[
   {id:'af_heart',name:'Heart · 女声自然'},
@@ -1249,15 +1253,19 @@ function neuralSupported(){ return typeof Worker!=='undefined' && typeof (window
 function setNeuralStatus(state, progress, msg){
   NEURAL.state=state; NEURAL.progress=progress||0; if(msg) NEURAL.err=msg;
   const el=document.querySelector('#neuralStatus'); if(!el) return;
-  const txt={idle:'未加载 · 首次使用下载约 90MB（之后离线可用）', loading:'语音包下载中 '+Math.round(NEURAL.progress)+'%',
-    ready:'神经语音包已就绪 ✓', error:'加载失败：'+NEURAL.err, speaking:'正在合成…'}[state]||'';
+  const tier=NEURAL_TIERS[neuralTier()];
+  const txt={idle:'未加载 · 首次使用下载约 '+tier.size+'（之后离线可用）', loading:'语音包下载中 '+Math.round(NEURAL.progress)+'%',
+    ready:tier.name+'语音包已就绪 ✓', error:'加载失败：'+NEURAL.err, speaking:'正在合成…'}[state]||'';
   el.textContent=txt;
 }
 function ensureNeuralWorker(){
-  if(NEURAL.worker) return NEURAL.worker;
+  if(NEURAL.worker && NEURAL.tier===neuralTier()) return NEURAL.worker;
+  // 档位变化：停掉旧 worker，重置加载状态
+  if(NEURAL.worker){ try{ NEURAL.worker.terminate(); }catch(e){} NEURAL.worker=null; }
+  NEURAL.loaded=false; NEURAL.tier=neuralTier(); NEURAL.err=''; NEURAL.progress=0;
   if(!neuralSupported()){ setNeuralStatus('error',0,'当前浏览器不支持'); return null; }
   try{
-    const w=new Worker('assets/tts-worker.js',{type:'module'});
+    const w=new Worker(NEURAL_TIERS[neuralTier()].worker,{type:'module'});
     w.onerror=(e)=>{
       setNeuralStatus('error',0,(e&&e.message)||'Worker 启动失败');
       NEURAL.loadWaiters.splice(0).forEach(x=>x.reject(new Error(NEURAL.err)));
@@ -1288,6 +1296,17 @@ function ensureNeuralWorker(){
     };
     NEURAL.worker=w; return w;
   }catch(e){ setNeuralStatus('error',0,String(e&&e.message||e)); return null; }
+}
+function switchNeuralTier(tier){
+  tier=(tier==='hq')?'hq':'lite';
+  if(store.settings.neuralTier===tier && NEURAL.worker && NEURAL.tier===tier) return;
+  store.settings.neuralTier=tier; saveStore();
+  if(NEURAL.worker){ try{ NEURAL.worker.terminate(); }catch(e){} NEURAL.worker=null; }
+  NEURAL.loaded=false; NEURAL.tier=null; NEURAL.progress=0; NEURAL.err='';
+  NEURAL.state='idle'; stopNeuralAudio();
+  NEURAL.loadWaiters.splice(0).forEach(x=>x.reject(new Error('语音包档位已切换')));
+  NEURAL.jobs.forEach(j=>j.reject(new Error('语音包档位已切换'))); NEURAL.jobs.clear();
+  setNeuralStatus('idle');
 }
 function neuralLoad(){
   if(NEURAL.loaded) return Promise.resolve();
@@ -2115,7 +2134,7 @@ const HELP_STEPS = {
     {t:'允许麦克风', s:'第一次点 🎤 开始跟读时，弹窗选「允许」。若误点了不允许：Safari › 设置 › 网站 › 麦克风，把本站改为「允许」。'},
     {t:'打开听写 + 英语语言', s:'设置 › 通用 › 键盘 › 听写（开启），并添加「英语（美国）」。跟读纠音依赖听写识别英文。'},
     {t:'朗读音量', s:'点 🔊 听示范的同时按侧边「音量+」。若没英文声音：设置 › 辅助功能 › 朗读内容 › 语音 › 添加英语声音。'},
-    {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，首次下载约 90MB 后离线可用，音质接近真人、人名也念得准。也可用在线自然音。跟读评分会自动忽略人名，不影响正确率。'},
+    {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，默认轻量档首次下载约 36MB 后离线可用，音质自然、人名也念得准；想要更好音质可切到高音质档（约 82MB，8 音色）。跟读评分会自动忽略人名，不影响正确率。'},
     {t:'点单词单独听发音', s:'句子里的任意单词都可以点一下单独听，标点不会被读出来；用的就是上面选的示范音源。'},
     {t:'添加到主屏幕（可选）', s:'Safari 底部「分享」→「添加到主屏幕」，之后像 App 一样全屏打开。换图标需先删除旧图标再重新添加。'},
   ],
@@ -2124,7 +2143,7 @@ const HELP_STEPS = {
     {t:'允许麦克风权限', s:'第一次点 🎤 选「允许」。若被拒：点地址栏左侧锁形图标 › 网站权限 › 麦克风 → 允许；或在浏览器设置里找到「网站设置 / 隐私」→ 麦克风。'},
     {t:'不用 Google 也能识别', s:'安卓在线识别失败时会自动切换到本地识别（设备内完成，不上传、无需 Google 服务）。首次使用需联网下载约 40MB 模型，之后可离线。也可在「更多 › 朗读设置」里点「预下载模型」提前准备好。'},
     {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
-    {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，首次联网下载约 90MB 后即可离线使用，音质接近真人、人名也念得准。跟读评分会自动忽略人名，不影响正确率。'},
+    {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，默认轻量档联网下载约 36MB 后即可离线使用，音质自然、人名也念得准；追求更好音质可切高音质档（约 82MB）。跟读评分会自动忽略人名，不影响正确率。'},
     {t:'点单词单独听发音', s:'句子里的任意单词都可以点一下单独听，标点不会被读出来；用的就是上面选的示范音源。'},
     {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
     {t:'添加到主屏幕（可选）', s:'浏览器菜单 →「添加到主屏幕」，即可像 App 一样全屏打开（菜单位置因浏览器而异）。'},
@@ -2163,19 +2182,24 @@ function renderMore(view){
 
     <div class="section-title">⚙️ 朗读设置</div>
     <div class="set-group">
-      <div class="set-row"><div>示范音源<div class="desc">神经语音包音质最好，需下载约 90MB</div></div>
+      <div class="set-row"><div>示范音源<div class="desc">神经语音包本地合成、音质自然，首次需下载</div></div>
         <div class="seg" id="segTtsSource">
           <button data-v="system" class="${ttsSource==='system'?'on':''}">系统语音</button>
           <button data-v="neural" class="${ttsSource==='neural'?'on':''}">神经语音包</button>
           <button data-v="online" class="${ttsSource==='online'?'on':''}">在线自然音</button>
           <button data-v="custom" class="${ttsSource==='custom'?'on':''}">自定义</button>
         </div></div>
-      ${ttsSource==='neural'?`<div class="set-row"><div>音色<div class="desc">下载后用所选音色朗读，可随时切换</div></div>
+      ${ttsSource==='neural'?`<div class="set-row"><div>语音包档位<div class="desc">轻量约 36MB 够用 · 高音质约 82MB 音色更多</div></div>
+        <div class="seg" id="segNeuralTier">
+          <button data-v="lite" class="${neuralTier()==='lite'?'on':''}">轻量 36MB</button>
+          <button data-v="hq" class="${neuralTier()==='hq'?'on':''}">高音质 82MB</button>
+        </div></div>
+        ${neuralTier()==='hq'?`<div class="set-row"><div>音色<div class="desc">高音质档专属 · 8 个音色可随时切换</div></div>
         <div class="voice-ctl"><select id="neuralVoice" aria-label="神经语音包音色">
           ${NEURAL_VOICES.map(v=>`<option value="${v.id}" ${(store.settings.neuralVoice||'af_heart')===v.id?'selected':''}>${v.name}</option>`).join('')}
-        </select><button type="button" id="btnNeuralTest">🔊 试听</button></div></div>
-        <div class="set-row"><div>语音包<div class="desc" id="neuralStatus">${NEURAL.loaded?'神经语音包已就绪 ✓':(NEURAL.state==='loading'?'语音包下载中 '+Math.round(NEURAL.progress)+'%':'未加载 · 首次使用下载约 90MB（之后离线可用）')}</div></div>
-          <button id="btnNeuralPrefetch" class="ghost" style="border-color:var(--line);background:var(--card);color:var(--ink-2);padding:7px 12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">预下载</button></div>`:''}
+        </select></div></div>`:''}
+        <div class="set-row"><div>语音包<div class="desc" id="neuralStatus">${NEURAL.loaded&&NEURAL.tier===neuralTier()?NEURAL_TIERS[neuralTier()].name+'语音包已就绪 ✓':(NEURAL.state==='loading'?'语音包下载中 '+Math.round(NEURAL.progress)+'%':'未加载 · 首次使用下载约 '+NEURAL_TIERS[neuralTier()].size+'（之后离线可用）')}</div></div>
+          <div class="voice-ctl"><button type="button" id="btnNeuralTest">🔊 试听</button><button id="btnNeuralPrefetch" class="ghost" style="border-color:var(--line);background:var(--card);color:var(--ink-2);padding:7px 12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">预下载</button></div></div>`:''}
       ${ttsSource==='online'?`<div class="set-row"><div>在线服务<div class="desc">句子会发送到所选服务 · 失败自动回退系统语音</div></div>
         <div class="seg" id="segOnlinePreset">
           <button data-v="baidu" class="${(store.settings.onlinePreset||'baidu')==='baidu'?'on':''}">百度</button>
@@ -2286,6 +2310,10 @@ function renderMore(view){
   $$('#segTtsSource button').forEach(b=>b.onclick=()=>{ store.settings.ttsSource=b.dataset.v; saveStore(); renderMore(view); });
   $$('#segOnlinePreset button').forEach(b=>b.onclick=()=>{ store.settings.onlinePreset=b.dataset.v; saveStore(); renderMore(view); });
   $$('#segOnlineVoice button').forEach(b=>b.onclick=()=>{ store.settings.onlineVoice=b.dataset.v; saveStore(); renderMore(view); });
+  $$('#segNeuralTier button').forEach(b=>b.onclick=()=>{
+    switchNeuralTier(b.dataset.v); renderMore(view);
+    toast('已切换到'+NEURAL_TIERS[neuralTier()].name+'语音包（'+NEURAL_TIERS[neuralTier()].size+'）');
+  });
   const neuralVoiceSel=$('#neuralVoice');
   if(neuralVoiceSel) neuralVoiceSel.onchange=()=>{ store.settings.neuralVoice=neuralVoiceSel.value; saveStore(); };
   const btnNeuralTest=$('#btnNeuralTest');
@@ -2293,7 +2321,7 @@ function renderMore(view){
   const btnNeuralPrefetch=$('#btnNeuralPrefetch');
   if(btnNeuralPrefetch) btnNeuralPrefetch.onclick=()=>{
     if(!neuralSupported()){ toast('当前浏览器不支持神经语音包'); return; }
-    if(NEURAL.loaded){ toast('神经语音包已就绪'); return; }
+    if(NEURAL.loaded && NEURAL.tier===neuralTier()){ toast('神经语音包已就绪'); return; }
     if(NEURAL.state==='loading'){ toast('下载中，请稍候 '+Math.round(NEURAL.progress)+'%'); return; }
     btnNeuralPrefetch.disabled=true; btnNeuralPrefetch.textContent='下载中…';
     neuralLoad().then(()=>{ toast('神经语音包已就绪，可离线朗读'); btnNeuralPrefetch.disabled=false; btnNeuralPrefetch.textContent='已就绪 ✓'; })
