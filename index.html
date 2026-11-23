@@ -397,6 +397,8 @@ html.dark .start-btn{color:var(--dark-bnr-a);}
 .theme-swatch:active{transform:scale(.9);}
 .theme-swatch.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--card),0 0 0 3.5px var(--ink);}
 .seg{display:flex;background:var(--bg-soft);border-radius:9px;padding:3px;gap:3px;}
+#segTtsSource{flex-wrap:wrap;}
+#segTtsSource button{padding:6px 10px;white-space:nowrap;font-size:13px;}
 .seg button{border:none;background:none;padding:6px 13px;border-radius:7px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;font-family:var(--font-sans);}
 .seg button.on{background:var(--card);color:var(--primary-deep);box-shadow:0 1px 3px rgba(0,0,0,.08);}
 input[type=range]{width:110px;accent-color:var(--primary);}
@@ -595,7 +597,7 @@ const THEMES=[
   {k:'sand',  name:'莫兰迪棕', sw:'#A28864', light:'#A28864', dark:'#241F19'},
 ];
 const store = {
-  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
+  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', neuralVoice:'af_heart', showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
     remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true, theme:'green', passScore:80 },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
@@ -832,13 +834,14 @@ function splitForSpeech(t){
   const last=buf.trim(); if(last) out.push(last);
   return out;
 }
-// 可选音源：系统语音 / 在线自然音（百度翻译）/ 自定义 TTS URL
+// 可选音源：系统语音 / 在线自然音（百度翻译）/ 自定义 TTS URL / 本地神经语音包
 let ttsAudio=null;
 function pauseTtsAudio(){ if(ttsAudio){ try{ ttsAudio.pause(); }catch(e){} ttsAudio.onended=null; ttsAudio.onerror=null; } }
 function cancelSpeech(){
   speakSeq++;
   try{ speechSynthesis.cancel(); }catch(e){}
   pauseTtsAudio();
+  if(typeof stopNeuralAudio==='function') stopNeuralAudio();
 }
 function ttsUrlFor(text){
   const src=store.settings.ttsSource||'system';
@@ -875,6 +878,11 @@ function playOnline(url, {onend, fallback}){
 let speakSeq=0;
 function speak(text, {rate, accent, onend}={}){
   const src=store.settings.ttsSource||'system';
+  if(src==='neural'){
+    cancelSpeech();
+    speakNeural(text, {onend, fallback:()=>speakSystem(text,{rate,accent,onend})});
+    return;
+  }
   if(src==='online'||src==='custom'){
     const url=ttsUrlFor(text);
     if(url){ cancelSpeech(); playOnline(url, {onend, fallback:()=>speakSystem(text,{rate,accent,onend})}); return; }
@@ -1222,6 +1230,109 @@ async function transcribeLocal(blob){
     ASR.jobs.set(id,{resolve, reject});
     w.postMessage({type:'transcribe', id, pcm}, [pcm.buffer]);
   });
+}
+
+// ---------- 本地神经语音包（Kokoro，浏览器内合成）----------
+const NEURAL = { worker:null, state:'idle', progress:0, err:'', loaded:false,
+  loadWaiters:[], jobs:new Map(), seq:0, audio:null };
+const NEURAL_VOICES=[
+  {id:'af_heart',name:'Heart · 女声自然'},
+  {id:'af_bella',name:'Bella · 女声清晰'},
+  {id:'af_nicole',name:'Nicole · 女声柔和'},
+  {id:'am_adam',name:'Adam · 男声'},
+  {id:'am_michael',name:'Michael · 男声浑厚'},
+  {id:'am_onyx',name:'Onyx · 男声低沉'},
+  {id:'bf_emma',name:'Emma · 英式女声'},
+  {id:'bm_george',name:'George · 英式男声'}
+];
+function neuralSupported(){ return typeof Worker!=='undefined' && typeof (window.AudioContext||window.webkitAudioContext)!=='undefined'; }
+function setNeuralStatus(state, progress, msg){
+  NEURAL.state=state; NEURAL.progress=progress||0; if(msg) NEURAL.err=msg;
+  const el=document.querySelector('#neuralStatus'); if(!el) return;
+  const txt={idle:'未加载 · 首次使用下载约 90MB（之后离线可用）', loading:'语音包下载中 '+Math.round(NEURAL.progress)+'%',
+    ready:'神经语音包已就绪 ✓', error:'加载失败：'+NEURAL.err, speaking:'正在合成…'}[state]||'';
+  el.textContent=txt;
+}
+function ensureNeuralWorker(){
+  if(NEURAL.worker) return NEURAL.worker;
+  if(!neuralSupported()){ setNeuralStatus('error',0,'当前浏览器不支持'); return null; }
+  try{
+    const w=new Worker('assets/tts-worker.js',{type:'module'});
+    w.onerror=(e)=>{
+      setNeuralStatus('error',0,(e&&e.message)||'Worker 启动失败');
+      NEURAL.loadWaiters.splice(0).forEach(x=>x.reject(new Error(NEURAL.err)));
+      NEURAL.jobs.forEach(j=>j.reject(new Error(NEURAL.err))); NEURAL.jobs.clear();
+    };
+    w.onmessage=(ev)=>{
+      const d=ev.data||{};
+      if(d.type==='progress'){
+        if(typeof d.progress==='number' && d.progress>=0) setNeuralStatus('loading', d.progress);
+        return;
+      }
+      if(d.type==='ready'){
+        NEURAL.loaded=true; setNeuralStatus('ready');
+        NEURAL.loadWaiters.splice(0).forEach(x=>x.resolve()); return;
+      }
+      if(d.type==='error'){
+        if(d.phase==='init'){
+          setNeuralStatus('error',0,d.msg);
+          NEURAL.loadWaiters.splice(0).forEach(x=>x.reject(new Error(d.msg)));
+        } else {
+          const job=NEURAL.jobs.get(d.id); if(job){ NEURAL.jobs.delete(d.id); job.reject(new Error(d.msg)); }
+        }
+        return;
+      }
+      if(d.type==='audio'){
+        const job=NEURAL.jobs.get(d.id); if(job){ NEURAL.jobs.delete(d.id); job.resolve(d); }
+      }
+    };
+    NEURAL.worker=w; return w;
+  }catch(e){ setNeuralStatus('error',0,String(e&&e.message||e)); return null; }
+}
+function neuralLoad(){
+  if(NEURAL.loaded) return Promise.resolve();
+  if(NEURAL.state==='loading') return new Promise((resolve,reject)=>NEURAL.loadWaiters.push({resolve,reject}));
+  const w=ensureNeuralWorker(); if(!w) return Promise.reject(new Error(NEURAL.err||'无法启动神经语音包'));
+  setNeuralStatus('loading',0);
+  const p=new Promise((resolve,reject)=>NEURAL.loadWaiters.push({resolve,reject}));
+  w.postMessage({type:'init'});
+  return p;
+}
+function stopNeuralAudio(){
+  if(NEURAL.audio){ try{ NEURAL.audio.pause(); }catch(e){} NEURAL.audio.onended=null; NEURAL.audio=null; }
+}
+async function speakNeural(text, {onend, fallback}={}){
+  try{
+    await neuralLoad();
+    const w=NEURAL.worker; if(!w) throw new Error('语音包不可用');
+    setNeuralStatus('speaking');
+    const id=++NEURAL.seq;
+    const d=await new Promise((resolve,reject)=>{
+      NEURAL.jobs.set(id,{resolve,reject});
+      w.postMessage({type:'synthesize', id, text:String(text), voice:store.settings.neuralVoice||'af_heart', speed:1});
+    });
+    // 把 PCM 转成 WAV blob 用 Audio 播放
+    const wavBlob=pcmToWav(d.pcm, d.sr||24000);
+    const url=URL.createObjectURL(wavBlob);
+    const a=new Audio(url);
+    NEURAL.audio=a;
+    a.onended=()=>{ try{ URL.revokeObjectURL(url); }catch(e){} NEURAL.audio=null; if(onend) onend(); };
+    a.onerror=()=>{ try{ URL.revokeObjectURL(url); }catch(e){} NEURAL.audio=null; if(fallback) fallback(); else if(onend) onend(); };
+    await a.play();
+  }catch(e){
+    console.warn('神经语音包失败：', e.message);
+    if(fallback) fallback(); else if(onend) onend();
+  }
+}
+function pcmToWav(pcm, sr){
+  const n=pcm.length, buf=new ArrayBuffer(44+n*2), v=new DataView(buf);
+  const w=(o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i)); };
+  w(0,'RIFF'); v.setUint32(4,36+n*2,true); w(8,'WAVE'); w(12,'fmt ');
+  v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+  w(36,'data'); v.setUint32(40,n*2,true);
+  for(let i=0;i<n;i++){ const s=Math.max(-1,Math.min(1,pcm[i])); v.setInt16(44+i*2, s<0?s*0x8000:s*0x7fff, true); }
+  return new Blob([buf],{type:'audio/wav'});
 }
 
 // 识别会话
@@ -2004,7 +2115,7 @@ const HELP_STEPS = {
     {t:'允许麦克风', s:'第一次点 🎤 开始跟读时，弹窗选「允许」。若误点了不允许：Safari › 设置 › 网站 › 麦克风，把本站改为「允许」。'},
     {t:'打开听写 + 英语语言', s:'设置 › 通用 › 键盘 › 听写（开启），并添加「英语（美国）」。跟读纠音依赖听写识别英文。'},
     {t:'朗读音量', s:'点 🔊 听示范的同时按侧边「音量+」。若没英文声音：设置 › 辅助功能 › 朗读内容 › 语音 › 添加英语声音。'},
-    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「示范音源」切成「在线自然音」，或换一个更自然的英文人声。跟读评分会自动忽略人名，名字读不准不会影响正确率。'},
+    {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，首次下载约 90MB 后离线可用，音质接近真人、人名也念得准。也可用在线自然音。跟读评分会自动忽略人名，不影响正确率。'},
     {t:'点单词单独听发音', s:'句子里的任意单词都可以点一下单独听，标点不会被读出来；用的就是上面选的示范音源。'},
     {t:'添加到主屏幕（可选）', s:'Safari 底部「分享」→「添加到主屏幕」，之后像 App 一样全屏打开。换图标需先删除旧图标再重新添加。'},
   ],
@@ -2013,7 +2124,7 @@ const HELP_STEPS = {
     {t:'允许麦克风权限', s:'第一次点 🎤 选「允许」。若被拒：点地址栏左侧锁形图标 › 网站权限 › 麦克风 → 允许；或在浏览器设置里找到「网站设置 / 隐私」→ 麦克风。'},
     {t:'不用 Google 也能识别', s:'安卓在线识别失败时会自动切换到本地识别（设备内完成，不上传、无需 Google 服务）。首次使用需联网下载约 40MB 模型，之后可离线。也可在「更多 › 朗读设置」里点「预下载模型」提前准备好。'},
     {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
-    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「示范音源」切成「在线自然音」试试，也可以在「朗读声音」里挑系统自带的人声。跟读评分会自动忽略人名，名字读不准不会影响正确率。'},
+    {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，首次联网下载约 90MB 后即可离线使用，音质接近真人、人名也念得准。跟读评分会自动忽略人名，不影响正确率。'},
     {t:'点单词单独听发音', s:'句子里的任意单词都可以点一下单独听，标点不会被读出来；用的就是上面选的示范音源。'},
     {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
     {t:'添加到主屏幕（可选）', s:'浏览器菜单 →「添加到主屏幕」，即可像 App 一样全屏打开（菜单位置因浏览器而异）。'},
@@ -2052,12 +2163,19 @@ function renderMore(view){
 
     <div class="section-title">⚙️ 朗读设置</div>
     <div class="set-group">
-      <div class="set-row"><div>示范音源<div class="desc">可切换系统声音或在线自然音</div></div>
+      <div class="set-row"><div>示范音源<div class="desc">神经语音包音质最好，需下载约 90MB</div></div>
         <div class="seg" id="segTtsSource">
           <button data-v="system" class="${ttsSource==='system'?'on':''}">系统语音</button>
+          <button data-v="neural" class="${ttsSource==='neural'?'on':''}">神经语音包</button>
           <button data-v="online" class="${ttsSource==='online'?'on':''}">在线自然音</button>
           <button data-v="custom" class="${ttsSource==='custom'?'on':''}">自定义</button>
         </div></div>
+      ${ttsSource==='neural'?`<div class="set-row"><div>音色<div class="desc">下载后用所选音色朗读，可随时切换</div></div>
+        <div class="voice-ctl"><select id="neuralVoice" aria-label="神经语音包音色">
+          ${NEURAL_VOICES.map(v=>`<option value="${v.id}" ${(store.settings.neuralVoice||'af_heart')===v.id?'selected':''}>${v.name}</option>`).join('')}
+        </select><button type="button" id="btnNeuralTest">🔊 试听</button></div></div>
+        <div class="set-row"><div>语音包<div class="desc" id="neuralStatus">${NEURAL.loaded?'神经语音包已就绪 ✓':(NEURAL.state==='loading'?'语音包下载中 '+Math.round(NEURAL.progress)+'%':'未加载 · 首次使用下载约 90MB（之后离线可用）')}</div></div>
+          <button id="btnNeuralPrefetch" class="ghost" style="border-color:var(--line);background:var(--card);color:var(--ink-2);padding:7px 12px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">预下载</button></div>`:''}
       ${ttsSource==='online'?`<div class="set-row"><div>在线服务<div class="desc">句子会发送到所选服务 · 失败自动回退系统语音</div></div>
         <div class="seg" id="segOnlinePreset">
           <button data-v="baidu" class="${(store.settings.onlinePreset||'baidu')==='baidu'?'on':''}">百度</button>
@@ -2168,6 +2286,19 @@ function renderMore(view){
   $$('#segTtsSource button').forEach(b=>b.onclick=()=>{ store.settings.ttsSource=b.dataset.v; saveStore(); renderMore(view); });
   $$('#segOnlinePreset button').forEach(b=>b.onclick=()=>{ store.settings.onlinePreset=b.dataset.v; saveStore(); renderMore(view); });
   $$('#segOnlineVoice button').forEach(b=>b.onclick=()=>{ store.settings.onlineVoice=b.dataset.v; saveStore(); renderMore(view); });
+  const neuralVoiceSel=$('#neuralVoice');
+  if(neuralVoiceSel) neuralVoiceSel.onchange=()=>{ store.settings.neuralVoice=neuralVoiceSel.value; saveStore(); };
+  const btnNeuralTest=$('#btnNeuralTest');
+  if(btnNeuralTest) btnNeuralTest.onclick=()=>speak('Hi, my name is George. Nice to meet you!');
+  const btnNeuralPrefetch=$('#btnNeuralPrefetch');
+  if(btnNeuralPrefetch) btnNeuralPrefetch.onclick=()=>{
+    if(!neuralSupported()){ toast('当前浏览器不支持神经语音包'); return; }
+    if(NEURAL.loaded){ toast('神经语音包已就绪'); return; }
+    if(NEURAL.state==='loading'){ toast('下载中，请稍候 '+Math.round(NEURAL.progress)+'%'); return; }
+    btnNeuralPrefetch.disabled=true; btnNeuralPrefetch.textContent='下载中…';
+    neuralLoad().then(()=>{ toast('神经语音包已就绪，可离线朗读'); btnNeuralPrefetch.disabled=false; btnNeuralPrefetch.textContent='已就绪 ✓'; })
+      .catch((e)=>{ toast('下载失败：'+((e&&e.message)||e), 4200); btnNeuralPrefetch.disabled=false; btnNeuralPrefetch.textContent='重试下载'; });
+  };
   const customUrl=$('#customTtsUrl');
   if(customUrl) customUrl.onchange=()=>{ store.settings.customTtsUrl=customUrl.value.trim(); saveStore(); };
   $$('#segAccent button').forEach(b=>b.onclick=()=>{ store.settings.accent=b.dataset.v; saveStore(); renderMore(view); });
