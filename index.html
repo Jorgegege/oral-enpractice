@@ -355,13 +355,13 @@ html.dark .start-btn{color:var(--dark-bnr-a);}
 .cal-day{aspect-ratio:1;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px;color:var(--ink-2);position:relative;line-height:1;transition:background .15s ease;}
 .cal-day.empty{visibility:hidden;}
 .cal-day .cd-n{font-family:var(--font-en);}
-.cal-day .cd-logo{width:14px;height:14px;object-fit:contain;display:block;margin-top:1px;}
+.cal-day .cd-logo{width:19px;height:19px;object-fit:contain;display:block;margin-top:1px;}
 .cal-day.has{background:var(--primary-soft);color:var(--primary-deep);}
 .cal-day.today{background:var(--primary);color:#fff;font-weight:700;box-shadow:0 2px 6px rgba(80,110,95,.25);}
 .cal-day.today .cd-logo{filter:brightness(0) invert(1);}
 .cal-legend{display:flex;gap:10px;font-size:10.5px;color:var(--ink-3);margin-top:7px;justify-content:center;align-items:center;}
 .cal-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;vertical-align:-1px;margin-right:3px;}
-.cal-legend img{width:11px;height:11px;object-fit:contain;vertical-align:-1px;margin-right:3px;}
+.cal-legend img{width:14px;height:14px;object-fit:contain;vertical-align:-2px;margin-right:3px;}
 
 /* 已学记录弹层 */
 #learnedRoot{position:fixed;inset:0;z-index:60;display:none;}
@@ -399,6 +399,21 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 .goal-input::-webkit-inner-spin-button,.goal-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .goal-input:focus{border-color:var(--primary);background:var(--card);}
 .goal-unit{font-size:12.5px;color:var(--ink-3);}
+/* 朗读声音 / 人名发音修正 */
+.voice-ctl{display:flex;align-items:center;gap:6px;max-width:62%;}
+.voice-ctl select{flex:1;min-width:0;max-width:168px;background:var(--bg-soft);border:1px solid var(--line);border-radius:9px;padding:7px 8px;color:var(--ink);font-family:var(--font-sans);font-size:12.5px;font-weight:600;}
+.voice-ctl button{flex:0 0 auto;border:1px solid var(--line);background:var(--primary-soft);color:var(--primary-deep);border-radius:9px;padding:7px 9px;font-size:13px;cursor:pointer;font-family:var(--font-sans);white-space:nowrap;}
+.namefix-set{display:block;}
+.namefix-row{display:flex;gap:5px;align-items:center;margin-top:9px;flex-wrap:wrap;}
+.namefix-row input{width:76px;background:var(--bg-soft);border:1px solid var(--line);border-radius:8px;padding:6px 8px;color:var(--ink);font-family:var(--font-en);font-size:13px;outline:none;}
+.namefix-row input:focus{border-color:var(--primary);}
+.namefix-row span{font-size:13px;color:var(--ink-3);}
+.namefix-row button{border:1px solid var(--line);background:var(--primary-soft);color:var(--primary-deep);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--font-sans);}
+.namefix-list{display:flex;flex-wrap:wrap;gap:6px;padding:0 15px 12px;}
+.namefix-chip{background:var(--bg-soft);border:1px solid var(--line);border-radius:20px;padding:4px 5px 4px 10px;font-size:12px;color:var(--ink-3);display:inline-flex;gap:5px;align-items:center;}
+.namefix-chip b{color:var(--primary-deep);font-family:var(--font-en);}
+.namefix-chip button{border:none;background:none;color:var(--ink-3);font-size:14px;line-height:1;cursor:pointer;padding:0 3px;}
+.namefix-empty{font-size:12px;color:var(--ink-3);padding:0 15px 12px;}
 
 /* 设备使用说明 */
 .help-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 15px;}
@@ -579,7 +594,7 @@ const THEMES=[
   {k:'sand',  name:'莫兰迪棕', sw:'#A28864', light:'#A28864', dark:'#241F19'},
 ];
 const store = {
-  settings:{ accent:'US', rate:0.95, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
+  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', nameFix:{}, showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
     remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true, theme:'green', passScore:80 },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
@@ -754,18 +769,40 @@ function setupAvatar(){
   };
 }
 
-// ---------- TTS ----------
+// ---------- TTS（自然朗读） ----------
 let ttsVoices=[];
-function refreshVoices(){ if('speechSynthesis' in window){ try{ ttsVoices=speechSynthesis.getVoices(); }catch(e){} } }
+function refreshVoices(){ if('speechSynthesis' in window){ try{ ttsVoices=speechSynthesis.getVoices()||[]; }catch(e){} } }
 if('speechSynthesis' in window){ refreshVoices(); speechSynthesis.onvoiceschanged=refreshVoices; }
 let speechUnlocked=false;
+// 优先挑质量更好的英语人声；中文引擎读英文容易逐字母念，直接排除
+const VOICE_GOOD=/(neural|premium|natural|enhanced|google|samantha|alex|daniel|aria|jenny|guy|microsoft|apple|siri|evan|zira)/i;
+const VOICE_POOR=/(espeak|compact|tiny|small|lite|robot|basic|qualcomm)/i;
+function voiceKey(v){ return (v&&v.voiceURI) || (v&&v.name) || ''; }
+function langForAccent(){ return (store.settings.accent==='UK')?'en-GB':'en-US'; }
+function voiceScore(v, lang){
+  const want=(lang||'en-US').toLowerCase(), base=want.split('-')[0];
+  const got=((v&&v.lang)||'').toLowerCase();
+  if(got!==want && got!==base && !got.startsWith(base+'-')) return -1;
+  let s=(got===want?100:70);
+  const n=(v&&v.name)||'';
+  if(VOICE_GOOD.test(n)) s+=30;
+  if(VOICE_POOR.test(n)) s-=35;
+  if(v&&v.localService) s+=5;
+  return s;
+}
+function englishVoices(lang){
+  if(!ttsVoices.length) refreshVoices();
+  return ttsVoices.map(v=>({v,s:voiceScore(v,lang)})).filter(x=>x.s>=0)
+    .sort((a,b)=>b.s-a.s).map(x=>x.v);
+}
 function pickVoice(lang){
-  const base=(lang||'en-US').split('-')[0].toLowerCase();
-  return ttsVoices.find(v=>v.lang===lang)
-    || ttsVoices.find(v=>v.lang && v.lang.toLowerCase()===lang.toLowerCase())
-    || ttsVoices.find(v=>v.lang && v.lang.toLowerCase().startsWith(base))
-    || ttsVoices.find(v=>v.lang && base==='en' && /en/i.test(v.lang))
-    || null;
+  if(!ttsVoices.length) refreshVoices();
+  const saved=store.settings.voiceURI;
+  if(saved){
+    const hit=ttsVoices.find(v=>voiceKey(v)===saved);
+    if(hit && voiceScore(hit,lang)>=0) return hit;
+  }
+  return englishVoices(lang)[0]||null;
 }
 function unlockSpeech(){
   if(speechUnlocked||!('speechSynthesis' in window))return;
@@ -776,32 +813,85 @@ function unlockSpeech(){
     speechSynthesis.speak(d);
   }catch(e){}
 }
+// 人名 / 缩写识别：安卓 TTS 常把不认识的名字、全大写词逐字母念，先改成自然拼读
+const NAME_FIX_BUILTIN={
+  jorge:'Hoar-hee', josé:'Ho-say', jose:'Ho-say', sean:'Shawn',
+  chloe:'Klo-ee', zoe:'Zo-ee', liam:'Lee-um', noah:'No-uh', aimee:'Ay-mee'
+};
+function speechText(raw){
+  let t=String(raw==null?'':raw).trim();
+  if(!t) return t;
+  t=t.replace(/\b[A-Z]{2,}\b/g, m=>m[0]+m.slice(1).toLowerCase());
+  const dict={};
+  Object.keys(NAME_FIX_BUILTIN).forEach(k=>{ dict[k.toLowerCase()]=NAME_FIX_BUILTIN[k]; });
+  Object.keys(store.settings.nameFix||{}).forEach(k=>{ if(k) dict[k.toLowerCase()]=store.settings.nameFix[k]; });
+  Object.keys(dict).forEach(k=>{
+    const to=dict[k];
+    if(!k||!to||k===to) return;
+    let re;
+    try{ re=new RegExp('\\b'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','gi'); }
+    catch(e){ return; }
+    t=t.replace(re, to);
+  });
+  return t;
+}
+// 按标点切成短句，逐段朗读并加轻微停顿，明显减轻机械味
+function splitForSpeech(t){
+  const out=[]; let buf='';
+  for(const ch of String(t||'')){
+    buf+=ch;
+    if(/[,.!?;:]/.test(ch)){ const s=buf.trim(); if(s) out.push(s); buf=''; }
+  }
+  const last=buf.trim(); if(last) out.push(last);
+  return out;
+}
+let speakSeq=0;
 function speak(text, {rate, accent, onend}={}){
   if(!('speechSynthesis' in window)){ toast('当前浏览器不支持语音示范'); return; }
   if(!ttsVoices.length) refreshVoices();
-  const lang=(accent||store.settings.accent)==='UK'?'en-GB':'en-US';
+  const lang=(accent==='UK'||(!accent&&store.settings.accent==='UK'))?'en-GB':'en-US';
   const v=pickVoice(lang);
-  if(!v){
-    toast('没找到英文语音：'+VOICE_SETUP_TIP, 4000);
-  }
-  const u=new SpeechSynthesisUtterance(text);
-  u.rate = rate!=null?rate:store.settings.rate;
-  u.lang=lang;
-  if(v) u.voice=v;
-  if(onend) u.onend=onend;
-  u.onerror=(e)=>{ if(e.error && e.error!=='canceled' && e.error!=='interrupted') console.warn('TTS error:', e.error); };
+  if(!v) toast('没找到英文语音：'+VOICE_SETUP_TIP, 4000);
+  const parts=splitForSpeech(speechText(text));
+  if(!parts.length){ if(onend) onend(); return; }
+  const seq=++speakSeq;
+  const baseRate=rate!=null?rate:store.settings.rate;
+  const pitch=Number(store.settings.pitch)||1;
   unlockSpeech();
-  try{
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-  }catch(e){ toast('朗读失败：'+(e.message||e)); }
+  try{ speechSynthesis.cancel(); }catch(e){}
+  let i=0;
+  const next=()=>{
+    if(seq!==speakSeq) return;
+    if(i>=parts.length){ if(onend) onend(); return; }
+    const part=parts[i++];
+    const u=new SpeechSynthesisUtterance(part);
+    u.lang=lang;
+    if(v) u.voice=v;
+    u.rate=Math.max(.5,Math.min(1.5, baseRate*(i>1?0.97:1)));
+    u.pitch=Math.max(.5,Math.min(1.5, /[!?]\s*$/.test(part)?pitch+0.03:pitch));
+    let done=false, guard;
+    const finish=(delay)=>{
+      if(done) return; done=true; clearTimeout(guard);
+      if(seq===speakSeq) setTimeout(next, delay);
+    };
+    guard=setTimeout(()=>finish(0), 1600+part.split(/\s+/).length*520/Math.max(.5,u.rate));
+    u.onend=()=>finish(/[,;:]\s*$/.test(part)?140:95);
+    u.onerror=(e)=>{
+      if(e && (e.error==='canceled'||e.error==='interrupted')) return;
+      if(e && e.error) console.warn('TTS error:', e.error);
+      finish(80);
+    };
+    try{ speechSynthesis.speak(u); }
+    catch(e){ toast('朗读失败：'+(e.message||e)); finish(80); }
+  };
+  setTimeout(next, 35);
 }
 function speakWithBtn(btn, text){
   if(!btn) return speak(text);
   const old=btn.innerHTML; btn.innerHTML='⏸ 朗读中…'; btn.disabled=true;
   let done=false;
   const restore=()=>{ if(done)return; done=true; btn.innerHTML=old; btn.disabled=false; };
-  setTimeout(restore, 20000);
+  setTimeout(restore, 30000);
   speak(text, {onend:restore});
 }
 
@@ -1819,6 +1909,7 @@ const HELP_STEPS = {
     {t:'允许麦克风', s:'第一次点 🎤 开始跟读时，弹窗选「允许」。若误点了不允许：Safari › 设置 › 网站 › 麦克风，把本站改为「允许」。'},
     {t:'打开听写 + 英语语言', s:'设置 › 通用 › 键盘 › 听写（开启），并添加「英语（美国）」。跟读纠音依赖听写识别英文。'},
     {t:'朗读音量', s:'点 🔊 听示范的同时按侧边「音量+」。若没英文声音：设置 › 辅助功能 › 朗读内容 › 语音 › 添加英语声音。'},
+    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」换一个更自然的英文人声；若某个英文名字被逐个字母念出来，在「人名发音修正」里加一条，例如 Jorge → Hoar-hee。'},
     {t:'添加到主屏幕（可选）', s:'Safari 底部「分享」→「添加到主屏幕」，之后像 App 一样全屏打开。换图标需先删除旧图标再重新添加。'},
   ],
   android: [
@@ -1826,6 +1917,7 @@ const HELP_STEPS = {
     {t:'允许麦克风权限', s:'第一次点 🎤 选「允许」。若被拒：点地址栏左侧锁形图标 › 网站权限 › 麦克风 → 允许；或在浏览器设置里找到「网站设置 / 隐私」→ 麦克风。'},
     {t:'不用 Google 也能识别', s:'安卓在线识别失败时会自动切换到本地识别（设备内完成，不上传、无需 Google 服务）。首次使用需联网下载约 40MB 模型，之后可离线。也可在「更多 › 朗读设置」里点「预下载模型」提前准备好。'},
     {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
+    {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「朗读声音」换成更自然的人声；若某个英文名字被逐个字母念出来，在「人名发音修正」里加一条，例如 Jorge → Hoar-hee，之后会自动识别并按你写的读法念。'},
     {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
     {t:'添加到主屏幕（可选）', s:'浏览器菜单 →「添加到主屏幕」，即可像 App 一样全屏打开（菜单位置因浏览器而异）。'},
   ]
@@ -1848,6 +1940,7 @@ function helpContent(platform){
 }
 function renderMore(view){
   const helpPlatform = IS_ANDROID?'android':'ios';
+  const accentVoices = englishVoices(langForAccent());
   view.innerHTML=`
     <div class="section-title fold-title" id="helpFold" role="button" tabindex="0" aria-expanded="false">
       <span>📱</span>设备使用说明 <span class="sp"></span>
@@ -1864,6 +1957,16 @@ function renderMore(view){
         </div></div>
       <div class="set-row"><div>语速<div class="desc">当前 ${store.settings.rate.toFixed(2)}</div></div>
         <input type="range" id="rateRange" min="0.6" max="1.2" step="0.05" value="${store.settings.rate}"></div>
+      <div class="set-row"><div>音调<div class="desc">当前 ${(store.settings.pitch||1).toFixed(2)} · 1.00 最接近真人</div></div>
+        <input type="range" id="pitchRange" min="0.8" max="1.2" step="0.05" value="${store.settings.pitch||1}"></div>
+      <div class="set-row"><div>朗读声音<div class="desc" id="voiceDesc">${accentVoices.length?accentVoices.length+' 个英文声音 · 挑一个更自然的':'自动使用系统英文声音'}</div></div>
+        <div class="voice-ctl"><select id="voiceSelect" aria-label="朗读声音">
+          <option value="">自动（推荐）</option>
+          ${accentVoices.map(v=>`<option value="${esc(voiceKey(v))}" ${voiceKey(v)===(store.settings.voiceURI||'')?'selected':''}>${esc(v.name||v.lang)}</option>`).join('')}
+        </select><button type="button" id="btnVoiceTest">🔊 试听</button></div></div>
+      <div class="set-row namefix-set"><div>人名发音修正<div class="desc">名字被逐字母念时，填「名字 → 读法」，例：Jorge → Hoar-hee</div>
+        <div class="namefix-row"><input id="nfFrom" placeholder="名字" aria-label="名字"><span>→</span><input id="nfTo" placeholder="读法" aria-label="读法"><button type="button" id="nfAdd">添加</button></div></div></div>
+      <div id="nameFixList" class="namefix-list"></div>
       <div class="set-row"><div>显示中文翻译</div>
         <div class="seg" id="segZh"><button data-v="1" class="${store.settings.showZh?'on':''}">显示</button><button data-v="0" class="${store.settings.showZh?'':'on'}">隐藏</button></div></div>
       <div class="set-row"><div>自动停止录音<div class="desc">按句长自动停止，避免空等</div></div>
@@ -1945,6 +2048,36 @@ function renderMore(view){
   // 设置绑定
   $$('#segAccent button').forEach(b=>b.onclick=()=>{ store.settings.accent=b.dataset.v; saveStore(); renderMore(view); });
   $('#rateRange').oninput=(e)=>{ store.settings.rate=parseFloat(e.target.value); saveStore(); e.target.previousElementSibling.querySelector('.desc').textContent='当前 '+store.settings.rate.toFixed(2); };
+  const pitchRange=$('#pitchRange');
+  if(pitchRange) pitchRange.oninput=(e)=>{
+    store.settings.pitch=parseFloat(e.target.value)||1; saveStore();
+    const d=e.target.previousElementSibling.querySelector('.desc');
+    if(d) d.textContent='当前 '+store.settings.pitch.toFixed(2)+' · 1.00 最接近真人';
+  };
+  const voiceSelect=$('#voiceSelect');
+  if(voiceSelect) voiceSelect.onchange=()=>{ store.settings.voiceURI=voiceSelect.value; saveStore(); };
+  const btnVoiceTest=$('#btnVoiceTest');
+  if(btnVoiceTest) btnVoiceTest.onclick=()=>speak('Hi, my name is George. Nice to meet you!');
+  const renderNameFixes=()=>{
+    const box=$('#nameFixList'); if(!box) return;
+    const fixes=store.settings.nameFix||{}, keys=Object.keys(fixes);
+    box.innerHTML=keys.length
+      ? keys.map(k=>`<span class="namefix-chip"><b>${esc(k)} → ${esc(fixes[k])}</b><button type="button" data-k="${esc(k)}" title="删除">×</button></span>`).join('')
+      : '<div class="namefix-empty">未自定义 · 内置已识别 Jorge / Sean / Chloe 等常见名字</div>';
+    $$('#nameFixList button[data-k]').forEach(b=>b.onclick=()=>{
+      delete store.settings.nameFix[b.dataset.k]; saveStore(); renderNameFixes();
+    });
+  };
+  renderNameFixes();
+  const nfAdd=$('#nfAdd');
+  if(nfAdd) nfAdd.onclick=()=>{
+    const from=$('#nfFrom').value.trim(), to=$('#nfTo').value.trim();
+    if(!from||!to){ toast('请填写名字和读法'); return; }
+    store.settings.nameFix=store.settings.nameFix||{};
+    store.settings.nameFix[from]=to; saveStore(); renderNameFixes();
+    $('#nfFrom').value=''; $('#nfTo').value='';
+    toast('已添加：'+from+' → '+to);
+  };
   $$('#segZh button').forEach(b=>b.onclick=()=>{ store.settings.showZh=b.dataset.v==='1'; saveStore(); renderMore(view); });
   $$('#segAuto button').forEach(b=>b.onclick=()=>{ store.settings.autoStop=b.dataset.v==='1'; saveStore(); renderMore(view); });
   $$('#segLocalAsr button').forEach(b=>b.onclick=()=>{ store.settings.localAsr=b.dataset.v==='1'; saveStore(); renderMore(view); });
