@@ -111,11 +111,25 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   const homeText = document.querySelector('#view').textContent;
   results['home 有「开始学习」'] = homeText.includes('开始学习');
   results['home 有「练习天数」'] = homeText.includes('练习天数') && document.querySelectorAll('#view .cal-grid .cal-day').length > 0;
+  results['统计条含今日达标数量'] = document.querySelector('#view #todayPassedNum') !== null
+    && homeText.includes('今日达标') && homeText.includes('累计达标');
+  results['日历打卡图标已放大'] = /\.cal-day \.cd-logo\{width:19px;height:19px/.test(html)
+    && /\.cal-legend img\{width:14px;height:14px/.test(html);
   results['连续打卡横幅存在'] = document.querySelector('#view #streakBanner .sb-flame') !== null
     && /连续 \d+ 天/.test((document.querySelector('#view #streakBanner .sb-num')||{textContent:''}).textContent);
   results['home 有「已学内容」'] = homeText.includes('已学内容') && document.querySelector('#view #btnLearned') !== null;
-  results['home 有「今日短句」'] = homeText.includes('今日短句');
-  results['home 有「挑战长句」'] = homeText.includes('挑战长句');
+  results['home 有「今日短句」'] = homeText.includes('今日短句') && document.querySelector('#view #shortFold') && document.querySelector('#view #shortFoldBody') !== null;
+  results['home 有「挑战长句」'] = homeText.includes('挑战长句') && document.querySelector('#view #longFold') && document.querySelector('#view #longFoldBody') !== null;
+  results['短句长句默认折叠且可展开'] = [['#shortFold','#shortFoldBody'],['#longFold','#longFoldBody']].every(([ts,bs]) => {
+    const t = document.querySelector('#view '+ts), b = document.querySelector('#view '+bs);
+    if(!t || !b || b.classList.contains('open')) return false;
+    t.click();
+    const ok = b.classList.contains('open') && t.classList.contains('open')
+      && t.getAttribute('aria-expanded') === 'true'
+      && t.querySelector('.fold-hint-label').textContent === '收起';
+    t.click();
+    return ok && !b.classList.contains('open');
+  });
   results['home 有「今日新词」'] = homeText.includes('今日新词');
   results['tabbar 按钮数'] = document.querySelectorAll('#tabbar .tab').length;
   results['home 句子卡片数'] = document.querySelectorAll('#view [data-open]').length;
@@ -137,6 +151,17 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   go('#/more'); await sleep(80);
   results['more 有字幕导入区'] = document.querySelector('#subText') !== null && document.querySelector('#btnImportSub') !== null;
   results['设备使用说明双 tab'] = document.querySelectorAll('#helpSeg button').length === 2;
+  results['设备说明默认折叠'] = document.querySelector('#helpFold') !== null
+    && !document.querySelector('#helpFoldBody').classList.contains('open')
+    && document.querySelector('#helpFold .fold-hint-label').textContent === '展开';
+  try {
+    document.querySelector('#helpFold').click(); await sleep(50);
+    results['设备说明可展开'] = document.querySelector('#helpFoldBody').classList.contains('open')
+      && document.querySelector('#helpFold').getAttribute('aria-expanded') === 'true'
+      && document.querySelector('#helpFold .fold-hint-label').textContent === '收起';
+    document.querySelector('#helpFold').click(); await sleep(50);
+    results['设备说明可收起'] = !document.querySelector('#helpFoldBody').classList.contains('open');
+  } catch (e) { results['设备说明可展开'] = false; errors.push('help fold: ' + e.message); }
   results['学习提醒设置区存在'] = document.querySelector('#segRemind') !== null
     && document.querySelector('#remindTime') !== null && document.querySelector('#btnNotify') !== null;
   results['提醒默认开启且时间21:00'] = document.querySelector('#segRemind button[data-v="1"]').classList.contains('on')
@@ -156,7 +181,69 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     document.querySelector('#segTheme button[data-v="0"]').click(); await sleep(50);
     results['夜间模式可关闭'] = !document.documentElement.classList.contains('dark');
   } catch (e) { results['夜间模式可开启'] = false; errors.push('theme toggle: ' + e.message); }
+  results['主题配色有 5 套色块且默认绿选中'] = document.querySelectorAll('#themeSwatches .theme-swatch').length === 5
+    && document.querySelector('#themeSwatches .theme-swatch[data-k="green"]').classList.contains('on');
+  try {
+    document.querySelector('#themeSwatches .theme-swatch[data-k="rose"]').click(); await sleep(50);
+    results['主题可切换到粉色'] = document.documentElement.getAttribute('data-theme') === 'rose'
+      && document.querySelector('#themeSwatches .theme-swatch[data-k="rose"]').classList.contains('on')
+      && !document.querySelector('#themeSwatches .theme-swatch[data-k="green"]').classList.contains('on');
+    document.querySelector('#themeSwatches .theme-swatch[data-k="blue"]').click(); await sleep(50);
+    results['主题可切换到蓝色'] = document.documentElement.getAttribute('data-theme') === 'blue';
+    document.querySelector('#themeSwatches .theme-swatch[data-k="green"]').click(); await sleep(50);
+    results['主题可切回绿色'] = document.documentElement.getAttribute('data-theme') === 'green';
+  } catch (e) { results['主题可切换到粉色'] = false; errors.push('theme color switch: ' + e.message); }
+  results['朗读声音/音调设置存在'] = document.querySelector('#voiceSelect') !== null
+    && document.querySelector('#btnVoiceTest') !== null && document.querySelector('#pitchRange') !== null
+    && Number(document.querySelector('#pitchRange').value) === 1;
+  results['人名发音修正入口存在'] = document.querySelector('#nfFrom') !== null
+    && document.querySelector('#nfTo') !== null && document.querySelector('#nfAdd') !== null
+    && document.querySelector('#nameFixList') !== null;
+  try {
+    const fixed = window.eval('speechText("Hi Jorge, GEORGE and Chloe are here.")');
+    results['人名与全大写自动识别改写'] = /Hoar-hee/.test(fixed) && !/GEORGE/.test(fixed) && /Klo-ee/.test(fixed);
+    const parts = window.eval('splitForSpeech(\'Hi, I am fine. Thank you!\')');
+    results['朗读按标点分句'] = Array.isArray(parts) && parts.length === 3;
+  } catch (e) { results['人名与全大写自动识别改写'] = false; errors.push('speechText: ' + e.message); }
+  try {
+    document.querySelector('#nfFrom').value = 'Jorge';
+    document.querySelector('#nfTo').value = 'Hor-hey';
+    document.querySelector('#nfAdd').click(); await sleep(50);
+    results['自定义人名发音可添加'] = /Jorge → Hor-hey/.test(document.querySelector('#nameFixList').textContent)
+      && /Hor-hey/.test(window.eval('speechText("This is Jorge.")'));
+    document.querySelector('#nameFixList button[data-k="Jorge"]').click(); await sleep(50);
+    results['自定义人名发音可删除'] = !/Hor-hey/.test(document.querySelector('#nameFixList').textContent);
+  } catch (e) { results['自定义人名发音可添加'] = false; errors.push('nameFix: ' + e.message); }
+  try {
+    const sel = document.querySelector('#voiceSelect');
+    if (sel.options.length > 1) {
+      sel.value = sel.options[1].value; sel.dispatchEvent(new window.Event('change')); await sleep(30);
+      document.querySelector('#segAccent button[data-v="US"]').click(); await sleep(60);
+      results['朗读声音选择可持久化'] = document.querySelector('#voiceSelect').value === sel.options[1].value;
+      document.querySelector('#voiceSelect').value = '';
+      document.querySelector('#voiceSelect').dispatchEvent(new window.Event('change'));
+    } else {
+      results['朗读声音选择可持久化'] = true; // jsdom 环境只有一个模拟声音
+    }
+  } catch (e) { results['朗读声音选择可持久化'] = false; errors.push('voice select: ' + e.message); }
+  results['本地识别开关与预下载按钮存在'] = document.querySelector('#segLocalAsr') !== null
+    && document.querySelector('#asrStatus') !== null && document.querySelector('#btnAsrPrefetch') !== null;
+  results['本地识别默认开启'] = document.querySelector('#segLocalAsr button[data-v="1"]').classList.contains('on');
+  try {
+    document.querySelector('#segLocalAsr button[data-v="0"]').click(); await sleep(50);
+    results['本地识别可关闭'] = document.querySelector('#segLocalAsr button[data-v="0"]').classList.contains('on');
+    document.querySelector('#segLocalAsr button[data-v="1"]').click(); await sleep(50);
+    results['本地识别可重新开启'] = document.querySelector('#segLocalAsr button[data-v="1"]').classList.contains('on');
+  } catch (e) { results['本地识别可关闭'] = false; errors.push('localAsr toggle: ' + e.message); }
   const sGoal = document.querySelector('#sentenceGoal'), wGoal = document.querySelector('#wordGoal');
+  const passEl = document.querySelector('#passScore');
+  results['达标分数输入框默认80且为数字'] = !!passEl && passEl.type === 'number' && passEl.min === '0'
+    && passEl.max === '100' && Number(passEl.value) === 80;
+  try {
+    passEl.value = '90'; passEl.dispatchEvent(new window.Event('change'));
+    results['达标分数可修改'] = Number(passEl.value) === 90;
+    passEl.value = '80'; passEl.dispatchEvent(new window.Event('change'));
+  } catch (e) { results['达标分数可修改'] = false; errors.push('passScore input: ' + e.message); }
   results['句子/单词目标为数字输入框'] = !!sGoal && !!wGoal && sGoal.type === 'number' && wGoal.type === 'number'
     && sGoal.min === '0' && sGoal.max === '100' && wGoal.min === '0' && wGoal.max === '100';
   try {
@@ -199,6 +286,16 @@ function waitFor(fn, timeout = 6000, interval = 50) {
         && /听后跟读/.test(document.querySelector('#btnRec').textContent);
       document.querySelector('#modeSeg button[data-v="direct"]').click(); await sleep(30);
     } catch (e) { results['模式可切到先听后读'] = false; errors.push('mode switch: ' + e.message); }
+    try {
+      results['弹层有跳过按钮'] = document.querySelector('#btnSkip') !== null
+        && /不计入今日学习/.test((document.querySelector('#btnSkip')||{textContent:''}).textContent);
+      const beforeSkip = document.querySelector('#pracEn').textContent.trim();
+      document.querySelector('#btnSkip').click(); await sleep(60);
+      const afterSkip = document.querySelector('#pracEn').textContent.trim();
+      results['跳过后推进到下一句'] = afterSkip !== beforeSkip;
+      const prevBtn0 = document.querySelector('#ppPrev');
+      if (prevBtn0 && !prevBtn0.disabled) { prevBtn0.click(); await sleep(40); }
+    } catch (e) { results['弹层有跳过按钮'] = false; errors.push('skip flow: ' + e.message); }
     try {
       const before = document.querySelector('#pracEn').textContent.trim();
       const nextBtn = document.querySelector('#ppNext');
