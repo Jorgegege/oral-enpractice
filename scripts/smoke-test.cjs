@@ -205,6 +205,16 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     results['朗读按标点分句'] = Array.isArray(parts) && parts.length === 3;
   } catch (e) { results['全大写仍自动归一化'] = false; errors.push('speechText: ' + e.message); }
   try {
+    const box = document.createElement('div');
+    box.innerHTML = window.eval('wordSpans("Hi, Jorge!  Nice to meet you.")');
+    const words = [...box.querySelectorAll('.wtok-click')];
+    results['句子单词可点读且标点不送入发音'] = words.length === 6
+      && words[0].getAttribute('data-say') === 'Hi'
+      && words[1].getAttribute('data-say') === 'Jorge'
+      && words.every(w => !/[,!.]/.test(w.getAttribute('data-say')));
+    results['点词提示与高亮样式存在'] = html.includes('word-tap-tip') && html.includes('.wtok-click.speaking');
+  } catch (e) { results['句子单词可点读且标点不送入发音'] = false; errors.push('wordSpans: ' + e.message); }
+  try {
     const a = window.eval("alignWords('Now you see me. George thinks he will.', 'now you see me thinks he will')");
     const score = window.eval("scoreOf(alignWords('Now you see me. George thinks he will.', 'now you see me thinks he will'))");
     results['人名不计入正确率'] = a.ignoredCount === 1 && a.scoredCount === 7
@@ -305,6 +315,8 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     results['弹层有学习进度条'] = document.querySelector('#practiceRoot .prac-prog .bar > i') !== null
       && /第\s*\d+\s*\/\s*\d+\s*句/.test((document.querySelector('.prac-prog .pp-head')||{textContent:''}).textContent);
     results['弹层有双模式切换'] = document.querySelectorAll('#modeSeg button').length === 2;
+    results['练习句单词可点读'] = document.querySelectorAll('#pracEn .wtok-click').length > 0
+      && /点句中任意单词/.test((document.querySelector('.word-tap-tip')||{textContent:''}).textContent);
     try {
       const listenBtn = document.querySelector('#modeSeg button[data-v="listen"]');
       listenBtn.click(); await sleep(30);
@@ -340,6 +352,8 @@ function waitFor(fn, timeout = 6000, interval = 50) {
       results['录音后结果渲染'] = resEl && resEl.classList.contains('show');
       results['结果显示分数环'] = !!document.querySelector('#result .score-ring');
       results['结果显示词高亮'] = document.querySelectorAll('#pracEn .wtok').length;
+      results['结果页词高亮仍可点读'] = document.querySelectorAll('#pracEn .wtok.wtok-click').length
+        === document.querySelectorAll('#pracEn .wtok').length;
       results['结果页有下一句按钮'] = document.querySelector('#btnNext') !== null;
       results['结果页有回放我的按钮'] = document.querySelector('#btnPlayMine') !== null
         && !!document.querySelector('.replay-tip');
@@ -347,6 +361,11 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     const closeBtn = document.querySelector('#pracClose');
     if (closeBtn) { closeBtn.click(); await sleep(60); }
     results['关闭弹层'] = document.querySelector('#practiceRoot .en-line') === null;
+    const homeWord = document.querySelector('#view .sentence-en .wtok-click');
+    if (homeWord) {
+      homeWord.click(); await sleep(50);
+      results['点单词不误开练习弹层'] = document.querySelector('#practiceRoot .en-line') === null;
+    }
   }
 
   // 已学内容弹层（录音后已有 progress 记录）
