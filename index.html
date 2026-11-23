@@ -256,6 +256,11 @@ nav.tabbar{
 .wtok.miss{background:var(--bad-soft);color:var(--bad);text-decoration:underline wavy var(--bad) 1.5px;}
 .wtok.ignore{color:var(--ink-3);opacity:.75;border-bottom:1px dotted var(--line);}
 .wtok.current{box-shadow:0 0 0 2px var(--accent);}
+/* 点单词单独听发音 */
+.wtok-click{cursor:pointer;border-radius:5px;padding:1px 2px;transition:background .15s,color .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent;}
+.wtok-click:hover{background:var(--primary-soft);color:var(--primary-deep);}
+.wtok-click.speaking{background:var(--accent-soft);color:var(--primary-deep);box-shadow:0 0 0 2px var(--accent);}
+.word-tap-tip{font-size:12px;color:var(--ink-3);margin-top:6px;line-height:1.5;}
 
 .ctl-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
 .ctl{flex:1;min-width:120px;border:none;border-radius:var(--radius-sm);padding:13px 10px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-sans);color:#fff;background:var(--primary);display:flex;align-items:center;justify-content:center;gap:7px;}
@@ -925,6 +930,31 @@ function speakWithBtn(btn, text){
   setTimeout(restore, 30000);
   speak(text, {onend:restore});
 }
+// 句子里点任意单词单独听发音：按空白拆词，标点只作显示、不送进 TTS
+function wordSpans(text){
+  const raw=String(text==null?'':text);
+  if(!raw.trim()) return '';
+  return raw.split(/(\s+)/).map(part=>{
+    if(/^\s+$/.test(part)) return part;
+    const say=part.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g,'');
+    if(!say) return esc(part);
+    return `<span class="wtok-click" data-say="${esc(say)}" title="点听发音">${esc(part)}</span>`;
+  }).join('');
+}
+let wordSpeakTimer=null;
+// 捕获阶段拦截，避免点词时误触发外层卡片的「打开练习」
+document.addEventListener('click', (e)=>{
+  const el=e.target && e.target.closest && e.target.closest('.wtok-click');
+  if(!el) return;
+  e.stopPropagation(); e.preventDefault();
+  const w=el.getAttribute('data-say')||el.textContent.trim();
+  if(!w) return;
+  document.querySelectorAll('.wtok-click.speaking').forEach(x=>x.classList.remove('speaking'));
+  el.classList.add('speaking');
+  clearTimeout(wordSpeakTimer);
+  wordSpeakTimer=setTimeout(()=>el.classList.remove('speaking'), 5000);
+  speak(w, {onend:()=>{ el.classList.remove('speaking'); clearTimeout(wordSpeakTimer); }});
+}, true);
 
 // ---------- 语音识别 + 词级对齐 + 音素反馈 ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
@@ -1373,7 +1403,8 @@ function renderPracticeSheet(){
         ${badgeHtml(s)}
         <span class="badge level">${wordCount(s.en)} 词</span>
       </div>
-      <div class="en-line" id="pracEn">${s.en}</div>
+      <div class="en-line" id="pracEn">${wordSpans(s.en)}</div>
+      <div class="word-tap-tip">💡 点句中任意单词，可单独听发音</div>
       ${store.settings.showZh && s.zh ? `<div class="zh-line">${esc(s.zh)}</div>`:''}
       ${s.note?`<div class="src" style="color:var(--warn)">${esc(s.note)}</div>`:''}
     </div>
@@ -1469,7 +1500,7 @@ function badgeHtml(s){
 function beginRecord(){
   const s=pracCtx.s;
   $('#result').classList.remove('show');
-  $('#pracEn').innerHTML=esc(s.en);
+  $('#pracEn').innerHTML=wordSpans(s.en);
   const recBtn=$('#btnRec'), stopBtn=$('#btnStop'), interimEl=$('#interim');
   recBtn.style.display='none'; stopBtn.style.display='';
   interimEl.classList.add('show');
@@ -1561,7 +1592,7 @@ function evaluate(s, finalText){
   markProgress(s.id, score);
   // 高亮句子
   const enEl=$('#pracEn');
-  enEl.innerHTML=align.target.map(t=>`<span class="wtok ${t.state}" ${t.state==='ignore'?'title="人名 · 不计入正确率"':''}>${esc(t.word)}</span>`).join(' ');
+  enEl.innerHTML=align.target.map(t=>`<span class="wtok wtok-click ${t.state}" data-say="${esc(t.word)}" title="${t.state==='ignore'?'人名 · 不计入正确率 · ':''}点听发音">${esc(t.word)}</span>`).join(' ');
   // 问题词：miss 的词 + 尽量匹配识别到的相近词
   const missed=align.target.filter(t=>t.state==='miss');
   const rWords=normalizeWords(finalText);
@@ -1652,7 +1683,7 @@ window.addEventListener('hashchange', render);
 function sentenceCard(s, opts={}){
   const done=isDone(s.id);
   return `<div class="card tap" data-open="${s.id}">
-    <div class="sentence-en">${esc(s.en)}</div>
+    <div class="sentence-en">${wordSpans(s.en)}</div>
     ${store.settings.showZh && s.zh?`<div class="sentence-zh">${esc(s.zh)}</div>`:''}
     <div class="meta-row">${badgeHtml(s)}
       <span class="badge level">${wordCount(s.en)} 词</span>
@@ -1867,7 +1898,7 @@ function openLearned(){
     </div>
     ${recs.length?recs.map(r=>`
       <div class="lr-item">
-        <div class="lr-en">${esc(r.s.en)}</div>
+        <div class="lr-en">${wordSpans(r.s.en)}</div>
         ${r.s.zh?`<div class="lr-zh">${esc(r.s.zh)}</div>`:''}
         <div class="lr-meta">
           <span class="lr-score ${sc(r.score)}">${r.score} 分</span>
@@ -1974,6 +2005,7 @@ const HELP_STEPS = {
     {t:'打开听写 + 英语语言', s:'设置 › 通用 › 键盘 › 听写（开启），并添加「英语（美国）」。跟读纠音依赖听写识别英文。'},
     {t:'朗读音量', s:'点 🔊 听示范的同时按侧边「音量+」。若没英文声音：设置 › 辅助功能 › 朗读内容 › 语音 › 添加英语声音。'},
     {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「示范音源」切成「在线自然音」，或换一个更自然的英文人声。跟读评分会自动忽略人名，名字读不准不会影响正确率。'},
+    {t:'点单词单独听发音', s:'句子里的任意单词都可以点一下单独听，标点不会被读出来；用的就是上面选的示范音源。'},
     {t:'添加到主屏幕（可选）', s:'Safari 底部「分享」→「添加到主屏幕」，之后像 App 一样全屏打开。换图标需先删除旧图标再重新添加。'},
   ],
   android: [
@@ -1982,6 +2014,7 @@ const HELP_STEPS = {
     {t:'不用 Google 也能识别', s:'安卓在线识别失败时会自动切换到本地识别（设备内完成，不上传、无需 Google 服务）。首次使用需联网下载约 40MB 模型，之后可离线。也可在「更多 › 朗读设置」里点「预下载模型」提前准备好。'},
     {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
     {t:'名字被逐字母念 / 声音太机械', s:'到「更多 › 朗读设置」把「示范音源」切成「在线自然音」试试，也可以在「朗读声音」里挑系统自带的人声。跟读评分会自动忽略人名，名字读不准不会影响正确率。'},
+    {t:'点单词单独听发音', s:'句子里的任意单词都可以点一下单独听，标点不会被读出来；用的就是上面选的示范音源。'},
     {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
     {t:'添加到主屏幕（可选）', s:'浏览器菜单 →「添加到主屏幕」，即可像 App 一样全屏打开（菜单位置因浏览器而异）。'},
   ]
