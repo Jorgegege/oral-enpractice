@@ -237,10 +237,21 @@ function waitFor(fn, timeout = 6000, interval = 50) {
       results['朗读声音选择可持久化'] = true; // jsdom 环境只有一个模拟声音
     }
   } catch (e) { results['朗读声音选择可持久化'] = false; errors.push('voice select: ' + e.message); }
-  results['音源切换入口存在且默认系统语音'] = document.querySelectorAll('#segTtsSource button').length === 3
+  results['音源切换入口存在且默认系统语音'] = document.querySelectorAll('#segTtsSource button').length === 4
     && document.querySelector('#segTtsSource button[data-v="system"]').classList.contains('on')
-    && document.querySelector('#voiceSelect') !== null;
+    && document.querySelector('#voiceSelect') !== null
+    && document.querySelector('#segTtsSource button[data-v="neural"]') !== null;
   try {
+    document.querySelector('#segTtsSource button[data-v="neural"]').click(); await sleep(60);
+    const nv = document.querySelector('#neuralVoice');
+    results['神经语音包音源可切换'] = !!nv && nv.options.length >= 8
+      && !!document.querySelector('#neuralStatus') && !!document.querySelector('#btnNeuralPrefetch')
+      && document.querySelector('#voiceSelect') === null;
+    if (nv && nv.options.length > 2) {
+      nv.value = nv.options[2].value; nv.dispatchEvent(new window.Event('change')); await sleep(30);
+      results['神经音色可保存'] = /neuralVoice/.test(html) && nv.value === nv.options[2].value;
+      nv.value = 'af_heart'; nv.dispatchEvent(new window.Event('change'));
+    }
     document.querySelector('#segTtsSource button[data-v="online"]').click(); await sleep(60);
     results['在线自然音可切换'] = document.querySelector('#segOnlineVoice') !== null
       && document.querySelector('#voiceSelect') === null
