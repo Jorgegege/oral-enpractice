@@ -226,6 +226,31 @@ function waitFor(fn, timeout = 6000, interval = 50) {
       results['朗读声音选择可持久化'] = true; // jsdom 环境只有一个模拟声音
     }
   } catch (e) { results['朗读声音选择可持久化'] = false; errors.push('voice select: ' + e.message); }
+  results['音源切换入口存在且默认系统语音'] = document.querySelectorAll('#segTtsSource button').length === 3
+    && document.querySelector('#segTtsSource button[data-v="system"]').classList.contains('on')
+    && document.querySelector('#voiceSelect') !== null;
+  try {
+    document.querySelector('#segTtsSource button[data-v="online"]').click(); await sleep(60);
+    results['在线自然音可切换'] = document.querySelector('#segOnlineVoice') !== null
+      && document.querySelector('#voiceSelect') === null
+      && /fanyi\.baidu\.com\/gettts/.test(window.eval('ttsUrlFor("Hi Jorge.")'));
+    document.querySelector('#segOnlinePreset button[data-v="youdao"]').click(); await sleep(60);
+    results['在线服务可切换'] = document.querySelector('#segOnlinePreset button[data-v="youdao"]').classList.contains('on')
+      && /dict\.youdao\.com/.test(window.eval('ttsUrlFor("Hi")'));
+    document.querySelector('#segOnlinePreset button[data-v="baidu"]').click(); await sleep(60);
+    document.querySelector('#segOnlineVoice button[data-v="1"]').click(); await sleep(60);
+    results['在线音色可切换'] = document.querySelector('#segOnlineVoice button[data-v="1"]').classList.contains('on')
+      && /spd=1/.test(window.eval('ttsUrlFor("Hi")'));
+    document.querySelector('#segTtsSource button[data-v="custom"]').click(); await sleep(60);
+    const cu = document.querySelector('#customTtsUrl');
+    results['自定义音源输入框存在'] = !!cu && cu.type === 'url';
+    cu.value = 'https://example.com/tts?voice=aria&text={text}';
+    cu.dispatchEvent(new window.Event('change')); await sleep(30);
+    results['自定义音源URL可保存并生成'] = window.eval('ttsUrlFor("Hello there")') === 'https://example.com/tts?voice=aria&text=Hello%20there';
+    document.querySelector('#segTtsSource button[data-v="system"]').click(); await sleep(60);
+    results['可切回系统语音'] = document.querySelector('#segTtsSource button[data-v="system"]').classList.contains('on')
+      && document.querySelector('#voiceSelect') !== null;
+  } catch (e) { results['在线自然音可切换'] = false; errors.push('tts source: ' + e.message); }
   results['本地识别开关与预下载按钮存在'] = document.querySelector('#segLocalAsr') !== null
     && document.querySelector('#asrStatus') !== null && document.querySelector('#btnAsrPrefetch') !== null;
   results['本地识别默认开启'] = document.querySelector('#segLocalAsr button[data-v="1"]').classList.contains('on');
