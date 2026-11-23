@@ -196,24 +196,25 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   results['朗读声音/音调设置存在'] = document.querySelector('#voiceSelect') !== null
     && document.querySelector('#btnVoiceTest') !== null && document.querySelector('#pitchRange') !== null
     && Number(document.querySelector('#pitchRange').value) === 1;
-  results['人名发音修正入口存在'] = document.querySelector('#nfFrom') !== null
-    && document.querySelector('#nfTo') !== null && document.querySelector('#nfAdd') !== null
-    && document.querySelector('#nameFixList') !== null;
+  results['人名发音修正入口已移除'] = document.querySelector('#nfFrom') === null
+    && document.querySelector('#nameFixList') === null && !html.includes('NAME_FIX_BUILTIN');
   try {
-    const fixed = window.eval('speechText("Hi Jorge, GEORGE and Chloe are here.")');
-    results['人名与全大写自动识别改写'] = /Hoar-hee/.test(fixed) && !/GEORGE/.test(fixed) && /Klo-ee/.test(fixed);
+    const fixed = window.eval('speechText("Hi GEORGE, how are you?")');
+    results['全大写仍自动归一化'] = /George/.test(fixed) && !/GEORGE/.test(fixed);
     const parts = window.eval('splitForSpeech(\'Hi, I am fine. Thank you!\')');
     results['朗读按标点分句'] = Array.isArray(parts) && parts.length === 3;
-  } catch (e) { results['人名与全大写自动识别改写'] = false; errors.push('speechText: ' + e.message); }
+  } catch (e) { results['全大写仍自动归一化'] = false; errors.push('speechText: ' + e.message); }
   try {
-    document.querySelector('#nfFrom').value = 'Jorge';
-    document.querySelector('#nfTo').value = 'Hor-hey';
-    document.querySelector('#nfAdd').click(); await sleep(50);
-    results['自定义人名发音可添加'] = /Jorge → Hor-hey/.test(document.querySelector('#nameFixList').textContent)
-      && /Hor-hey/.test(window.eval('speechText("This is Jorge.")'));
-    document.querySelector('#nameFixList button[data-k="Jorge"]').click(); await sleep(50);
-    results['自定义人名发音可删除'] = !/Hor-hey/.test(document.querySelector('#nameFixList').textContent);
-  } catch (e) { results['自定义人名发音可添加'] = false; errors.push('nameFix: ' + e.message); }
+    const a = window.eval("alignWords('Now you see me. George thinks he will.', 'now you see me thinks he will')");
+    const score = window.eval("scoreOf(alignWords('Now you see me. George thinks he will.', 'now you see me thinks he will'))");
+    results['人名不计入正确率'] = a.ignoredCount === 1 && a.scoredCount === 7
+      && a.matchCount === 7 && score === 100 && a.target.some(t => t.word === 'george' && t.state === 'ignore');
+    const b = window.eval("alignWords('We hold these Rights and Happiness.', 'we hold these rights and happiness')");
+    results['普通词不被误判为人名'] = b.ignoredCount === 0 && b.scoredCount === 6;
+    const c = window.eval("alignWords('This is Charlie here.', 'this is here')");
+    results['用户昵称按人名忽略'] = c.ignoredCount === 1 && c.scoredCount === 3
+      && c.matchCount === 3 && c.extras.length === 0;
+  } catch (e) { results['人名不计入正确率'] = false; errors.push('name scoring: ' + e.message); }
   try {
     const sel = document.querySelector('#voiceSelect');
     if (sel.options.length > 1) {
