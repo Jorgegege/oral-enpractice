@@ -201,8 +201,18 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   try {
     const fixed = window.eval('speechText("Hi GEORGE, how are you?")');
     results['全大写仍自动归一化'] = /George/.test(fixed) && !/GEORGE/.test(fixed);
-    const parts = window.eval('splitForSpeech(\'Hi, I am fine. Thank you!\')');
-    results['朗读按标点分句'] = Array.isArray(parts) && parts.length === 3;
+    // 真实口语断句：只在句子边界切，句内逗号/分号/冒号保留不切断
+    const sp = window.eval('splitForSpeech(\'Hi, I am fine. Thank you!\')');
+    results['仅在句子边界断句'] = Array.isArray(sp) && sp.length === 2
+      && sp[0] === 'Hi, I am fine.' && sp[1] === 'Thank you!';
+    const commaKeep = window.eval('splitForSpeech(\'Could you say that again more slowly, please?\')');
+    results['句内逗号不切断'] = Array.isArray(commaKeep) && commaKeep.length === 1
+      && /,\s*please\?$/.test(commaKeep[0]);
+    const semiKeep = window.eval('splitForSpeech(\'I am no bird; and no net ensnares me.\')');
+    results['句内分号不切断'] = Array.isArray(semiKeep) && semiKeep.length === 1;
+    const abbrKeep = window.eval('splitForSpeech(\'Dr. Smith is here. Welcome!\')');
+    results['缩写不误判为句末'] = Array.isArray(abbrKeep) && abbrKeep.length === 2
+      && abbrKeep[0] === 'Dr. Smith is here.';
   } catch (e) { results['全大写仍自动归一化'] = false; errors.push('speechText: ' + e.message); }
   try {
     const box = document.createElement('div');
