@@ -824,12 +824,30 @@ function unlockSpeech(){
 function speechText(raw){
   return String(raw==null?'':raw).trim().replace(/\b[A-Z]{2,}\b/g, m=>m[0]+m.slice(1).toLowerCase());
 }
-// 按标点切成短句，逐段朗读并加轻微停顿，明显减轻机械味
+// 按真实英语朗读节奏断句：只在句子边界（句号/问号/感叹号）切分。
+// 逗号、分号、冒号是句内气口，保留在原句里交给 TTS 引擎自然处理——
+// 若把它们也切成独立朗读段，每段都会被当成完整句子降调收尾，语气被切断、停顿位置失真。
+const SPEECH_ABBREV=/\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|vs|etc|e\.g|i\.e|U\.S|U\.K|a\.m|p\.m|No)\.$/i;
 function splitForSpeech(t){
+  const s=String(t||'').trim();
+  if(!s) return [];
   const out=[]; let buf='';
-  for(const ch of String(t||'')){
+  for(let i=0;i<s.length;i++){
+    const ch=s[i];
     buf+=ch;
-    if(/[,.!?;:]/.test(ch)){ const s=buf.trim(); if(s) out.push(s); buf=''; }
+    if(/[.!?]/.test(ch)){
+      const prev=s[i-1]||'', next=s[i+1]||'';
+      const decimal=ch==='.' && /\d/.test(prev) && /\d/.test(next);
+      const abbr=ch==='.' && SPEECH_ABBREV.test(buf.trim());
+      const ellipsis=ch==='.' && (s.slice(i+1,i+3)==='..' || s.slice(i-2,i)==='..');
+      if(decimal||abbr||ellipsis) continue;
+      if(!next || /\s/.test(next)){
+        const seg=buf.trim();
+        if(seg) out.push(seg);
+        buf='';
+        while(i+1<s.length && /\s/.test(s[i+1])) i++;
+      }
+    }
   }
   const last=buf.trim(); if(last) out.push(last);
   return out;
@@ -911,7 +929,7 @@ function speakSystem(text, {rate, accent, onend}={}){
     const u=new SpeechSynthesisUtterance(part);
     u.lang=lang;
     if(v) u.voice=v;
-    u.rate=Math.max(.5,Math.min(1.5, baseRate*(i>1?0.97:1)));
+    u.rate=Math.max(.5,Math.min(1.5, baseRate));
     u.pitch=Math.max(.5,Math.min(1.5, /[!?]\s*$/.test(part)?pitch+0.03:pitch));
     let done=false, guard;
     const finish=(delay)=>{
@@ -919,7 +937,8 @@ function speakSystem(text, {rate, accent, onend}={}){
       if(seq===speakSeq) setTimeout(next, delay);
     };
     guard=setTimeout(()=>finish(0), 1600+part.split(/\s+/).length*520/Math.max(.5,u.rate));
-    u.onend=()=>finish(/[,;:]\s*$/.test(part)?140:95);
+    // 只在句子之间留真实停顿（约 0.22s）；最后一段直接收尾，句内气口交给 TTS 引擎
+    u.onend=()=>finish(i>=parts.length?0:220);
     u.onerror=(e)=>{
       if(e && (e.error==='canceled'||e.error==='interrupted')) return;
       if(e && e.error) console.warn('TTS error:', e.error);
