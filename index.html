@@ -2240,7 +2240,15 @@ function renderHome(view){
       </div>
     </div>
 
-    <!-- ② 练习天数 -->
+    <!-- ② 单词速配 -->
+    <div class="match-entry" id="matchEntry">
+      <div class="me-ico">🧩</div>
+      <div class="me-body"><div class="me-title">单词速配 <span class="me-badge">限时挑战</span></div>
+        <div class="me-desc">中英配对 · 点对自动换新词 · 最高 ${Number(store.matchBest||0)} 分</div></div>
+      <button class="me-go" id="btnMatch">开始</button>
+    </div>
+
+    <!-- ③ 练习天数 -->
     <div class="home-block hb-days">
       <div class="block-head"><span class="bh-ico">📅</span>练习天数</div>
       ${streakBannerHtml()}
@@ -2248,7 +2256,7 @@ function renderHome(view){
       ${calendarHtml()}
     </div>
 
-    <!-- ③ 已学内容 -->
+    <!-- ④ 已学内容 -->
     <div class="home-block hb-learned">
       <div class="block-head"><span class="bh-ico">📚</span>已学内容</div>
       <div class="card tap" id="btnLearned" style="display:flex;align-items:center;gap:12px">
@@ -2267,6 +2275,7 @@ function renderHome(view){
   `;
   bindSentenceCards(view);
   bindWordCards(view);
+  const matchBtn=$('#btnMatch'); if(matchBtn) matchBtn.onclick=openMatchGame;
   // 今日短句 / 挑战长句默认折叠，点标题展开/收起
   const bindFold=(titleSel, bodySel)=>{
     const title=$(titleSel), body=$(bodySel);
@@ -2497,20 +2506,13 @@ function renderLibList(){
 // -- 复习 --
 function renderReview(view){
   const items=store.mistakes.map(findSentence).filter(Boolean).reverse();
-  const entry=`<div class="match-entry" id="matchEntry">
-    <div class="me-ico">🧩</div>
-    <div class="me-body"><div class="me-title">单词速配 <span class="me-badge">限时挑战</span></div>
-      <div class="me-desc">中英配对 · 点对自动换新词 · 最高 ${Number(store.matchBest||0)} 分</div></div>
-    <button class="me-go" id="btnMatch">开始</button>
-  </div>`;
   if(!items.length){
-    view.innerHTML=entry+`<div class="empty"><div class="e-ico">🎉</div>太棒了，暂无待复习的句子<br><span style="font-size:12.5px">评分低于 70 分的句子会出现在这里</span></div>`;
+    view.innerHTML=`<div class="empty"><div class="e-ico">🎉</div>太棒了，暂无待复习的句子<br><span style="font-size:12.5px">评分低于 70 分的句子会出现在这里</span></div>`;
   }else{
-    view.innerHTML=entry+`<div class="section-title">🔁 待复习 <span class="count">${items.length} 句</span></div><div class="review-list">` +
+    view.innerHTML=`<div class="section-title">🔁 待复习 <span class="count">${items.length} 句</span></div><div class="review-list">` +
       items.map(s=>sentenceCard(s,{btn:'再练'})).join('') + '</div>';
     bindSentenceCards(view);
   }
-  const b=$('#btnMatch'); if(b) b.onclick=openMatchGame;
 }
 
 const HELP_STEPS = {
@@ -2522,7 +2524,7 @@ const HELP_STEPS = {
     {t:'朗读音量', s:'点 🔊 听示范的同时按侧边「音量+」。若没英文声音：设置 › 辅助功能 › 朗读内容 › 语音 › 添加英语声音。'},
     {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，默认轻量档首次下载约 36MB 后离线可用，音质自然、人名也念得准；想要更好音质可切到高音质档（约 82MB，8 音色）。跟读评分会自动忽略人名，不影响正确率。'},
     {t:'点单词听发音 + 看释义', s:'句子里的任意单词都可以点一下单独听发音，并弹出音标和中文释义（来自内置词库，离线可用）；标点不会被读出来。'},
-    {t:'单词速配小游戏', s:'到「复习」页顶部点「单词速配」，选 30/60/120 秒开始。左边英文、右边中文各点一个配对，配对了会自动换新词并朗读该词，连击越高分越高，成绩会保存在本机。'},
+    {t:'单词速配小游戏', s:'在首页点「单词速配」卡片开始，选 30/60/120 秒。左边英文、右边中文各点一个配对，配对了会自动换新词并朗读该词，连击越高分越高，成绩会保存在本机。'},
     {t:'读得慢，识别提前结束', s:'到「更多 › 朗读设置」把「识别耐心度」调成「宽松」或「很慢」（默认宽松），句中停顿就不会被当成说完；读完也可点「停止」手动结束。'},
     {t:'添加到主屏幕（可选）', s:'Safari 底部「分享」→「添加到主屏幕」，之后像 App 一样全屏打开。换图标需先删除旧图标再重新添加。'},
   ],
@@ -2533,7 +2535,7 @@ const HELP_STEPS = {
     {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
     {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，默认轻量档联网下载约 36MB 后即可离线使用，音质自然、人名也念得准；追求更好音质可切高音质档（约 82MB）。跟读评分会自动忽略人名，不影响正确率。'},
     {t:'点单词听发音 + 看释义', s:'句子里的任意单词都可以点一下单独听发音，并弹出音标和中文释义（来自内置词库，离线可用）；标点不会被读出来。'},
-    {t:'单词速配小游戏', s:'到「复习」页顶部点「单词速配」，选 30/60/120 秒开始。左边英文、右边中文各点一个配对，配对了会自动换新词并朗读该词，连击越高分越高，成绩会保存在本机。'},
+    {t:'单词速配小游戏', s:'在首页点「单词速配」卡片开始，选 30/60/120 秒。左边英文、右边中文各点一个配对，配对了会自动换新词并朗读该词，连击越高分越高，成绩会保存在本机。'},
     {t:'读得慢，识别提前结束', s:'到「更多 › 朗读设置」把「识别耐心度」调成「宽松」或「很慢」（默认宽松），句中停顿就不会被当成说完；读完也可点「停止」手动结束。'},
     {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
     {t:'添加到主屏幕（可选）', s:'浏览器菜单 →「添加到主屏幕」，即可像 App 一样全屏打开（菜单位置因浏览器而异）。'},
