@@ -438,6 +438,59 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     results['已学内容弹层可关闭'] = !document.querySelector('#learnedRoot').classList.contains('show');
   }
 
+  // 单词速配：入口、词池、配对流程、计时结束
+  go('#/review'); await sleep(80);
+  try {
+    results['复习页有单词速配入口'] = !!document.querySelector('#matchEntry')
+      && !!document.querySelector('#btnMatch')
+      && /限时挑战/.test(document.querySelector('#matchEntry').textContent);
+    document.querySelector('#btnMatch').click(); await sleep(60);
+    results['速配打开显示时长选择'] = document.querySelector('#matchRoot').classList.contains('show')
+      && !!document.querySelector('#mDur')
+      && document.querySelectorAll('#mDur button').length === 3;
+    const pool = window.eval('buildMatchPool()');
+    results['速配词池释义唯一且量足'] = Array.isArray(pool) && pool.length >= 20
+      && new Set(pool.map(p => p.zh)).size === pool.length
+      && pool.every(p => p.en && p.zh && p.zh.length <= 14);
+    window.eval('matchPool=buildMatchPool()');
+    document.querySelector('#mDur button[data-v="30"]').click();
+    document.querySelector('#mStart').click(); await sleep(60);
+    const lefts = [...document.querySelectorAll('#matchLeft [data-k]')];
+    const rights = [...document.querySelectorAll('#matchRight [data-k]')];
+    results['速配开局左右各5个且 key 对应'] = lefts.length === 5 && rights.length === 5
+      && lefts.map(b => b.dataset.k).sort().join() === rights.map(b => b.dataset.k).sort().join();
+    // 取第一个 key，左右各点它 → 正确配对
+    const k0 = lefts[0].dataset.k;
+    window.eval(`matchPick('l',${k0},document.querySelector('#matchLeft [data-k="${k0}"]'))`);
+    window.eval(`matchPick('r',${k0},document.querySelector('#matchRight [data-k="${k0}"]'))`);
+    await sleep(30);
+    results['速配配对正确加分并消除'] = window.eval('MATCH.score') > 0
+      && window.eval('MATCH.matched') === 1
+      && window.eval('MATCH.combo') === 1;
+    await sleep(420); // 等自动补新词
+    results['速配配对后自动补新词'] = window.eval('MATCH.lock') === false
+      && document.querySelectorAll('#matchLeft [data-k]').length === 5;
+    // 错误配对：连击归零
+    const lk = document.querySelector('#matchLeft [data-k]').dataset.k;
+    const rks = [...document.querySelectorAll('#matchRight [data-k]')].map(b => b.dataset.k);
+    const wrongK = rks.find(x => x !== lk);
+    if (wrongK != null) {
+      window.eval(`matchPick('l',${lk},document.querySelector('#matchLeft [data-k="${lk}"]'))`);
+      window.eval(`matchPick('r',${wrongK},document.querySelector('#matchRight [data-k="${wrongK}"]'))`);
+      await sleep(30);
+      results['速配错误配对连击归零'] = window.eval('MATCH.combo') === 0;
+      await sleep(480);
+    }
+    // 时长结束显示成绩
+    window.eval('MATCH.left=1'); await sleep(1200);
+    results['速配倒计时结束显示成绩'] = !!document.querySelector('.match-over') && !!document.querySelector('#mAgain');
+    const sc = window.eval('MATCH.score');
+    results['速配最高分写入存档'] = window.eval('Number(store.matchBest||0)') >= sc;
+    const mc = document.querySelector('#mClose2'); if (mc) { mc.click(); await sleep(40); }
+    results['速配可关闭'] = !document.querySelector('#matchRoot').classList.contains('show');
+  } catch (e) { results['复习页有单词速配入口'] = false; errors.push('match game: ' + e.message); }
+  go('#/home'); await sleep(50);
+
   console.log('================ 冒烟测试结果 ================');
   for (const [k, v] of Object.entries(results)) console.log('  ' + k + ':', JSON.stringify(v));
   if (scriptErrors.length) console.log('\n❌ 脚本运行时错误:', scriptErrors);
@@ -455,7 +508,11 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     results['字幕解析(SRT 双语 2 条)'] === true &&
     results['打开跟读弹层'] === true &&
     results['录音后结果渲染'] === true &&
-    results['已学内容弹层可打开'] === true;
+    results['已学内容弹层可打开'] === true &&
+    results['复习页有单词速配入口'] === true &&
+    results['速配开局左右各5个且 key 对应'] === true &&
+    results['速配配对正确加分并消除'] === true &&
+    results['速配倒计时结束显示成绩'] === true;
   console.log('\n总体: ' + (pass ? '✅ PASS' : '❌ FAIL'));
   window.close();
   process.exit(pass ? 0 : 1);
