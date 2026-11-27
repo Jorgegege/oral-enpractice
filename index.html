@@ -2963,7 +2963,7 @@ function startReminderLoop(){
   try{
     await Promise.race([
       loadAll(),
-      new Promise((_,rej)=>setTimeout(()=>rej(new Error('数据加载超时')), 12000))
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('数据加载超时')), 8000))
     ]);
   }catch(e){
     console.error('加载数据失败', e);
