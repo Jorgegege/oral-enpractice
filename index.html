@@ -271,6 +271,56 @@ nav.tabbar{
 .word-pop .wp-note{font-size:11.5px;color:var(--ink-3);margin-top:5px;}
 .word-pop .wp-none{font-size:12.5px;color:var(--ink-3);margin-top:4px;}
 
+/* ===== 单词速配（限时配对） ===== */
+.match-entry{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:13px 14px;margin-bottom:14px;}
+.match-entry .me-ico{width:42px;height:42px;flex:0 0 auto;border-radius:12px;background:var(--primary-soft);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.match-entry .me-body{flex:1;min-width:0;}
+.match-entry .me-title{font-size:15px;font-weight:700;color:var(--primary-deep);display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.match-entry .me-title .me-badge{font-size:10.5px;font-weight:700;color:#fff;background:var(--accent);border-radius:10px;padding:2px 8px;}
+.match-entry .me-desc{font-size:12px;color:var(--ink-3);margin-top:3px;line-height:1.45;}
+.match-entry .me-go{flex:0 0 auto;border:none;background:var(--primary);color:#fff;font-size:13.5px;font-weight:700;padding:9px 17px;border-radius:22px;cursor:pointer;font-family:var(--font-sans);}
+#matchRoot{position:fixed;inset:0;z-index:70;display:none;}
+#matchRoot.show{display:block;}
+.match-sheet{position:absolute;inset:0;background:var(--bg);overflow-y:auto;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(28px + env(safe-area-inset-bottom,0px));}
+.match-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.match-top .t{font-size:17px;font-weight:700;color:var(--primary-deep);}
+.match-hud{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.match-hud .mh{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 6px;text-align:center;}
+.match-hud .mh .mh-l{font-size:11px;color:var(--ink-3);}
+.match-hud .mh .mh-v{font-family:var(--font-en);font-size:20px;font-weight:800;color:var(--primary-deep);line-height:1.25;}
+.match-hud .mh .mh-v.hot{color:var(--warn);}
+.match-timebar{height:8px;background:var(--bg-soft);border-radius:6px;overflow:hidden;margin-bottom:12px;}
+.match-timebar > i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--ok));transition:width .9s linear;}
+.match-timebar.low > i{background:var(--bad);}
+.match-cols{display:grid;grid-template-columns:1fr 1fr;gap:11px;max-width:560px;margin:0 auto;}
+.match-col{display:flex;flex-direction:column;gap:9px;}
+.match-col .mc-h{font-size:12px;color:var(--ink-3);text-align:center;font-weight:600;margin-bottom:1px;}
+.mt-item{width:100%;min-height:54px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 10px;font-size:14.5px;font-weight:600;cursor:pointer;font-family:var(--font-sans);transition:background .15s,border-color .15s,transform .12s,opacity .25s;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.35;-webkit-tap-highlight-color:transparent;word-break:break-word;}
+.mt-item.en{font-family:var(--font-en);font-size:17px;}
+.mt-item:active{transform:scale(.98);}
+.mt-item.sel{background:var(--primary-soft);border-color:var(--primary);box-shadow:0 0 0 2px var(--primary-soft);}
+.mt-item.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);opacity:.35;}
+.mt-item.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);animation:mt-shake .35s;}
+@keyframes mt-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.match-foot{margin-top:14px;text-align:center;font-size:12px;color:var(--ink-3);line-height:1.6;}
+.match-setup,.match-over{max-width:440px;margin:16vh auto 0;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px 20px;}
+.match-setup .ms-ico,.match-over .mo-ico{font-size:44px;}
+.match-setup h2,.match-over h2{font-size:19px;color:var(--primary-deep);margin:8px 0 6px;}
+.match-setup p,.match-over p{font-size:13px;color:var(--ink-2);line-height:1.7;margin:0 0 18px;}
+.match-setup .ms-dur{display:flex;gap:8px;justify-content:center;margin-bottom:16px;}
+.match-setup .ms-dur button{flex:1;max-width:96px;border:1.5px solid var(--line);background:var(--bg-soft);color:var(--ink-2);border-radius:12px;padding:10px 4px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-en);}
+.match-setup .ms-dur button.on{background:var(--primary);border-color:var(--primary);color:#fff;}
+.match-big-btn{border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;padding:12px 28px;border-radius:26px;cursor:pointer;font-family:var(--font-sans);box-shadow:var(--shadow);}
+.match-over .mo-score{font-family:var(--font-en);font-size:42px;font-weight:800;color:var(--primary-deep);line-height:1.1;}
+.match-over .mo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0 20px;}
+.match-over .mo-grid div{background:var(--bg-soft);border-radius:10px;padding:9px 4px;}
+.match-over .mo-grid b{display:block;font-family:var(--font-en);font-size:18px;color:var(--ink);}
+.match-over .mo-grid span{font-size:11px;color:var(--ink-3);}
+.match-over .mo-new{font-size:12px;color:var(--warn);font-weight:700;margin-bottom:10px;}
+.match-over .mo-btns{display:flex;gap:9px;justify-content:center;}
+.match-over .mo-btns .ghost{background:var(--bg-soft);color:var(--ink-2);border:1px solid var(--line);}
+@media(max-width:400px){.match-cols{gap:8px}.mt-item{font-size:13.5px;min-height:50px;padding:7px 6px}.mt-item.en{font-size:15.5px}}
+
 .ctl-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
 .ctl{flex:1;min-width:120px;border:none;border-radius:var(--radius-sm);padding:13px 10px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-sans);color:#fff;background:var(--primary);display:flex;align-items:center;justify-content:center;gap:7px;}
 .ctl:active{filter:brightness(.95);}
@@ -551,6 +601,8 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 <div id="practiceRoot"></div>
 <!-- 已学内容弹层 -->
 <div id="learnedRoot"></div>
+<!-- 单词速配弹层 -->
+<div id="matchRoot"></div>
 <!-- 轻提示 -->
 <div class="toast" id="toast"></div>
 <!-- 点词释义气泡 -->
@@ -618,6 +670,7 @@ const store = {
   imported:[],      // 字幕导入句
   skipped:{},       // date -> [id] 当日跳过的句子（不计入学习内容）
   learnCursor:null, // {date, ids, index} 今日队列的最近学习位置，用于续学
+  matchBest:0,      // 单词速配历史最高分
 };
 function loadStore(){
   try{
@@ -1080,6 +1133,192 @@ document.addEventListener('click', (e)=>{
 }, true);
 window.addEventListener('scroll', hideWordPop, true);
 window.addEventListener('resize', hideWordPop);
+
+// ============ 单词速配：限时中英配对 ============
+let matchPool=null; // [{en, zh}]，释义唯一、去除歧义
+function buildMatchPool(){
+  const POS=/^(art|v|vt|vi|n|pron|prep|conj|adv|adj|a|int|num|aux|abbr)\.\s*/i;
+  const clean=(s)=>String(s||'').replace(/\\r/g,' ').replace(/[\r\n]/g,' ').trim();
+  const shortZh=(z)=>{
+    const s=clean(z), m=s.match(POS);
+    const body=s.slice(m?m[0].length:0).split(/[,，;；]/)[0].trim();
+    return ((m?m[0]:'')+body).trim();
+  };
+  const seen=new Map(); // 释义 -> 保留一个，避免一题多解
+  const add=(x)=>{
+    if(!x||!x.w||!x.z) return;
+    const en=String(x.w).toLowerCase().trim();
+    if(!/^[a-z][a-z' -]{1,15}$/.test(en)) return; // 过滤缩写/异常词
+    const zh=shortZh(x.z);
+    if(!zh || zh.length<2 || zh.length>14) return;
+    if(!seen.has(zh)) seen.set(zh, {en, zh});
+  };
+  (DB.today&&DB.today.words||[]).forEach(add); // 今日新词优先占位
+  (DB.words||[]).slice().sort((a,b)=>(a.r||9999)-(b.r||9999)).forEach(add);
+  return Array.from(seen.values());
+}
+const MATCH={ cur:new Map(), pool:[], leftRight:[], duration:60, left:0, timer:null,
+  score:0, combo:0, maxCombo:0, matched:0, selL:null, selR:null, lock:false, running:false };
+function matchShuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function matchSlot(i){ return $('#mtL'+i); }
+function matchDraw(){
+  // MATCH.cur：槽位 id(0..4) -> {en,zh}；左右列各按槽位 id 打乱显示
+  const ids=Array.from(MATCH.cur.keys());
+  const lefts=matchShuffle(ids), rights=matchShuffle(ids);
+  $('#matchLeft').innerHTML=lefts.map(k=>`<button class="mt-item en" data-side="l" data-k="${k}">${esc(MATCH.cur.get(k).en)}</button>`).join('');
+  $('#matchRight').innerHTML=rights.map(k=>`<button class="mt-item" data-side="r" data-k="${k}">${esc(MATCH.cur.get(k).zh)}</button>`).join('');
+}
+function matchNewRound(){
+  // 消除后的槽位补一个新词，实现“不断刷新”（新词不与当前其它槽位重复）
+  const used=new Set(Array.from(MATCH.cur.values()).filter(Boolean).map(p=>p.en));
+  const candidates=matchShuffle(MATCH.pool.filter(p=>!used.has(p.en)));
+  let idx=0;
+  for(const [k, old] of Array.from(MATCH.cur.entries())){
+    if(old && old.en!==undefined) continue; // 该槽位仍有词（未被消除），跳过
+    if(idx>=candidates.length) break;
+    const p=candidates[idx++];
+    MATCH.cur.set(k, p);
+    const l=$(`#matchLeft [data-k="${k}"]`);
+    const r=$(`#matchRight [data-k="${k}"]`);
+    if(l){ l.textContent=p.en; l.className='mt-item en'; }
+    if(r){ r.textContent=p.zh; r.className='mt-item'; }
+  }
+}
+function matchHud(){
+  const t=$('#mTime'), s=$('#mScore'), c=$('#mCombo');
+  if(t) t.textContent=MATCH.left+'s';
+  if(s) s.textContent=MATCH.score;
+  if(c){ c.textContent='×'+MATCH.combo; c.classList.toggle('hot', MATCH.combo>=3); }
+  const bar=$('#mBar'), wrap=$('#mBarWrap');
+  if(bar) bar.style.width=Math.max(0,MATCH.left/MATCH.duration*100)+'%';
+  if(wrap) wrap.classList.toggle('low', MATCH.left<=10);
+}
+function matchPick(side, k, el){
+  if(!MATCH.running || MATCH.lock || el.classList.contains('ok')) return;
+  const selKey=side==='l'?'selL':'selR';
+  const colSel=side==='l'?'#matchLeft .mt-item.sel':'#matchRight .mt-item.sel';
+  $$(colSel).forEach(x=>x.classList.remove('sel'));
+  if(MATCH[selKey]===k){ MATCH[selKey]=null; return; }
+  MATCH[selKey]=k; el.classList.add('sel');
+  if(MATCH.selL!=null && MATCH.selR!=null) matchJudge();
+}
+function matchJudge(){
+  const ok=MATCH.selL===MATCH.selR;
+  const lEl=$(`#matchLeft [data-k="${MATCH.selL}"]`), rEl=$(`#matchRight [data-k="${MATCH.selR}"]`);
+  MATCH.lock=true;
+  if(ok){
+    MATCH.combo++; MATCH.matched++;
+    MATCH.score+=10+Math.min(MATCH.combo-1,5)*2;
+    MATCH.maxCombo=Math.max(MATCH.maxCombo, MATCH.combo);
+    if(lEl) lEl.classList.add('ok'); if(rEl) rEl.classList.add('ok');
+    const word=MATCH.cur.get(MATCH.selL);
+    if(word) speak(word.en); // 配对成功顺带听一次发音，强化记忆（null=槽位待补，不朗读）
+    matchHud();
+    setTimeout(()=>{
+      if(!MATCH.running) return;
+      MATCH.cur.set(MATCH.selL, null); // 标记空槽，等待补新词
+      matchNewRound();
+      MATCH.selL=null; MATCH.selR=null; MATCH.lock=false;
+    }, 380);
+  }else{
+    MATCH.combo=0;
+    if(lEl){ lEl.classList.add('bad'); }
+    if(rEl){ rEl.classList.add('bad'); }
+    matchHud();
+    setTimeout(()=>{
+      if(lEl) lEl.classList.remove('bad','sel');
+      if(rEl) rEl.classList.remove('bad','sel');
+      MATCH.selL=null; MATCH.selR=null; MATCH.lock=false;
+    }, 460);
+  }
+}
+function matchTick(){
+  MATCH.left--;
+  if(MATCH.left<=0){ MATCH.left=0; matchHud(); matchEnd(); return; }
+  matchHud();
+}
+function matchSetup(){
+  const root=$('#matchRoot'); if(!root) return;
+  MATCH.running=false;
+  const best=Number(store.matchBest||0);
+  root.innerHTML=`<div class="match-sheet">
+    <div class="match-top"><div class="t">🧩 单词速配</div><button class="close-btn" id="mClose" title="关闭">✕</button></div>
+    <div class="match-setup">
+      <div class="ms-ico">🧩</div><h2>限时中英配对</h2>
+      <p>左边英文、右边中文，各点一个配对。<br>配对成功自动换新词，连击越高得分越高。<br>最高纪录：<b>${best}</b> 分</p>
+      <div class="ms-dur" id="mDur">
+        <button data-v="30">30 秒</button><button data-v="60" class="on">60 秒</button><button data-v="120">120 秒</button>
+      </div>
+      <button class="match-big-btn" id="mStart">开始挑战</button>
+    </div></div>`;
+  $('#mClose').onclick=closeMatchGame;
+  $$('#mDur button').forEach(b=>b.onclick=()=>{ $$('#mDur button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); });
+  $('#mStart').onclick=matchBegin;
+}
+function matchBegin(){
+  if(!matchPool || matchPool.length<5){ toast('词库不足，暂时无法开始'); return; }
+  const root=$('#matchRoot');
+  MATCH.duration=Number(($('#mDur button.on')||{}).dataset?$('#mDur button.on').dataset.v:60)||60;
+  MATCH.left=MATCH.duration; MATCH.score=0; MATCH.combo=0; MATCH.maxCombo=0; MATCH.matched=0;
+  MATCH.selL=null; MATCH.selR=null; MATCH.lock=false; MATCH.running=true;
+  cancelSpeech();
+  root.innerHTML=`<div class="match-sheet">
+    <div class="match-top"><div class="t">🧩 单词速配</div><button class="close-btn" id="mClose" title="退出">✕</button></div>
+    <div class="match-hud">
+      <div class="mh"><div class="mh-l">剩余</div><div class="mh-v" id="mTime">${MATCH.duration}s</div></div>
+      <div class="mh"><div class="mh-l">得分</div><div class="mh-v" id="mScore">0</div></div>
+      <div class="mh"><div class="mh-l">连击</div><div class="mh-v" id="mCombo">×0</div></div>
+    </div>
+    <div class="match-timebar" id="mBarWrap"><i id="mBar" style="width:100%"></i></div>
+    <div class="match-cols">
+      <div class="match-col"><div class="mc-h">English · 点英文</div><div id="matchLeft"></div></div>
+      <div class="match-col"><div class="mc-h">中文释义 · 点意思</div><div id="matchRight"></div></div>
+    </div>
+    <div class="match-foot">点对自动换新词，连续配对有加分<br>配对了会顺带朗读该单词 · 点 ✕ 退出</div>
+  </div>`;
+  $('#mClose').onclick=closeMatchGame;
+  $('#matchLeft').onclick=(e)=>{ const b=e.target.closest('[data-k]'); if(b) matchPick('l',Number(b.dataset.k),b); };
+  $('#matchRight').onclick=(e)=>{ const b=e.target.closest('[data-k]'); if(b) matchPick('r',Number(b.dataset.k),b); };
+  // 预置 5 对：建 5 个槽位，填词
+  MATCH.cur=new Map();
+  const picks=matchShuffle(MATCH.pool).slice(0,5);
+  picks.forEach((p,i)=>MATCH.cur.set(i,p));
+  matchDraw();
+  matchHud();
+  clearInterval(MATCH.timer);
+  MATCH.timer=setInterval(matchTick,1000);
+}
+function matchEnd(){
+  MATCH.running=false; clearInterval(MATCH.timer); MATCH.timer=null; cancelSpeech();
+  const score=MATCH.score, best=Number(store.matchBest||0), isNew=score>best;
+  if(isNew){ store.matchBest=score; saveStore(); }
+  const root=$('#matchRoot');
+  root.innerHTML=`<div class="match-sheet">
+    <div class="match-over">
+      <div class="mo-ico">${isNew?'🏆':'⏰'}</div>
+      <h2>${isNew?'新纪录！':'时间到'}</h2>
+      <div class="mo-score">${score}</div>
+      ${isNew?'<div class="mo-new">🎉 刷新了最高纪录</div>':''}
+      <div class="mo-grid">
+        <div><b>${MATCH.matched}</b><span>配对成功</span></div>
+        <div><b>×${MATCH.maxCombo}</b><span>最高连击</span></div>
+        <div><b>${store.matchBest||0}</b><span>历史最高</span></div>
+      </div>
+      <div class="mo-btns"><button class="match-big-btn" id="mAgain">再来一局</button><button class="match-big-btn ghost" id="mClose2" style="background:var(--bg-soft);color:var(--ink-2);border:1px solid var(--line)">关闭</button></div>
+    </div></div>`;
+  $('#mAgain').onclick=matchSetup;
+  $('#mClose2').onclick=closeMatchGame;
+}
+function closeMatchGame(){
+  MATCH.running=false; clearInterval(MATCH.timer); MATCH.timer=null; cancelSpeech();
+  const root=$('#matchRoot'); if(root){ root.classList.remove('show'); root.innerHTML=''; }
+}
+function openMatchGame(){
+  if(!matchPool) matchPool=buildMatchPool();
+  MATCH.pool=matchPool;
+  const root=$('#matchRoot'); if(!root) return;
+  root.classList.add('show'); matchSetup();
+}
 
 // ---------- 语音识别 + 词级对齐 + 音素反馈 ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
@@ -2253,13 +2492,20 @@ function renderLibList(){
 // -- 复习 --
 function renderReview(view){
   const items=store.mistakes.map(findSentence).filter(Boolean).reverse();
+  const entry=`<div class="match-entry" id="matchEntry">
+    <div class="me-ico">🧩</div>
+    <div class="me-body"><div class="me-title">单词速配 <span class="me-badge">限时挑战</span></div>
+      <div class="me-desc">中英配对 · 点对自动换新词 · 最高 ${Number(store.matchBest||0)} 分</div></div>
+    <button class="me-go" id="btnMatch">开始</button>
+  </div>`;
   if(!items.length){
-    view.innerHTML=`<div class="empty"><div class="e-ico">🎉</div>太棒了，暂无待复习的句子<br><span style="font-size:12.5px">评分低于 70 分的句子会出现在这里</span></div>`;
-    return;
+    view.innerHTML=entry+`<div class="empty"><div class="e-ico">🎉</div>太棒了，暂无待复习的句子<br><span style="font-size:12.5px">评分低于 70 分的句子会出现在这里</span></div>`;
+  }else{
+    view.innerHTML=entry+`<div class="section-title">🔁 待复习 <span class="count">${items.length} 句</span></div><div class="review-list">` +
+      items.map(s=>sentenceCard(s,{btn:'再练'})).join('') + '</div>';
+    bindSentenceCards(view);
   }
-  view.innerHTML=`<div class="section-title">🔁 待复习 <span class="count">${items.length} 句</span></div><div class="review-list">` +
-    items.map(s=>sentenceCard(s,{btn:'再练'})).join('') + '</div>';
-  bindSentenceCards(view);
+  const b=$('#btnMatch'); if(b) b.onclick=openMatchGame;
 }
 
 const HELP_STEPS = {
@@ -2271,6 +2517,7 @@ const HELP_STEPS = {
     {t:'朗读音量', s:'点 🔊 听示范的同时按侧边「音量+」。若没英文声音：设置 › 辅助功能 › 朗读内容 › 语音 › 添加英语声音。'},
     {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，默认轻量档首次下载约 36MB 后离线可用，音质自然、人名也念得准；想要更好音质可切到高音质档（约 82MB，8 音色）。跟读评分会自动忽略人名，不影响正确率。'},
     {t:'点单词听发音 + 看释义', s:'句子里的任意单词都可以点一下单独听发音，并弹出音标和中文释义（来自内置词库，离线可用）；标点不会被读出来。'},
+    {t:'单词速配小游戏', s:'到「复习」页顶部点「单词速配」，选 30/60/120 秒开始。左边英文、右边中文各点一个配对，配对了会自动换新词并朗读该词，连击越高分越高，成绩会保存在本机。'},
     {t:'读得慢，识别提前结束', s:'到「更多 › 朗读设置」把「识别耐心度」调成「宽松」或「很慢」（默认宽松），句中停顿就不会被当成说完；读完也可点「停止」手动结束。'},
     {t:'添加到主屏幕（可选）', s:'Safari 底部「分享」→「添加到主屏幕」，之后像 App 一样全屏打开。换图标需先删除旧图标再重新添加。'},
   ],
@@ -2281,6 +2528,7 @@ const HELP_STEPS = {
     {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
     {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，默认轻量档联网下载约 36MB 后即可离线使用，音质自然、人名也念得准；追求更好音质可切高音质档（约 82MB）。跟读评分会自动忽略人名，不影响正确率。'},
     {t:'点单词听发音 + 看释义', s:'句子里的任意单词都可以点一下单独听发音，并弹出音标和中文释义（来自内置词库，离线可用）；标点不会被读出来。'},
+    {t:'单词速配小游戏', s:'到「复习」页顶部点「单词速配」，选 30/60/120 秒开始。左边英文、右边中文各点一个配对，配对了会自动换新词并朗读该词，连击越高分越高，成绩会保存在本机。'},
     {t:'读得慢，识别提前结束', s:'到「更多 › 朗读设置」把「识别耐心度」调成「宽松」或「很慢」（默认宽松），句中停顿就不会被当成说完；读完也可点「停止」手动结束。'},
     {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
     {t:'添加到主屏幕（可选）', s:'浏览器菜单 →「添加到主屏幕」，即可像 App 一样全屏打开（菜单位置因浏览器而异）。'},
