@@ -710,13 +710,18 @@ let DB={ today:null, corpus:[], words:[], wordMap:{}, wordsByIpa:[] };
 async function fetchJSON(url, cacheKey){
   const cached=()=>{ try{ return JSON.parse(localStorage.getItem(cacheKey)); }catch(e){ return null; } };
   const c0=cached();
+  // 超时兜底：个别浏览器/网络下 fetch 可能永久挂起，不能让整个页面卡在“加载中”
+  const ctrl=(typeof AbortController!=='undefined')?new AbortController():null;
+  const timer=setTimeout(()=>{ if(ctrl) ctrl.abort(); }, 7000);
   try{
-    const r=await fetch(url, {cache:'no-store'});
+    const r=await fetch(url, {cache:'no-store', ...(ctrl?{signal:ctrl.signal}:{})});
+    clearTimeout(timer);
     if(!r.ok) throw new Error('HTTP '+r.status);
     const j=await r.json();
     if(Array.isArray(j)||j&&typeof j==='object'){ try{ localStorage.setItem(cacheKey, JSON.stringify(j)); }catch(e){} return j; }
     throw new Error('bad json');
   }catch(e){
+    clearTimeout(timer);
     if(c0) { console.warn('fetch '+url+' 失败，用缓存：'+e.message); return c0; }
     throw e;
   }
@@ -2956,10 +2961,17 @@ function startReminderLoop(){
   applyTheme();
   setupAvatar();
   try{
-    await loadAll();
+    await Promise.race([
+      loadAll(),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('数据加载超时')), 12000))
+    ]);
   }catch(e){
     console.error('加载数据失败', e);
-    DB.today=localGeneratePlan([], [], localDateStr());
+    // 尽量用已缓存的数据兜底，保证页面可用
+    try{ const c=JSON.parse(localStorage.getItem('esc-corpus')||'[]'); const w=JSON.parse(localStorage.getItem('esc-words')||'[]');
+      if(c.length) DB.corpus=c; if(w.length) DB.words=w; DB.allSentences=[...store.imported,...DB.corpus];
+    }catch(_){}
+    if(!DB.today) DB.today=localGeneratePlan(DB.corpus, DB.words, localDateStr());
   }
   // 顶栏：英文日期 + 时间（走时）
   const tick=()=>{ const el=$('#headerDate'); if(el) el.textContent=fmtHeaderDateTime(); };
