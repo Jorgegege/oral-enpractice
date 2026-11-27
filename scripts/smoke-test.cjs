@@ -254,27 +254,27 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   try {
     document.querySelector('#segTtsSource button[data-v="neural"]').click(); await sleep(60);
     const tierSeg = document.querySelector('#segNeuralTier');
-    results['神经语音包默认轻量档'] = window.eval('neuralTier()') === 'lite'
-      && !!tierSeg && tierSeg.querySelector('button[data-v="lite"]').classList.contains('on')
-      && document.querySelector('#neuralVoice') === null
-      && /约 36MB/.test(document.querySelector('#neuralStatus').textContent);
+    results['神经语音包默认高音质Kokoro档'] = window.eval('neuralTier()') === 'hq'
+      && !!tierSeg && tierSeg.querySelector('button[data-v="hq"]').classList.contains('on')
+      && !!document.querySelector('#neuralVoice')
+      && /约 82MB/.test(document.querySelector('#neuralStatus').textContent);
     results['神经语音包音源可切换'] = !!document.querySelector('#neuralStatus')
       && !!document.querySelector('#btnNeuralPrefetch') && !!document.querySelector('#btnNeuralTest')
       && document.querySelector('#voiceSelect') === null;
-    // 切到高音质档：出现 8 音色下拉
-    tierSeg.querySelector('button[data-v="hq"]').click(); await sleep(60);
     const nv = document.querySelector('#neuralVoice');
-    results['可切高音质档并显示音色'] = window.eval('neuralTier()') === 'hq'
-      && !!nv && nv.options.length >= 8 && /约 82MB/.test(document.querySelector('#neuralStatus').textContent);
+    results['默认高音质档显示8音色'] = !!nv && nv.options.length >= 8;
     if (nv && nv.options.length > 2) {
       nv.value = nv.options[2].value; nv.dispatchEvent(new window.Event('change')); await sleep(30);
       results['神经音色可保存'] = /neuralVoice/.test(html) && nv.value === nv.options[2].value;
       nv.value = 'af_heart'; nv.dispatchEvent(new window.Event('change'));
     }
-    // 切回轻量档：音色下拉消失，无残留
-    document.querySelector('#segNeuralTier button[data-v="lite"]').click(); await sleep(60);
-    results['可切回轻量档且无音色残留'] = window.eval('neuralTier()') === 'lite'
-      && document.querySelector('#neuralVoice') === null;
+    // 切到轻量档：音色下拉消失，无残留
+    tierSeg.querySelector('button[data-v="lite"]').click(); await sleep(60);
+    results['可切轻量档且无音色残留'] = window.eval('neuralTier()') === 'lite'
+      && document.querySelector('#neuralVoice') === null
+      && /约 36MB/.test(document.querySelector('#neuralStatus').textContent);
+    // 切回高音质档
+    tierSeg.querySelector('button[data-v="hq"]').click(); await sleep(60);
     document.querySelector('#segTtsSource button[data-v="online"]').click(); await sleep(60);
     results['在线自然音可切换'] = document.querySelector('#segOnlineVoice') !== null
       && document.querySelector('#voiceSelect') === null
