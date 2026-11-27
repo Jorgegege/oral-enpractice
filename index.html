@@ -597,7 +597,7 @@ const THEMES=[
   {k:'sand',  name:'莫兰迪棕', sw:'#A28864', light:'#A28864', dark:'#241F19'},
 ];
 const store = {
-  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', neuralTier:'lite', neuralVoice:'af_heart', showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
+  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', neuralTier:'hq', neuralVoice:'af_heart', showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
     remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true, theme:'green', passScore:80 },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
@@ -612,6 +612,10 @@ function loadStore(){
   try{
     const raw=localStorage.getItem(LS_KEY);
     if(raw){ const s=JSON.parse(raw); Object.assign(store, s); Object.assign(store.settings, s.settings||{}); }
+    // 一次性迁移：旧存档默认轻量 MMS（机械音）升级为 Kokoro 高音质档；打标记后尊重用户后续手动选择
+    if(!store.settings.neuralMigrated){
+      store.settings.neuralTier='hq'; store.settings.neuralMigrated=true;
+    }
   }catch(e){ console.warn('store 读取失败', e); }
 }
 function saveStore(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }catch(e){} }
@@ -2208,7 +2212,7 @@ function renderMore(view){
           <button data-v="online" class="${ttsSource==='online'?'on':''}">在线自然音</button>
           <button data-v="custom" class="${ttsSource==='custom'?'on':''}">自定义</button>
         </div></div>
-      ${ttsSource==='neural'?`<div class="set-row"><div>语音包档位<div class="desc">轻量约 36MB 够用 · 高音质约 82MB 音色更多</div></div>
+      ${ttsSource==='neural'?`<div class="set-row"><div>语音包档位<div class="desc">默认高音质 Kokoro，音质自然无机械音 · 轻量档约 36MB 但仅 1 音色、音质一般</div></div>
         <div class="seg" id="segNeuralTier">
           <button data-v="lite" class="${neuralTier()==='lite'?'on':''}">轻量 36MB</button>
           <button data-v="hq" class="${neuralTier()==='hq'?'on':''}">高音质 82MB</button>
