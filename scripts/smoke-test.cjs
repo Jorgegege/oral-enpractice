@@ -439,9 +439,9 @@ function waitFor(fn, timeout = 6000, interval = 50) {
   }
 
   // 单词速配：入口、词池、配对流程、计时结束
-  go('#/review'); await sleep(80);
+  go('#/home'); await sleep(80);
   try {
-    results['复习页有单词速配入口'] = !!document.querySelector('#matchEntry')
+    results['主页有单词速配入口'] = !!document.querySelector('#matchEntry')
       && !!document.querySelector('#btnMatch')
       && /限时挑战/.test(document.querySelector('#matchEntry').textContent);
     document.querySelector('#btnMatch').click(); await sleep(60);
@@ -488,7 +488,10 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     results['速配最高分写入存档'] = window.eval('Number(store.matchBest||0)') >= sc;
     const mc = document.querySelector('#mClose2'); if (mc) { mc.click(); await sleep(40); }
     results['速配可关闭'] = !document.querySelector('#matchRoot').classList.contains('show');
-  } catch (e) { results['复习页有单词速配入口'] = false; errors.push('match game: ' + e.message); }
+  } catch (e) { results['主页有单词速配入口'] = false; errors.push('match game: ' + e.message); }
+  // 复习页不再有速配入口
+  go('#/review'); await sleep(60);
+  results['复习页已无速配入口'] = !document.querySelector('#matchEntry') && !document.querySelector('#btnMatch');
   go('#/home'); await sleep(50);
 
   console.log('================ 冒烟测试结果 ================');
@@ -509,7 +512,8 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     results['打开跟读弹层'] === true &&
     results['录音后结果渲染'] === true &&
     results['已学内容弹层可打开'] === true &&
-    results['复习页有单词速配入口'] === true &&
+    results['主页有单词速配入口'] === true &&
+    results['复习页已无速配入口'] === true &&
     results['速配开局左右各5个且 key 对应'] === true &&
     results['速配配对正确加分并消除'] === true &&
     results['速配倒计时结束显示成绩'] === true;
