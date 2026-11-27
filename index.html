@@ -261,6 +261,15 @@ nav.tabbar{
 .wtok-click:hover{background:var(--primary-soft);color:var(--primary-deep);}
 .wtok-click.speaking{background:var(--accent-soft);color:var(--primary-deep);box-shadow:0 0 0 2px var(--accent);}
 .word-tap-tip{font-size:12px;color:var(--ink-3);margin-top:6px;line-height:1.5;}
+/* 点词释义气泡 */
+.word-pop{position:fixed;z-index:9999;max-width:min(330px,calc(100vw - 24px));background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:13px;box-shadow:0 10px 32px rgba(23,43,36,.18);padding:11px 14px;display:none;pointer-events:none;line-height:1.5;}
+.word-pop.show{display:block;}
+.word-pop .wp-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+.word-pop .wp-word{font-family:var(--font-en);font-size:18px;font-weight:700;color:var(--primary-deep);}
+.word-pop .wp-ipa{font-size:12.5px;color:var(--ink-3);font-family:var(--font-en);}
+.word-pop .wp-zh{font-size:13.5px;color:var(--ink-2);margin-top:5px;word-break:break-word;}
+.word-pop .wp-note{font-size:11.5px;color:var(--ink-3);margin-top:5px;}
+.word-pop .wp-none{font-size:12.5px;color:var(--ink-3);margin-top:4px;}
 
 .ctl-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
 .ctl{flex:1;min-width:120px;border:none;border-radius:var(--radius-sm);padding:13px 10px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-sans);color:#fff;background:var(--primary);display:flex;align-items:center;justify-content:center;gap:7px;}
@@ -544,6 +553,8 @@ input[type=range]{width:110px;accent-color:var(--primary);}
 <div id="learnedRoot"></div>
 <!-- 轻提示 -->
 <div class="toast" id="toast"></div>
+<!-- 点词释义气泡 -->
+<div class="word-pop" id="wordPop" role="status" aria-live="polite"></div>
 <!-- 学习提醒弹窗 -->
 <div id="remindRoot"></div>
 
@@ -597,7 +608,7 @@ const THEMES=[
   {k:'sand',  name:'莫兰迪棕', sw:'#A28864', light:'#A28864', dark:'#241F19'},
 ];
 const store = {
-  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', neuralTier:'hq', neuralVoice:'af_heart', showZh:true, autoStop:true, sentenceGoal:20, wordGoal:10, practiceMode:'direct',
+  settings:{ accent:'US', rate:0.95, pitch:1, voiceURI:'', ttsSource:'system', onlinePreset:'baidu', onlineVoice:'3', customTtsUrl:'', neuralTier:'hq', neuralVoice:'af_heart', showZh:true, autoStop:true, recogPatience:'slow', sentenceGoal:20, wordGoal:10, practiceMode:'direct',
     remindEnabled:true, remindTime:'21:00', remindNotifiedDate:'', darkMode:false, localAsr:true, theme:'green', passScore:80 },
   avatar:'',       // 头像 dataURL（压缩后）；为空时用默认头像
   uid:'Charlie',   // 用户昵称（右上角显示，可点击修改）
@@ -689,15 +700,18 @@ function localGeneratePlan(corpus, words, dateStr){
 }
 async function loadAll(){
   loadStore();
-  const [todayRaw, corpus, words] = await Promise.all([
+  const [todayRaw, corpus, words, extraWords] = await Promise.all([
     loadToday().catch(()=>null),
     fetchJSON('data/corpus.json','esc-corpus').catch(()=>[]),
     fetchJSON('data/words.json','esc-words').catch(()=>[]),
+    fetchJSON('data/words-extra.json','esc-words-extra').catch(()=>[]),
   ]);
   DB.corpus=corpus||[];
   DB.words=words||[];
   DB.wordMap={}; DB.wordsByIpa=[];
   for(const w of DB.words){ if(!DB.wordMap[w.w.toLowerCase()]) DB.wordMap[w.w.toLowerCase()]=w; if(w.i) DB.wordsByIpa.push(w); }
+  // 补充词表（缩写、不规则动词、语料生僻词）只用于释义查询，不参与每日选词
+  for(const w of (extraWords||[])){ if(w&&w.w&&!DB.wordMap[w.w.toLowerCase()]) DB.wordMap[w.w.toLowerCase()]=w; }
   const dateStr=localDateStr();
   DB.today = todayRaw && (todayRaw.date>=shiftDate(dateStr,-1)) ? todayRaw : localGeneratePlan(DB.corpus, DB.words, dateStr);
   // 合并字幕导入句进库视图
@@ -961,7 +975,7 @@ function speakWithBtn(btn, text){
   setTimeout(restore, 30000);
   speak(text, {onend:restore});
 }
-// 句子里点任意单词单独听发音：按空白拆词，标点只作显示、不送进 TTS
+// 句子里点任意单词：单独听发音 + 显示内置词库的中文释义
 function wordSpans(text){
   const raw=String(text==null?'':text);
   if(!raw.trim()) return '';
@@ -969,14 +983,90 @@ function wordSpans(text){
     if(/^\s+$/.test(part)) return part;
     const say=part.replace(/^[^A-Za-z0-9']+|[^A-Za-z0-9']+$/g,'');
     if(!say) return esc(part);
-    return `<span class="wtok-click" data-say="${esc(say)}" title="点听发音">${esc(part)}</span>`;
+    return `<span class="wtok-click" data-say="${esc(say)}" title="点听发音 · 看释义">${esc(part)}</span>`;
   }).join('');
 }
-let wordSpeakTimer=null;
+// 缩写展开：常见口语缩略式的释义按全称查词库
+const WORD_CONTRACTIONS={
+  "i'm":"i am","i'd":"i would","i've":"i have","i'll":"i will",
+  "don't":"do not","doesn't":"does not","didn't":"did not","can't":"cannot",
+  "won't":"will not","let's":"let us","it's":"it is","that's":"that is",
+  "there's":"there is","here's":"here is","how's":"how is","what's":"what is",
+  "who's":"who is","isn't":"is not","aren't":"are not","wasn't":"was not",
+  "weren't":"were not","haven't":"have not","hasn't":"has not","hadn't":"had not",
+  "shouldn't":"should not","couldn't":"could not","wouldn't":"would not",
+  "mustn't":"must not","needn't":"need not","you're":"you are","we're":"we are",
+  "they're":"they are","you've":"you have","we've":"we have","they've":"they have",
+  "you'll":"you will","we'll":"we will","they'll":"they will",
+  "you'd":"you would","we'd":"we would","they'd":"they would",
+  "should've":"should have","could've":"could have","would've":"would have"
+};
+function wordVariants(w){
+  const v=[w];
+  if(w.endsWith("'s")) v.push(w.slice(0,-2));
+  if(w.endsWith('ies')) v.push(w.slice(0,-3)+'y');
+  if(w.endsWith('es')) v.push(w.slice(0,-2),w.slice(0,-1));
+  if(w.endsWith('s')) v.push(w.slice(0,-1));
+  if(w.endsWith('ing')){
+    v.push(w.slice(0,-3),w.slice(0,-3)+'e');
+    if(/([bcdfghjklmnpqrstvwxyz])\1ing$/.test(w)) v.push(w.slice(0,-4));
+  }
+  if(w.endsWith('ed')){
+    v.push(w.slice(0,-2),w.slice(0,-1));
+    if(/([bcdfghjklmnpqrstvwxyz])\1ed$/.test(w)) v.push(w.slice(0,-3));
+  }
+  if(w.endsWith('ly')) v.push(w.slice(0,-2));
+  if(w.endsWith('er')) v.push(w.slice(0,-2));
+  if(w.endsWith('est')) v.push(w.slice(0,-3));
+  return v;
+}
+function lookupWord(raw){
+  const w=String(raw||'').toLowerCase().replace(/^[^a-z']+|[^a-z']+$/g,'');
+  if(!w) return null;
+  const map=DB.wordMap||{};
+  const find=(x)=>{ for(const v of wordVariants(x)){ const e=map[v]; if(e) return {entry:e,base:v}; } return null; };
+  // 精确词条优先（补充词表已收录 don't/been 等），其次缩写展开，最后词形还原
+  if(map[w]) return {entry:map[w], base:w, expanded:''};
+  const full=WORD_CONTRACTIONS[w];
+  if(full){
+    const parts=full.split(/\s+/).map(find).filter(Boolean);
+    if(parts.length) return {entry:parts[0].entry, base:parts[0].base, expanded:full, all:parts};
+  }
+  const direct=find(w);
+  if(direct) return {entry:direct.entry, base:direct.base, expanded:''};
+  return null;
+}
+function hideWordPop(){ const pop=$('#wordPop'); if(pop) pop.classList.remove('show'); }
+function showWordPop(anchor, raw){
+  const pop=$('#wordPop'); if(!pop) return;
+  const w=String(raw||'').trim();
+  const clean=(s)=>String(s||'').replace(/\\r/g,' ').replace(/\n/g,' ').trim();
+  const info=lookupWord(w);
+  if(!info){
+    pop.innerHTML=`<div class="wp-head"><span class="wp-word">${esc(w)}</span></div><div class="wp-none">词库暂无释义</div>`;
+  }else{
+    const ipa=info.entry.i?`<span class="wp-ipa">/${esc(clean(info.entry.i))}/</span>`:'';
+    const zh=info.all&&info.all.length>1
+      ? info.all.map(x=>clean(x.entry.z)).filter(Boolean).join(' ＋ ')
+      : clean(info.entry.z);
+    const note=info.expanded
+      ? `<div class="wp-note">= ${esc(info.expanded)}</div>`
+      : (info.base && info.base!==w.toLowerCase() ? `<div class="wp-note">词形还原：${esc(info.base)}</div>` : '');
+    pop.innerHTML=`<div class="wp-head"><span class="wp-word">${esc(w)}</span>${ipa}</div><div class="wp-zh">${esc(zh||'暂无释义')}</div>${note}`;
+  }
+  pop.classList.add('show');
+  const r=anchor.getBoundingClientRect(), pr=pop.getBoundingClientRect();
+  let left=r.left+r.width/2-pr.width/2;
+  left=Math.max(10,Math.min(left,window.innerWidth-pr.width-10));
+  let top=r.bottom+8;
+  if(top+pr.height>window.innerHeight-10) top=Math.max(10,r.top-pr.height-8);
+  pop.style.left=left+'px'; pop.style.top=top+'px';
+}
+let wordSpeakTimer=null, wordPopTimer=null;
 // 捕获阶段拦截，避免点词时误触发外层卡片的「打开练习」
 document.addEventListener('click', (e)=>{
   const el=e.target && e.target.closest && e.target.closest('.wtok-click');
-  if(!el) return;
+  if(!el){ hideWordPop(); return; }
   e.stopPropagation(); e.preventDefault();
   const w=el.getAttribute('data-say')||el.textContent.trim();
   if(!w) return;
@@ -984,8 +1074,12 @@ document.addEventListener('click', (e)=>{
   el.classList.add('speaking');
   clearTimeout(wordSpeakTimer);
   wordSpeakTimer=setTimeout(()=>el.classList.remove('speaking'), 5000);
+  showWordPop(el, w);
+  clearTimeout(wordPopTimer); wordPopTimer=setTimeout(hideWordPop, 8000);
   speak(w, {onend:()=>{ el.classList.remove('speaking'); clearTimeout(wordSpeakTimer); }});
 }, true);
+window.addEventListener('scroll', hideWordPop, true);
+window.addEventListener('resize', hideWordPop);
 
 // ---------- 语音识别 + 词级对齐 + 音素反馈 ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
@@ -1378,6 +1472,17 @@ function pcmToWav(pcm, sr){
 }
 
 // 识别会话
+// 识别耐心度：慢速朗读时避免被中途停顿或过短超时截断
+const RECOG_PATIENCE={
+  normal:{name:'标准', base:3000, perWord:900,  max:20000},
+  slow:  {name:'宽松', base:5000, perWord:1600, max:45000},
+  slower:{name:'很慢', base:8000, perWord:2300, max:70000}
+};
+function recogPatience(){ return RECOG_PATIENCE[store.settings.recogPatience] ? store.settings.recogPatience : 'slow'; }
+function recogLimitMs(targetText){
+  const p=RECOG_PATIENCE[recogPatience()];
+  return Math.max(6000, Math.min(p.max, p.base + wordCount(targetText)*p.perWord));
+}
 let recog=null, recogTimer=null, recogFinal='', recogFallback=false;
 function startRecognition(targetText, onFinal, onInterim, onNetworkFail){
   if(!SR){ toast('不支持语音识别：'+DICTATION_SETUP_TIP, 3800); return null; }
@@ -1387,16 +1492,25 @@ function startRecognition(targetText, onFinal, onInterim, onNetworkFail){
   recog.lang = (store.settings.accent==='UK')?'en-GB':'en-US';
   recog.interimResults=true;
   recog.maxAlternatives=1;
+  // 连续识别：句中停顿不会被当成“说完”，读得慢也不会被提前截断
+  try{ recog.continuous=true; }catch(e){}
   recog.onresult=(e)=>{
     let interim='', final='';
     for(let i=e.resultIndex;i<e.results.length;i++){
       const t=e.results[i][0].transcript;
       if(e.results[i].isFinal) final+=t; else interim+=t;
     }
-    if(final) recogFinal=final;
-    if(interim) onInterim && onInterim(interim);
+    if(final) recogFinal=(recogFinal?recogFinal+' ':'')+final.trim();
+    if(interim){ recog._lastInterim=interim; onInterim && onInterim(interim); }
+    else recog._lastInterim='';
   };
-  recog.onend=()=>{ if(recogFallback) return; onFinal && onFinal(recogFinal || recog._lastInterim || ''); };
+  recog.onend=()=>{
+    if(recogFallback) return;
+    let text=recogFinal.trim();
+    const tail=(recog._lastInterim||'').trim();
+    if(tail && !text.endsWith(tail)) text=(text?text+' ':'')+tail;
+    onFinal && onFinal(text);
+  };
   recog.onerror=(e)=>{
     console.warn('recognition error', e.error);
     // 网络类错误且开启本地识别 → 交给调用方降级，不重复弹错误提示
@@ -1417,9 +1531,8 @@ function startRecognition(targetText, onFinal, onInterim, onNetworkFail){
     if(m[e.error]) toast(m[e.error], 3500);
   };
   try{ recog.start(); }catch(e){ toast('启动识别失败，请重试'); return null; }
-  // 超时：随词数缩放（每词 ~0.9s + 3s 缓冲），可手动停止
-  const words=wordCount(targetText);
-  const limitMs = Math.max(6000, Math.min(20000, 3000 + words*900));
+  // 超时：按“识别耐心度”随句长缩放，读得慢可选宽松/很慢；也可随时点「停止」
+  const limitMs = recogLimitMs(targetText);
   if(store.settings.autoStop){
     recogTimer=setTimeout(()=>{ try{ recog.stop(); }catch(e){} }, limitMs);
   }
@@ -1557,7 +1670,7 @@ function renderPracticeSheet(){
         <span class="badge level">${wordCount(s.en)} 词</span>
       </div>
       <div class="en-line" id="pracEn">${wordSpans(s.en)}</div>
-      <div class="word-tap-tip">💡 点句中任意单词，可单独听发音</div>
+      <div class="word-tap-tip">💡 点句中任意单词，单独听发音并看中文释义</div>
       ${store.settings.showZh && s.zh ? `<div class="zh-line">${esc(s.zh)}</div>`:''}
       ${s.note?`<div class="src" style="color:var(--warn)">${esc(s.note)}</div>`:''}
     </div>
@@ -1703,8 +1816,7 @@ function beginRecord(){
       });
     };
     localFinalize=finalize;
-    const words=wordCount(s.en);
-    const limitMs=Math.max(7000, Math.min(22000, 4000 + words*1000));
+    const limitMs=recogLimitMs(s.en)+2000; // 本地转录稍慢，多留 2 秒
     localTimer=setTimeout(finalize, limitMs); // 自动停止兜底
   };
   const doStart=()=>{
@@ -1745,7 +1857,7 @@ function evaluate(s, finalText){
   markProgress(s.id, score);
   // 高亮句子
   const enEl=$('#pracEn');
-  enEl.innerHTML=align.target.map(t=>`<span class="wtok wtok-click ${t.state}" data-say="${esc(t.word)}" title="${t.state==='ignore'?'人名 · 不计入正确率 · ':''}点听发音">${esc(t.word)}</span>`).join(' ');
+  enEl.innerHTML=align.target.map(t=>`<span class="wtok wtok-click ${t.state}" data-say="${esc(t.word)}" title="${t.state==='ignore'?'人名 · 不计入正确率 · ':''}点听发音 · 看释义">${esc(t.word)}</span>`).join(' ');
   // 问题词：miss 的词 + 尽量匹配识别到的相近词
   const missed=align.target.filter(t=>t.state==='miss');
   const rWords=normalizeWords(finalText);
@@ -2158,7 +2270,8 @@ const HELP_STEPS = {
     {t:'打开听写 + 英语语言', s:'设置 › 通用 › 键盘 › 听写（开启），并添加「英语（美国）」。跟读纠音依赖听写识别英文。'},
     {t:'朗读音量', s:'点 🔊 听示范的同时按侧边「音量+」。若没英文声音：设置 › 辅助功能 › 朗读内容 › 语音 › 添加英语声音。'},
     {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，默认轻量档首次下载约 36MB 后离线可用，音质自然、人名也念得准；想要更好音质可切到高音质档（约 82MB，8 音色）。跟读评分会自动忽略人名，不影响正确率。'},
-    {t:'点单词单独听发音', s:'句子里的任意单词都可以点一下单独听，标点不会被读出来；用的就是上面选的示范音源。'},
+    {t:'点单词听发音 + 看释义', s:'句子里的任意单词都可以点一下单独听发音，并弹出音标和中文释义（来自内置词库，离线可用）；标点不会被读出来。'},
+    {t:'读得慢，识别提前结束', s:'到「更多 › 朗读设置」把「识别耐心度」调成「宽松」或「很慢」（默认宽松），句中停顿就不会被当成说完；读完也可点「停止」手动结束。'},
     {t:'添加到主屏幕（可选）', s:'Safari 底部「分享」→「添加到主屏幕」，之后像 App 一样全屏打开。换图标需先删除旧图标再重新添加。'},
   ],
   android: [
@@ -2167,7 +2280,8 @@ const HELP_STEPS = {
     {t:'不用 Google 也能识别', s:'安卓在线识别失败时会自动切换到本地识别（设备内完成，不上传、无需 Google 服务）。首次使用需联网下载约 40MB 模型，之后可离线。也可在「更多 › 朗读设置」里点「预下载模型」提前准备好。'},
     {t:'朗读没声音？查 TTS 引擎', s:'设置 › 系统 › 语言与输入 › 文字转语音，选「Google 文字转语音引擎」并下载英语语音。点 🔊 时按音量+调大媒体音量。'},
     {t:'朗读机械 / 人名念不准', s:'到「更多 › 朗读设置」把「示范音源」切成「神经语音包」，默认轻量档联网下载约 36MB 后即可离线使用，音质自然、人名也念得准；追求更好音质可切高音质档（约 82MB）。跟读评分会自动忽略人名，不影响正确率。'},
-    {t:'点单词单独听发音', s:'句子里的任意单词都可以点一下单独听，标点不会被读出来；用的就是上面选的示范音源。'},
+    {t:'点单词听发音 + 看释义', s:'句子里的任意单词都可以点一下单独听发音，并弹出音标和中文释义（来自内置词库，离线可用）；标点不会被读出来。'},
+    {t:'读得慢，识别提前结束', s:'到「更多 › 朗读设置」把「识别耐心度」调成「宽松」或「很慢」（默认宽松），句中停顿就不会被当成说完；读完也可点「停止」手动结束。'},
     {t:'听不清 / 识别不准', s:'靠近麦克风、减少背景噪音；说话保持正常语速。识别是按词比对打分，读完整句效果最好。'},
     {t:'添加到主屏幕（可选）', s:'浏览器菜单 →「添加到主屏幕」，即可像 App 一样全屏打开（菜单位置因浏览器而异）。'},
   ]
@@ -2255,6 +2369,8 @@ function renderMore(view){
         <div class="seg" id="segZh"><button data-v="1" class="${store.settings.showZh?'on':''}">显示</button><button data-v="0" class="${store.settings.showZh?'':'on'}">隐藏</button></div></div>
       <div class="set-row"><div>自动停止录音<div class="desc">按句长自动停止，避免空等</div></div>
         <div class="seg" id="segAuto"><button data-v="1" class="${store.settings.autoStop?'on':''}">开</button><button data-v="0" class="${store.settings.autoStop?'':'on'}">关</button></div></div>
+      <div class="set-row"><div>识别耐心度<div class="desc">读得慢就选宽松/很慢 · 句中停顿不会提前结束</div></div>
+        <div class="seg" id="segPatience">${Object.entries(RECOG_PATIENCE).map(([k,p])=>`<button data-v="${k}" class="${recogPatience()===k?'on':''}">${p.name}</button>`).join('')}</div></div>
       <div class="set-row"><div>本地离线识别<div class="desc">在线识别失败时自动启用，无需 Google</div></div>
         <div class="seg" id="segLocalAsr"><button data-v="1" class="${store.settings.localAsr!==false?'on':''}">开</button><button data-v="0" class="${store.settings.localAsr===false?'on':''}">关</button></div></div>
       <div class="set-row"><div>本地识别模型<div class="desc" id="asrStatus">${ASR.loaded?'本地识别已就绪 ✓':(ASR.state==='loading'?'模型下载中 '+Math.round(ASR.progress)+'%':'未加载 · 首次使用会自动下载模型')}</div></div>
@@ -2366,6 +2482,10 @@ function renderMore(view){
   if(btnVoiceTest) btnVoiceTest.onclick=()=>speak('Hi, my name is George. Nice to meet you!');
   $$('#segZh button').forEach(b=>b.onclick=()=>{ store.settings.showZh=b.dataset.v==='1'; saveStore(); renderMore(view); });
   $$('#segAuto button').forEach(b=>b.onclick=()=>{ store.settings.autoStop=b.dataset.v==='1'; saveStore(); renderMore(view); });
+  $$('#segPatience button').forEach(b=>b.onclick=()=>{
+    store.settings.recogPatience=b.dataset.v; saveStore(); renderMore(view);
+    toast('识别耐心度：'+RECOG_PATIENCE[recogPatience()].name);
+  });
   $$('#segLocalAsr button').forEach(b=>b.onclick=()=>{ store.settings.localAsr=b.dataset.v==='1'; saveStore(); renderMore(view); });
   const btnPrefetch=$('#btnAsrPrefetch');
   if(btnPrefetch) btnPrefetch.onclick=()=>{
