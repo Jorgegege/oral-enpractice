@@ -222,8 +222,30 @@ function waitFor(fn, timeout = 6000, interval = 50) {
       && words[0].getAttribute('data-say') === 'Hi'
       && words[1].getAttribute('data-say') === 'Jorge'
       && words.every(w => !/[,!.]/.test(w.getAttribute('data-say')));
-    results['点词提示与高亮样式存在'] = html.includes('word-tap-tip') && html.includes('.wtok-click.speaking');
+    results['点词提示与高亮样式存在'] = html.includes('word-tap-tip') && html.includes('.wtok-click.speaking')
+      && !!document.querySelector('#wordPop');
   } catch (e) { results['句子单词可点读且标点不送入发音'] = false; errors.push('wordSpans: ' + e.message); }
+  try {
+    const look = (w) => window.eval(`lookupWord(${JSON.stringify(w)})`);
+    const l1 = look('look'), l2 = look('looking'), l3 = look("don't");
+    results['内置词库可查中文释义'] = !!l1 && /看/.test(l1.entry.z || '') && !!l1.entry.i;
+    results['词形还原可查释义'] = !!l2 && l2.base === 'look';
+    results['缩写可查释义'] = !!l3 && (l3.expanded === 'do not' || /do not|不要/.test(l3.entry.z || ''));
+    results['补充词表已加载'] = !!window.eval("DB.wordMap['meadow']") && !!window.eval("DB.wordMap['twinkled']");
+  } catch (e) { results['内置词库可查中文释义'] = false; errors.push('lookupWord: ' + e.message); }
+  try {
+    const seg = document.querySelector('#segPatience');
+    results['识别耐心度默认宽松'] = !!seg
+      && seg.querySelector('button[data-v="slow"]').classList.contains('on')
+      && window.eval('recogPatience()') === 'slow';
+    results['连续识别避免停顿截断'] = /recog\.continuous\s*=\s*true/.test(html);
+    const lim = (p) => window.eval(`(store.settings.recogPatience='${p}', recogLimitMs('one two three four five'))`);
+    results['识别超时随耐心度延长'] = lim('normal') === 7500 && lim('slow') === 13000 && lim('slower') === 19500;
+    seg.querySelector('button[data-v="slower"]').click(); await sleep(60);
+    results['识别耐心度可切换'] = window.eval('recogPatience()') === 'slower'
+      && document.querySelector('#segPatience button[data-v="slower"]').classList.contains('on');
+    window.eval("store.settings.recogPatience='slow'; saveStore();");
+  } catch (e) { results['识别耐心度默认宽松'] = false; errors.push('recog patience: ' + e.message); }
   try {
     const a = window.eval("alignWords('Now you see me. George thinks he will.', 'now you see me thinks he will')");
     const score = window.eval("scoreOf(alignWords('Now you see me. George thinks he will.', 'now you see me thinks he will'))");
@@ -399,6 +421,8 @@ function waitFor(fn, timeout = 6000, interval = 50) {
     if (homeWord) {
       homeWord.click(); await sleep(50);
       results['点单词不误开练习弹层'] = document.querySelector('#practiceRoot .en-line') === null;
+      const pop = document.querySelector('#wordPop');
+      results['点词弹出释义气泡'] = !!pop && pop.classList.contains('show') && /wp-word/.test(pop.innerHTML);
     }
   }
 
